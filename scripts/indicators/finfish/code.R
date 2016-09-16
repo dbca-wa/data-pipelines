@@ -1,6 +1,5 @@
 setwd("~/projects/data-pipelines/scripts/indicators/finfish")
 source("~/projects/data-pipelines/setup/ckan.R")
-source("~/projects/data-pipelines/scripts/ckan_secret.R")
 library(ggplot2)
 library(plyr)
 library(gridExtra)
@@ -87,7 +86,7 @@ Back
 
 # Step 4: Create PDF (will be saved to current workdir)
 pdf_fn <- "NMP_Fish_JuvDivers_Lagoon.pdf"
-pdf(pdf_fn, height = 9, width = 7) 
+pdf(pdf_fn, height = 9, width = 7)
 grid.arrange(Leth,Back)
 dev.off()
 
@@ -98,7 +97,7 @@ dev.off()
 ## The PDF and R script must already exist on CKAN (if not, create them manually)
 pdf_resource_id = "baae321a-64ca-4400-ae65-3c979199f8df"
 rscript_resource_id = "8f3b3ca5-5260-4caf-8e1c-ff0460c43005"
-## Upload the figure (PDF) and this script (TXT) to CKAN: 
+## Upload the figure (PDF) and this script (TXT) to CKAN:
 ckanr::resource_update(pdf_resource_id, pdf_fn)
 ckanr::resource_update(rscript_resource_id, "code.R")
 
