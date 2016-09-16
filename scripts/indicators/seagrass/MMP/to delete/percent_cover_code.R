@@ -1,5 +1,5 @@
-setwd("~/projects/data-pipelines/scripts/indicators/seagrass/JBMP")
-source("~/projects/data-pipelines/scripts/ckan.R")
+setwd("~/projects/data-pipelines/scripts/indicators/seagrass/MMP")
+source("~/projects/data-pipelines/setup/ckan.R")
 source("~/projects/data-pipelines/scripts/ckan_secret.R")
 
 library(ggplot2)
@@ -8,8 +8,8 @@ library(gridExtra)
 library(plyr)
 
 csv_rid <- "b0b546ed-ab74-4592-8429-7175cd637de4"
-pdf_rid <- "98ab4aed-b646-4e8e-b5f7-f8589309ab70"
-txt_rid <- "f7f8a6d8-7f29-4b74-86e6-f8d3659c6342"
+pdf_rid <- "bf1ab0a9-95b4-4725-8fc2-a95c85461cf2"
+txt_rid <- "2bb67f9b-c6d7-4328-83d2-efd49afee876"
 pdf_fn = "final.pdf"
 
 d <- load_ckan_csv(csv_rid, date_colnames = c('date', 'Date'))
@@ -18,7 +18,7 @@ pd <- position_dodge(0.1)
 graphics = theme(axis.text.x=element_text(angle=45, hjust=0.9), #rotates the x axis tick labels an angle of 45 degrees
                  axis.title.x=element_text(), #removes x axis title
                  axis.title.y=element_text(), #removes y axis title
-                 axis.line=element_line(colour="black"), #sets axis lines
+                 axis.line=element_line(colour="black"), #sets axis lines 
                  plot.title =element_text(hjust = 0.05),
                  panel.grid.minor = element_blank(), #removes minor grid lines
                  panel.grid.major = element_blank(), #removes major grid lines
@@ -31,6 +31,7 @@ graphics = theme(axis.text.x=element_text(angle=45, hjust=0.9), #rotates the x a
 
 ##################################################################################
 #Percent cover calculations for all data
+
 cover=count(d, c("Sector", "Zone", "Site", "Year", "Level5Class")) #counts number of observations per site, per year
 cover_obs=count(cover, c("Site", "Year"), "freq") #counts number of observations made at each site per year
 cover_add <- join(cover, cover_obs, by = c("Site", "Year")) #adds total count of site observations agains the right site/year to allow percentage calculation
@@ -41,18 +42,18 @@ names(pos_total)[6] <- "pos_count" #Rename column to make more sense
 pos_total$percent = pos_total$pos_count/pos_total$total_count *100 #Calculate percent cover
 
 ##################################################################################
-#JBMP_south percent cover
+#Marmion_south percent cover
 
-#Creates a data frame summarised for the sites included. Repeat for each 'sector' or reporting area
-JBMP_s = subset(pos_total, Site %in% c("Green Island", "Kangaroo Point", "Cervantes Island"))
+#Creates a data frame summarised for the sites included. Repeat for each 'sector' or reporting area     
+MMP_s = subset(pos_total, Site %in% c("North Beach", "Sorrento")) 
 
-d_sum <- plyr::ddply(JBMP_s, .(Year, Zone), summarise,
+d_sum <- plyr::ddply(MMP_s, .(Year, Zone), summarise,
                      N    = length(!is.na(percent)),
                      mean = mean(percent, na.rm=TRUE),
                      sd   = sd(percent, na.rm=TRUE),
                      se   = sd(percent, na.rm=TRUE) / sqrt(length(!is.na(percent)) ))
 
-JBMP_s_plot <- ggplot(d_sum, aes(x=Year, y=mean, group=Zone, linetype=Zone, shape=Zone)) +
+MMP_s_plot <- ggplot(d_sum, aes(x=Year, y=mean, group=Zone, linetype=Zone, shape=Zone)) +
   geom_errorbar(aes(ymin=mean-se, ymax=mean+se), width=.02, colour="black", position=pd) +
   geom_line(position=pd) +
   geom_point(position=pd, size=3, fill="black") + # 21 is filled circle
@@ -63,21 +64,21 @@ JBMP_s_plot <- ggplot(d_sum, aes(x=Year, y=mean, group=Zone, linetype=Zone, shap
   ggtitle("a) South")+
   theme_bw() + graphics
 
-JBMP_s_plot
-unique(pos_total$Site)
+MMP_s_plot
+
 #################################################################
-#JBMP_centre percent cover
+#MMP_shoalwater Bay percent cover
 
-JBMP_c = subset(pos_total, Site %in% c("Jurien Impact Site 2.5" , "Boullanger Island 2.5", "Boullanger Island 3.5" , "Boullanger Island 5.5"))
+MMP_c = subset(pos_total, Site %in% c("Hillarys Channel" , "Wreck Rock"))
 
-d_sum_c <- plyr::ddply(JBMP_c, .(Year, Zone), summarise,
+d_sum_c <- plyr::ddply(SIMP_c, .(Year, Zone), summarise,
                            N    = length(!is.na(percent)),
                            mean = mean(percent, na.rm=TRUE),
                            sd   = sd(percent, na.rm=TRUE),
                            se   = sd(percent, na.rm=TRUE) / sqrt(length(!is.na(percent)) ))
 
 
-JBMP_c_plot <- ggplot(d_sum_c, aes(x=Year, y=mean, group=Zone, linetype=Zone, shape=Zone)) +
+MMP_c_plot <- ggplot(d_sum_c, aes(x=Year, y=mean, group=Zone, linetype=Zone, shape=Zone)) +
   geom_errorbar(aes(ymin=mean-se, ymax=mean+se), width=.02, colour="black", position=pd) +
   geom_line(position=pd) +
   geom_point(position=pd, size=3, fill="black") + # 21 is filled circle
@@ -88,37 +89,37 @@ JBMP_c_plot <- ggplot(d_sum_c, aes(x=Year, y=mean, group=Zone, linetype=Zone, sh
   ggtitle("b) Centre")+
   theme_bw() + graphics
 
-JBMP_c_plot
-unique(JBMP_c$Site)
+SIMP_c_plot
+
 ###########################################################################
-#JBMP_north percent cover
+#MMP_north percent cover
 
-JBMP_n = subset(pos_total, Site %in% c("Fishermans Island 2.5","Fishermans Island 3.5", "Fishermans Island 5.5"))
+MMP_n = subset(pos_total, Site %in% c("Causeway"))
 
-d_sum_n <- plyr::ddply(JBMP_n, .(Year, Zone), summarise,
+d_sum_n <- plyr::ddply(MMP_n, .(Year, Zone), summarise,
                            N    = length(!is.na(percent)),
                            mean = mean(percent, na.rm=TRUE),
                            sd   = sd(percent, na.rm=TRUE),
                            se   = sd(percent, na.rm=TRUE) / sqrt(length(!is.na(percent)) ))
 
-JBMP_n_plot<-ggplot(d_sum_n, aes(x=Year, y=mean, group=Zone, linetype=Zone, shape=Zone)) +
+MMP_n_plot<-ggplot(d_sum_n, aes(x=Year, y=mean, group=Zone, linetype=Zone, shape=Zone)) +
   geom_errorbar(aes(ymin=mean-se, ymax=mean+se), width=.02, colour="black", position=pd) +
   geom_line(position=pd) +
   geom_point(position=pd, size=3, fill="black") + # 21 is filled circle
   scale_x_continuous(limits=c(min(d_sum_n$Year-0.125), max(d_sum_n$Year+0.125)), breaks=min(d_sum_n$Year):max(d_sum_n$Year)) +
   scale_y_continuous(limits=c(min(0), max(100)))+
   xlab("Year") +
-  ylab(expression(paste("Mean percent cover", sep = ""))) +
-  ggtitle("c) North")+
+  ylab(expression(paste("Mean density (","0.04m", ")", sep = ""))) +
+  ggtitle("d) North")+
   theme_bw() + graphics
 
-JBMP_n_plot
+MMP_n_plot
 #####################################################################################
 
 # Step 4: Create PDF (will be saved to current workdir)
 
 pdf(pdf_fn, width=8, height=7)
-grid.arrange(JBMP_s_plot, JBMP_c_plot, JBMP_n_plot, ncol=2)
+grid.arrange(MMP_s_plot, MMP_c_plot, MMP_n_plot, ncol=2)
 dev.off()
 
 
@@ -127,4 +128,4 @@ ckanr::resource_update(pdf_rid, pdf_fn)
 ckanr::resource_update(txt_rid, "percent_cover_code.R")
 
 # Step 6: set workdir to main report location
-setwd("~/projects")
+setwd("~/projects/data-pipelines")

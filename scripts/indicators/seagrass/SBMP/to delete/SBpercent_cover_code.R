@@ -1,5 +1,5 @@
 setwd("~/projects/data-pipelines/scripts/indicators/seagrass/SBMP")
-source("~/projects/data-pipelines/scripts/ckan.R")
+source("~/projects/data-pipelines/setup/ckan.R")
 source("~/projects/data-pipelines/scripts/ckan_secret.R")
 
 library(ggplot2)
@@ -7,90 +7,64 @@ library(ggplot2)
 library(gridExtra)
 library(plyr)
 
-
-######################################################################################################
-#Define all CKAN resource IDs
-######################################################################################################
-
-csv_rid <- "20180ac3-9b5a-493e-9669-b7a2aff28f68"#CKAN resource ID for data
-txt_rid <- "0bba4f55-e3af-490e-88bb-738660ef16e2"#CKAN resource ID for r-script
-
-#Percent cover
-pdf_SBMP_percentcover_rid <- "ad4b61b9-f9e7-4f53-a8f3-90ee3628aa5d"#CKAN resource ID for final figure (pdf)
-pdf_SBMP_percentcover_fn = "SBMP percent cover.pdf"#Name of final figure
-png_SBMP_percentcover_rid <- "22c9123f-80be-4f24-ab9b-caeb6df8fa13"#CKAN resource ID for final figure (pdf)
-png_SBMP_percentcover_fn = "SBMP percent cover.png"#Name of final figure
-png_SBMP_overall_percentcover_rid <- "f8508298-dc4c-4099-8c02-ce9ced6c5142"#CKAN resource ID for final figure (png)
-png_SBMP_overall_percentcover_fn = "SBMP overall percent cover.png"#Name of final figure
-
-###################################################################################################
-#Load data
-###################################################################################################
+csv_rid <- "20180ac3-9b5a-493e-9669-b7a2aff28f68"
+pdf_rid <- "ad4b61b9-f9e7-4f53-a8f3-90ee3628aa5d"
+txt_rid <- "0bba4f55-e3af-490e-88bb-738660ef16e2"
+pdf_fn = "final.pdf"
 
 d <- load_ckan_csv(csv_rid, date_colnames = c('date', 'Date'))
-names(d)[names(d) == 'Park_name'] <- 'Park'###Changes column name
-names(d)[names(d) == 'Sites'] <- 'Site'###Changes column name
-
-####################################################################################################
-#Define graphic properties
-#####################################################################################################
 
 pd <- position_dodge(0.1)
 graphics = theme(axis.text.x=element_text(angle=45, hjust=0.9), #rotates the x axis tick labels an angle of 45 degrees
                  axis.title.x=element_text(), #removes x axis title
                  axis.title.y=element_text(), #removes y axis title
-                 axis.line=element_line(colour="black"), #sets axis lines
+                 axis.line=element_line(colour="black"), #sets axis lines 
                  plot.title =element_text(hjust = 0.05),
                  panel.grid.minor = element_blank(), #removes minor grid lines
                  panel.grid.major = element_blank(), #removes major grid lines
                  panel.border=element_blank(), #removes border
                  panel.background=element_blank(), #needed to ensure integrity of axis lines
-                 legend.justification=c(1,1), legend.position=c(1,1), # Positions legend (x,y) in this case removes it from the graph
+                 legend.justification=c(10,10), legend.position=c(10,10), # Positions legend (x,y) in this case removes it from the graph
                  legend.title = element_text(),
-                 legend.key = element_blank())
+                 legend.key = element_blank()
+)
 
 ##################################################################################
 #Percent cover calculations for all data
-##################################################################################
 
-cover=count(d, c("Site", "Zone", "Year", "Level3Class")) #counts number of observations per site, per year
+cover=count(d, c("Region", "Zone", "Site", "Year", "Level1Class")) #counts number of observations per site, per year
 cover_obs=count(cover, c("Site", "Year"), "freq") #counts number of observations made at each site per year
-SBMP_percentcover <- join(cover, cover_obs, by = c("Site", "Year")) #adds total count of site observations agains the right site/year to allow percentage calculation
-names(SBMP_percentcover)[5] <- "category_count" #Rename column to make more sense
-names(SBMP_percentcover)[6] <- "total_count" #Rename column to make more sense
-names(SBMP_percentcover) [4] <- "Category"
-SBMP_percentcover$percent = SBMP_percentcover$category_count/SBMP_percentcover$total_count *100
+cover_add <- join(cover, cover_obs, by = c("Site", "Year")) #adds total count of site observations agains the right site/year to allow percentage calculation
+pos_cover = subset(cover_add, Level1Class %in% c("SEAGRASS")) #Extracts cover information only
+pos_total = count(pos_cover, c("Region","Zone", "Site", "Year", "freq.1"), "freq")
+names(pos_total)[5] <- "total_count" #Rename column to make more sense
+names(pos_total)[6] <- "pos_count" #Rename column to make more sense
+pos_total$percent = pos_total$pos_count/pos_total$total_count *100 #Calculate percent cover
 
+##################################################################################
+#SBMP_Wooramel percent cover
 
-SG <- subset(SBMP_percentcover, Category == c("Amphibolis spp.", "Posidonia spp."))
-#################################################################
-#PERCENT COVER
-#################################################################
+#Creates a data frame summarised for the sites included. Repeat for each 'sector' or reporting area     
+SBMP_s = subset(pos_total, Site %in% c("Wooramel North", "Wooramel South","Disappointment Reach", "Disappointment Reach-Amphibolis"," Wooramel North-Amphibolis" )) 
 
-#Overall percent cover
-SBMP_cover <- plyr::ddply(SG, .(Year, Category), summarise,
-                                  N    = length(!is.na(percent)),
-                                  mean = mean(percent, na.rm=TRUE),
-                                  sd   = sd(percent, na.rm=TRUE),
-                                  se   = sd(percent, na.rm=TRUE) / sqrt(length(!is.na(percent)) ))
+d_sum <- plyr::ddply(SBMP_s, .(Year, Zone), summarise,
+                     N    = length(!is.na(percent)),
+                     mean = mean(percent, na.rm=TRUE),
+                     sd   = sd(percent, na.rm=TRUE),
+                     se   = sd(percent, na.rm=TRUE) / sqrt(length(!is.na(percent)) ))
 
-SBMP_percentcover_plot <- ggplot(SBMP_cover, aes(x=Year, y=mean, colour = Category, group=Category, linetype=Category, shape=Category)) +
+SBMP_s_plot <- ggplot(d_sum, aes(x=Year, y=mean, group=Zone, linetype=Zone, shape=Zone)) +
   geom_errorbar(aes(ymin=mean-se, ymax=mean+se), width=.02, colour="black", position=pd) +
-  #geom_line(position=pd) +
-  geom_point(position=pd, size=3) + # 21 is filled circle
-  scale_x_continuous(limits=c(min(SBMP_cover$Year-0.125), max(SBMP_cover$Year+0.125)), breaks=min(SBMP_cover$Year):max(SBMP_cover$Year)) +
+  geom_line(position=pd) +
+  geom_point(position=pd, size=3, fill="black") + # 21 is filled circle
+  scale_x_continuous(limits=c(min(d_sum$Year-0.125), max(d_sum$Year+0.125)), breaks=min(d_sum$Year):max(d_sum$Year)) +
   scale_y_continuous(limits=c(min(0), max(100)))+
   xlab("Year") +
-  ylab(expression(Mean~percent~cover)) +
-  facet_wrap(~ Category, nrow = 2)+
-#  geom_smooth(method=lm, colour = 1, linetype = 3, se=FALSE, fullrange=TRUE)+
+  ylab(expression(paste("Mean percent cover", sep = ""))) +
+  ggtitle("a) Wooramel")+
   theme_bw() + graphics
 
-SBMP_percentcover_plot
-
-attach(SBMP_percentcover_plot)
-MannKendall(mean)
-detach(SBMP_percentcover_plot)
+SBMP_s_plot
 
 #############################################################
 #SBMP Monkley Mia percent cover
@@ -177,4 +151,4 @@ ckanr::resource_update(pdf_rid, pdf_fn)
 ckanr::resource_update(txt_rid, "SBpercent_cover_code.R")
 
 # Step 6: set workdir to main report location
-setwd("~/projects")
+setwd("~/projects/data-pipelines")

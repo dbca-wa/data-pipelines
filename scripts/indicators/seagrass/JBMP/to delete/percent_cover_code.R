@@ -1,5 +1,5 @@
 setwd("~/projects/data-pipelines/scripts/indicators/seagrass/JBMP")
-source("~/projects/data-pipelines/scripts/ckan.R")
+source("~/projects/data-pipelines/setup/ckan.R")
 source("~/projects/data-pipelines/scripts/ckan_secret.R")
 
 library(ggplot2)
@@ -18,7 +18,7 @@ pd <- position_dodge(0.1)
 graphics = theme(axis.text.x=element_text(angle=45, hjust=0.9), #rotates the x axis tick labels an angle of 45 degrees
                  axis.title.x=element_text(), #removes x axis title
                  axis.title.y=element_text(), #removes y axis title
-                 axis.line=element_line(colour="black"), #sets axis lines
+                 axis.line=element_line(colour="black"), #sets axis lines 
                  plot.title =element_text(hjust = 0.05),
                  panel.grid.minor = element_blank(), #removes minor grid lines
                  panel.grid.major = element_blank(), #removes major grid lines
@@ -43,8 +43,8 @@ pos_total$percent = pos_total$pos_count/pos_total$total_count *100 #Calculate pe
 ##################################################################################
 #JBMP_south percent cover
 
-#Creates a data frame summarised for the sites included. Repeat for each 'sector' or reporting area
-JBMP_s = subset(pos_total, Site %in% c("Green Island", "Kangaroo Point", "Cervantes Island"))
+#Creates a data frame summarised for the sites included. Repeat for each 'sector' or reporting area     
+JBMP_s = subset(pos_total, Site %in% c("Green Island", "Kangaroo Point", "Cervantes Island"))  
 
 d_sum <- plyr::ddply(JBMP_s, .(Year, Zone), summarise,
                      N    = length(!is.na(percent)),
@@ -127,4 +127,4 @@ ckanr::resource_update(pdf_rid, pdf_fn)
 ckanr::resource_update(txt_rid, "percent_cover_code.R")
 
 # Step 6: set workdir to main report location
-setwd("~/projects")
+setwd("~/projects/data-pipelines")

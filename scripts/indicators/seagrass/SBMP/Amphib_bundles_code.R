@@ -1,26 +1,63 @@
 setwd("~/projects/data-pipelines/scripts/indicators/seagrass/SBMP")
-source("~/projects/data-pipelines/setup/ckan.R")
+source("~/projects/data-pipelines/scripts/ckan.R")
 source("~/projects/data-pipelines/scripts/ckan_secret.R")
 
 library(ggplot2)
 #install.packages("gridExtra")
 library(gridExtra)
 library(plyr)
+library (Kendall)
 
-csv_rid <- "d1e0cd1d-9fc0-4069-9781-eb4946d929c8"
-pdf_rid <- "24a36936-1905-46c1-8bde-a438a7e376a7"
-txt_rid <- "51ffebf0-1d50-4fe3-8638-78727da3f214"
-pdf_fn = "final.pdf"
+
+######################################################################################################
+#Define all CKAN resource IDs
+######################################################################################################
+
+csv_rid <- "d1e0cd1d-9fc0-4069-9781-eb4946d929c8"#CKAN resource ID for data
+txt_rid <- "51ffebf0-1d50-4fe3-8638-78727da3f214"#CKAN resource ID for r-script
+
+#Amphibolis density
+pdf_SBMP_amphib_density_rid <- "07645057-8b72-472b-9ce7-16e7c033614e"#CKAN resource ID for final figure (pdf)
+pdf_SBMP_amphib_density_fn = "SBMP leaf bundles.pdf"#Name of final figure
+png_SBMP_amphib_density_rid <- "46ed6691-e6bf-4280-a718-e33d58170da4"#CKAN resource ID for final figure (pdf)
+png_SBMP_amphib_density_fn = "SBMP leaf bundles.png"#Name of final figure
+png_SBMP_overall_amphib_density_rid <- "fa41c293-46d8-4aec-9d8f-6637166d2e7a"#CKAN resource ID for final figure (png)
+png_SBMP_overall_amphib_density_fn = "SBMP overall leaf bundles.png"#Name of final figure
+
+#Leaf bundle plots
+pdf_SBMP_leaf_bundles_rid <- "24a36936-1905-46c1-8bde-a438a7e376a7"#CKAN resource ID for final figure (pdf)
+pdf_SBMP_leaf_bundles_fn = "SBMP leaf bundles.pdf"#Name of final figure
+png_SBMP_leaf_bundles_rid <- "2ca887ab-e3f7-4fc0-8176-65d33902c9c6"#CKAN resource ID for final figure (pdf)
+png_SBMP_leaf_bundles_fn = "SBMP leaf bundles.png"#Name of final figure
+png_SBMP_overall_leaf_bundles_rid <- "f6b664ad-932b-4311-a785-a617309e7a24"#CKAN resource ID for final figure (png)
+png_SBMP_overall_leaf_bundles_fn = "SBMP overall leaf bundles.png"#Name of final figure
+
+#leaves per bundle plots
+pdf_SBMP_leaf_per_bundle_rid <- "ab603a02-5dc0-4d17-9592-23e9804942b8"#CKAN resource ID for final figure (pdf)
+pdf_SBMP_leaf_per_bundle_fn = "SBMP leaves per bundle.pdf"#Name of final figure
+png_SBMP_leaf_per_bundle_rid <- "19cc4504-6af9-49b2-bb21-c8dc68d2daf8"#CKAN resource ID for final figure (pdf)
+png_SBMP_leaf_per_bundle_fn = "SBMP leaves per bundle.png"#Name of final figure
+png_SBMP_overall_leaf_per_bundle_rid <- "7939e8bb-4843-4c75-a840-b17ef281b592"#CKAN resource ID for final figure (png)
+png_SBMP_overall_leaf_per_bundle_fn = "SBMP overall leaves per bundle.png"#Name of final figure
+
+
+###################################################################################################
+#Load data
+###################################################################################################
 
 d <- load_ckan_csv(csv_rid, date_colnames = c('date', 'Date'))
-
 names(d)[names(d) == 'Park_name'] <- 'Park'###Changes column name
-names(d)[names(d) == 'Sites'] <- 'Site'###Changes column name 
+names(d)[names(d) == 'Sites'] <- 'Site'###Changes column name
+
+####################################################################################################
+#Define graphic properties
+#####################################################################################################
+
 pd <- position_dodge(0.1)
 graphics = theme(axis.text.x=element_text(angle=45, hjust=0.9), #rotates the x axis tick labels an angle of 45 degrees
                  axis.title.x=element_text(), #removes x axis title
                  axis.title.y=element_text(), #removes y axis title
-                 axis.line=element_line(colour="black"), #sets axis lines 
+                 axis.line=element_line(colour="black"), #sets axis lines
                  plot.title =element_text(hjust = 0.05),
                  panel.grid.minor = element_blank(), #removes minor grid lines
                  panel.grid.major = element_blank(), #removes major grid lines
@@ -28,69 +65,492 @@ graphics = theme(axis.text.x=element_text(angle=45, hjust=0.9), #rotates the x a
                  panel.background=element_blank(), #needed to ensure integrity of axis lines
                  legend.justification=c(10,10), legend.position=c(10,10), # Positions legend (x,y) in this case removes it from the graph
                  legend.title = element_text(),
-                 legend.key = element_blank()
-)
+                 legend.key = element_blank())
+
+#################################################################################
+#Create subsets for each 'sector (Wooramel, Monkey Mia, Peron and Western Gulf) for SBMP
 ##################################################################################
-#SBMP_east Bundles per stem_Amphibolis
 
-#Creates a data frame summarised for the sites included. Repeat for each 'sector' or reporting area     
-SBMP_e = subset(d, Site %in% c("Wooramel North_Amphibolis", "Disappointment Reach_Amphibolis", "Gladstone Site 2_Amphibolis",  "Herald Loop_Amphibolis", "Gladstone Marker_Amphibolis")) 
+SBMP_amphib = subset (d, Method=="Amphibolis density" & Park %in% c("SBMP"))
+SBMP_amphib_westerngulf= subset(SBMP_amphib, Site %in% c("SBMR 0581","SBMR 0459","SBMR 0466","SBMR 0464", "0037 Shark Bay", "0380 Settlement", "Sandy Point", "South Passage", "Useless Loop North", "Useless Loop South"))
+SBMP_amphib_peron = subset(SBMP_amphib, Site %in% c("SBMR 0433","SBMP 0595", "Big Lagoon" , "Denham", "Peron south"))
+SBMP_amphib_monkeymia = subset(SBMP_amphib, Site %in% c("Herald Bight_west_Amphibolis"))
+SBMP_amphib_wooramel = subset(SBMP_amphib, Site %in% c("Gladstone Site 2_Amphibolis", "Gladstone Marker_Amphibolis", "Herald Loop_Amphibolis", "Wooramel north_Amphibolis", "Disappointment Reach_Amphibolis"))
 
-d_sum <- plyr::ddply(SBMP_e, .(Year, Zone), summarise,
-                     N    = length(!is.na(Amphib_clusters.per.stem)),
-                     mean = mean(Amphib_clusters.per.stem, na.rm=TRUE),
-                     sd   = sd(Amphib_clusters.per.stem, na.rm=TRUE),
-                     se   = sd(Amphib_clusters.per.stem, na.rm=TRUE) / sqrt(length(!is.na(Amphib_clusters.per.stem)) ))
+SBMP = subset (d, Method=="Amphibolis morphology" & Park %in% c("SBMP"))
+SBMP_westerngulf = subset(SBMP, Site %in% c("SBMR 0581","SBMR 0459","SBMR 0466","SBMR 0464", "0037 Shark Bay", "0380 Settlement", "Sandy Point", "South Passage", "Useless Loop North", "Useless Loop South"))
+SBMP_peron = subset(SBMP, Site %in% c("SBMR 0433","SBMP 0595", "Big Lagoon" , "Denham", "Peron south"))
+SBMP_monkeymia = subset(SBMP, Site %in% c("Herald Bight_west_Amphibolis"))
+SBMP_wooramel = subset(SBMP, Site %in% c("Gladstone Site 2_Amphibolis", "Gladstone Marker_Amphibolis", "Herald Loop_Amphibolis", "Wooramel north_Amphibolis", "Disappointment Reach_Amphibolis"))
 
-SBMP_e_plot <- ggplot(d_sum, aes(x=Year, y=mean, group=Zone, linetype=Zone, shape=Zone)) +
-  geom_errorbar(aes(ymin=mean-se, ymax=mean+se), width=.00, colour="black", position=pd) +
-  geom_line(position=pd) +
+
+#################################################################
+#AMPHIBOLIS DENSITY
+#################################################################
+
+#Overall Amphibolis density
+SBMP_amphibdensity <- plyr::ddply(SBMP_amphib, .(Year), summarise,
+                                 N    = length(!is.na(Amphibolis_antarctica)),
+                                 mean = mean(Amphibolis_antarctica, na.rm=TRUE),
+                                 sd   = sd(Amphibolis_antarctica, na.rm=TRUE),
+                                 se   = sd(Amphibolis_antarctica, na.rm=TRUE) / sqrt(length(!is.na(Amphibolis_antarctica)) ))
+
+SBMP_amphibdensity_plot <- ggplot(SBMP_amphibdensity, aes(x=Year, y=mean)) +
+  geom_errorbar(aes(ymin=mean-se, ymax=mean+se), width=.02, colour="black", position=pd) +
+  #geom_line(position=pd) +
   geom_point(position=pd, size=3, fill="black") + # 21 is filled circle
-  scale_x_continuous(limits=c(min(2014-0.125), max(d_sum$Year+0.125)), breaks=min(d_sum$Year):max(d_sum$Year)) +
-  scale_y_continuous(limits=c(min(0), max(10)))+
+  scale_x_continuous(limits=c(min(SBMP_amphibdensity$Year-0.125), max(SBMP_amphibdensity$Year+0.125)), breaks=min(SBMP_amphibdensity$Year):max(SBMP_amphibdensity$Year)) +
+  scale_y_continuous(limits=c(min(0), max(15)))+
   xlab("Year") +
-  ylab(expression(paste("Mean leaf bundles per stem", sep = ""))) +
-  ggtitle("a) Wooramel_Amphibolis")+
+  ylab(expression(Mean~density~of~italic(Amphibolis)~("0.04m"^2))) +
+  geom_smooth(method=lm, colour = 1, linetype = 3, se=TRUE, fullrange=TRUE)+
   theme_bw() + graphics
 
-SBMP_e_plot
+SBMP_amphibdensity_plot
+
+attach(SBMP_amphibdensity)
+MannKendall(mean)
+detach(SBMP_amphibdensity)
+
+##################################################################################
+#Western gulf Amphibolis density
+
+SBMP_amphib_westerngulf_density <- plyr::ddply(SBMP_amphib_westerngulf, .(Year), summarise,
+                                  N    = length(!is.na(Amphibolis_antarctica)),
+                                  mean = mean(Amphibolis_antarctica, na.rm=TRUE),
+                                  sd   = sd(Amphibolis_antarctica, na.rm=TRUE),
+                                  se   = sd(Amphibolis_antarctica, na.rm=TRUE) / sqrt(length(!is.na(Amphibolis_antarctica)) ))
+
+SBMP_amphib_westerngulf_density_plot <- ggplot(SBMP_amphib_westerngulf_density, aes(x=Year, y=mean)) +
+  geom_errorbar(aes(ymin=mean-se, ymax=mean+se), width=.02, colour="black", position=pd) +
+  #geom_line(position=pd) +
+  geom_point(position=pd, size=3, fill="black") + # 21 is filled circle
+  scale_x_continuous(limits=c(min(SBMP_amphib_westerngulf_density$Year-0.125), max(SBMP_amphib_westerngulf_density$Year+0.125)), breaks=min(SBMP_amphib_westerngulf_density$Year):max(SBMP_amphib_westerngulf_density$Year)) +
+  scale_y_continuous(limits=c(min(0), max(15)))+
+  xlab("Year") +
+  ylab(expression(Mean~density~of~italic(Amphibolis)~("0.04m"^2))) +
+  ggtitle("a) Western Gulf") +
+  geom_smooth(method=lm, colour = 1, linetype = 3, se=TRUE, fullrange=TRUE)+
+  theme_bw() + graphics
+
+SBMP_amphib_westerngulf_density_plot
+
+attach(SBMP_amphib_westerngulf_density)
+MannKendall(mean)
+detach(SBMP_amphib_westerngulf_density)
 
 #############################################################
-#SBMP Monkey Mia Bundles per stem_Amphibolis
+#Peron shoot Amphibolis density
 
-SBMP_m = subset(d, Site %in% c("Herald Bight_west_Amphibolis" , "Monkey Mia control_Amphibolis", "Monkey Mia Outer Bank_Amphibolis"))
+SBMP_amphib_peron_density <- plyr::ddply(SBMP_amphib_peron, .(Year), summarise,
+                                               N    = length(!is.na(Amphibolis_antarctica)),
+                                               mean = mean(Amphibolis_antarctica, na.rm=TRUE),
+                                               sd   = sd(Amphibolis_antarctica, na.rm=TRUE),
+                                               se   = sd(Amphibolis_antarctica, na.rm=TRUE) / sqrt(length(!is.na(Amphibolis_antarctica)) ))
 
-d_sum_SBMPm <- ddply(SBMP_m, .(Year, Zone), summarise,
-                     N    = length(!is.na(Amphib_clusters.per.stem)),
-                     mean = mean(Amphib_clusters.per.stem, na.rm=TRUE),
-                     sd   = sd(Amphib_clusters.per.stem, na.rm=TRUE),
-                     se   = sd(Amphib_clusters.per.stem, na.rm=TRUE) / sqrt(length(!is.na(Amphib_clusters.per.stem)) ))
-
-SBMP_m_plot<-ggplot(d_sum_SBMPm, aes(x=Year, y=mean, group=Zone, linetype=Zone, shape=Zone)) +
-  geom_errorbar(aes(ymin=mean-se, ymax=mean+se), width=.0, colour="black", position=pd) +
-  geom_line(position=pd) +
+SBMP_amphib_peron_density_plot <- ggplot(SBMP_amphib_peron_density, aes(x=Year, y=mean)) +
+  geom_errorbar(aes(ymin=mean-se, ymax=mean+se), width=.02, colour="black", position=pd) +
+  #geom_line(position=pd) +
   geom_point(position=pd, size=3, fill="black") + # 21 is filled circle
-  scale_x_continuous(limits=c(min(2014-0.125), max(d_sum_SBMPm$Year+0.125)), breaks=min(d_sum_SBMPm$Year):max(d_sum_SBMPm$Year)) +
-  scale_y_continuous(limits=c(min(0), max(10)))+
+  scale_x_continuous(limits=c(min(SBMP_amphib_peron_density$Year-0.125), max(SBMP_amphib_peron_density$Year+0.125)), breaks=min(SBMP_amphib_peron_density$Year):max(SBMP_amphib_peron_density$Year)) +
+  scale_y_continuous(limits=c(min(0), max(15)))+
   xlab("Year") +
-  ylab(expression(paste("Mean leaf bundles per stem", sep = ""))) +
-  ggtitle("b) Monkey Mia_Amphibolis")+
+  ylab(expression(Mean~density~of~italic(Amphibolis)~("0.04m"^2))) +
+  ggtitle("b) Peron") +
+  geom_smooth(method=lm, colour = 1, linetype = 3, se=TRUE, fullrange=TRUE)+
   theme_bw() + graphics
 
-SBMP_m_plot
+SBMP_amphib_peron_density_plot
+
+attach(SBMP_amphib_peron_density)
+MannKendall(mean)
+detach(SBMP_amphib_peron_density)
+
+#############################################################################################
+#monkey mia Amphibolis density
+
+SBMP_amphib_monkeymia_density <- plyr::ddply(SBMP_amphib_monkeymia, .(Year), summarise,
+                                         N    = length(!is.na(Amphibolis_antarctica)),
+                                         mean = mean(Amphibolis_antarctica, na.rm=TRUE),
+                                         sd   = sd(Amphibolis_antarctica, na.rm=TRUE),
+                                         se   = sd(Amphibolis_antarctica, na.rm=TRUE) / sqrt(length(!is.na(Amphibolis_antarctica)) ))
+
+SBMP_amphib_monkeymia_density_plot <- ggplot(SBMP_amphib_monkeymia_density, aes(x=Year, y=mean)) +
+  geom_errorbar(aes(ymin=mean-se, ymax=mean+se), width=.02, colour="black", position=pd) +
+  #geom_line(position=pd) +
+  geom_point(position=pd, size=3, fill="black") + # 21 is filled circle
+  scale_x_continuous(limits=c(min(SBMP_amphib_monkeymia_density$Year-0.125), max(SBMP_amphib_monkeymia_density$Year+0.125)), breaks=min(SBMP_amphib_monkeymia_density$Year):max(SBMP_amphib_monkeymia_density$Year)) +
+  scale_y_continuous(limits=c(min(0), max(15)))+
+  xlab("Year") +
+  ylab(expression(Mean~density~of~italic(Amphibolis)~("0.04m"^2))) +
+  ggtitle("c) Monkey Mia") +
+  geom_smooth(method=lm, colour = 1, linetype = 3, se=TRUE, fullrange=TRUE)+
+  theme_bw() + graphics
+
+SBMP_amphib_monkeymia_density_plot
+
+attach(SBMP_amphib_monkeymia_density)
+MannKendall(mean)
+detach(SBMP_amphib_monkeymia_density)
+
+###########################################################################
+#SBMP_wooramel Amphibolis density
+
+SBMP_amphib_wooramel_density <- plyr::ddply(SBMP_amphib_wooramel, .(Year), summarise,
+                                         N    = length(!is.na(Amphibolis_antarctica)),
+                                         mean = mean(Amphibolis_antarctica, na.rm=TRUE),
+                                         sd   = sd(Amphibolis_antarctica, na.rm=TRUE),
+                                         se   = sd(Amphibolis_antarctica, na.rm=TRUE) / sqrt(length(!is.na(Amphibolis_antarctica)) ))
+
+SBMP_amphib_wooramel_density_plot <- ggplot(SBMP_amphib_wooramel_density, aes(x=Year, y=mean)) +
+  geom_errorbar(aes(ymin=mean-se, ymax=mean+se), width=.02, colour="black", position=pd) +
+  #geom_line(position=pd) +
+  geom_point(position=pd, size=3, fill="black") + # 21 is filled circle
+  scale_x_continuous(limits=c(min(SBMP_amphib_wooramel_density$Year-0.125), max(SBMP_amphib_wooramel_density$Year+0.125)), breaks=min(SBMP_amphib_wooramel_density$Year):max(SBMP_amphib_wooramel_density$Year)) +
+  scale_y_continuous(limits=c(min(0), max(15)))+
+  xlab("Year") +
+  ylab(expression(Mean~density~of~italic(Amphibolis)~("0.04m"^2))) +
+  ggtitle("d) Wooramel") +
+  geom_smooth(method=lm, colour = 1, linetype = 3, se=TRUE, fullrange=TRUE)+
+  theme_bw() + graphics
+
+SBMP_amphib_wooramel_density_plot
+
+attach(SBMP_amphib_wooramel_density)
+MannKendall(mean)
+detach(SBMP_amphib_wooramel_density)
+
+
+####################################################################################
+#Leaf bundles per stem
+####################################################################################
+
+#Overall bundles per stem
+
+SBMP_bundles <- plyr::ddply(SBMP, .(Year), summarise,
+                                 N    = length(!is.na(Amphib_clusters_per_stem)),
+                                 mean = mean(Amphib_clusters_per_stem, na.rm=TRUE),
+                                 sd   = sd(Amphib_clusters_per_stem, na.rm=TRUE),
+                                 se   = sd(Amphib_clusters_per_stem, na.rm=TRUE) / sqrt(length(!is.na(Amphib_clusters_per_stem)) ))
+
+SBMP_bundles_plot <- ggplot(SBMP_bundles, aes(x=Year, y=mean)) +
+  geom_errorbar(aes(ymin=mean-se, ymax=mean+se), width=.02, colour="black", position=pd) +
+  #geom_line(position=pd) +
+  geom_point(position=pd, size=3, fill="black") + # 21 is filled circle
+  scale_x_continuous(limits=c(min(2014), max(SBMP_bundles$Year+0.125)), breaks=min(SBMP_bundles$Year):max(SBMP_bundles$Year)) +
+  scale_y_continuous(limits=c(min(0), max(15)))+
+  xlab("Year") +
+  ylab(expression(paste("Mean no. of leaf bundles per stem", sep = ""))) +
+  geom_smooth(method=lm, colour = 1, linetype = 3, se=TRUE, fullrange=TRUE)+
+  theme_bw() + graphics
+SBMP_bundles_plot
+
+attach(SBMP_bundles)
+MannKendall(mean)
+detach(SBMP_bundles)
+
+####################################################################################
+#western gulf bundles per stem
+
+SBMP_westerngulf_bundles <- plyr::ddply(SBMP_westerngulf, .(Year), summarise,
+                            N    = length(!is.na(Amphib_clusters_per_stem)),
+                            mean = mean(Amphib_clusters_per_stem, na.rm=TRUE),
+                            sd   = sd(Amphib_clusters_per_stem, na.rm=TRUE),
+                            se   = sd(Amphib_clusters_per_stem, na.rm=TRUE) / sqrt(length(!is.na(Amphib_clusters_per_stem)) ))
+
+SBMP_westerngulf_bundles_plot <- ggplot(SBMP_westerngulf_bundles, aes(x=Year, y=mean)) +
+  geom_errorbar(aes(ymin=mean-se, ymax=mean+se), width=.02, colour="black", position=pd) +
+  #geom_line(position=pd) +
+  geom_point(position=pd, size=3, fill="black") + # 21 is filled circle
+  scale_x_continuous(limits=c(min(2014), max(SBMP_westerngulf_bundles$Year+0.125)), breaks=min(SBMP_westerngulf_bundles$Year):max(SBMP_westerngulf_bundles$Year)) +
+  scale_y_continuous(limits=c(min(0), max(15)))+
+  xlab("Year") +
+  ylab(expression(paste("Mean no. of leaf bundles per stem", sep = ""))) +
+  ggtitle("a) Western Gulf") +
+  geom_smooth(method=lm, colour = 1, linetype = 3, se=TRUE, fullrange=TRUE)+
+  theme_bw() + graphics
+SBMP_westerngulf_bundles_plot
+
+attach(SBMP_westerngulf_bundles)
+MannKendall(mean)
+detach(SBMP_westerngulf_bundles)
+
+####################################################################################
+#peron bundles per stem
+
+SBMP_peron_bundles <- plyr::ddply(SBMP_peron, .(Year), summarise,
+                                        N    = length(!is.na(Amphib_clusters_per_stem)),
+                                        mean = mean(Amphib_clusters_per_stem, na.rm=TRUE),
+                                        sd   = sd(Amphib_clusters_per_stem, na.rm=TRUE),
+                                        se   = sd(Amphib_clusters_per_stem, na.rm=TRUE) / sqrt(length(!is.na(Amphib_clusters_per_stem)) ))
+
+SBMP_peron_bundles_plot <- ggplot(SBMP_peron_bundles, aes(x=Year, y=mean)) +
+  geom_errorbar(aes(ymin=mean-se, ymax=mean+se), width=.02, colour="black", position=pd) +
+  #geom_line(position=pd) +
+  geom_point(position=pd, size=3, fill="black") + # 21 is filled circle
+  scale_x_continuous(limits=c(min(2014), max(SBMP_peron_bundles$Year+0.125)), breaks=min(SBMP_peron_bundles$Year):max(SBMP_peron_bundles$Year)) +
+  scale_y_continuous(limits=c(min(0), max(15)))+
+  xlab("Year") +
+  ylab(expression(paste("Mean no. of leaf bundles per stem", sep = ""))) +
+  ggtitle("b) Peron") +
+  geom_smooth(method=lm, colour = 1, linetype = 3, se=TRUE, fullrange=TRUE)+
+  theme_bw() + graphics
+SBMP_peron_bundles_plot
+
+attach(SBMP_westerngulf_bundles)
+MannKendall(mean)
+detach(SBMP_westerngulf_bundles)
+
+####################################################################################
+#monkeymia bundles per stem
+
+SBMP_monkeymia_bundles <- plyr::ddply(SBMP_monkeymia, .(Year), summarise,
+                                  N    = length(!is.na(Amphib_clusters_per_stem)),
+                                  mean = mean(Amphib_clusters_per_stem, na.rm=TRUE),
+                                  sd   = sd(Amphib_clusters_per_stem, na.rm=TRUE),
+                                  se   = sd(Amphib_clusters_per_stem, na.rm=TRUE) / sqrt(length(!is.na(Amphib_clusters_per_stem)) ))
+
+SBMP_monkeymia_bundles_plot <- ggplot(SBMP_monkeymia_bundles, aes(x=Year, y=mean)) +
+  geom_errorbar(aes(ymin=mean-se, ymax=mean+se), width=.02, colour="black", position=pd) +
+  #geom_line(position=pd) +
+  geom_point(position=pd, size=3, fill="black") + # 21 is filled circle
+  scale_x_continuous(limits=c(min(2014), max(SBMP_monkeymia_bundles$Year+0.125)), breaks=min(SBMP_monkeymia_bundles$Year):max(SBMP_monkeymia_bundles$Year)) +
+  scale_y_continuous(limits=c(min(0), max(30)))+
+  xlab("Year") +
+  ylab(expression(paste("Mean no. of leaf bundles per stem", sep = ""))) +
+  ggtitle("c) Monkey Mia") +
+  geom_smooth(method=lm, colour = 1, linetype = 3, se=TRUE, fullrange=TRUE)+
+  theme_bw() + graphics
+SBMP_monkeymia_bundles_plot
+
+attach(SBMP_westerngulf_bundles)
+MannKendall(mean)
+detach(SBMP_westerngulf_bundles)
+
+####################################################################################
+#wooramel bundles per stem
+
+SBMP_wooramel_bundles <- plyr::ddply(SBMP_wooramel, .(Year), summarise,
+                                      N    = length(!is.na(Amphib_clusters_per_stem)),
+                                      mean = mean(Amphib_clusters_per_stem, na.rm=TRUE),
+                                      sd   = sd(Amphib_clusters_per_stem, na.rm=TRUE),
+                                      se   = sd(Amphib_clusters_per_stem, na.rm=TRUE) / sqrt(length(!is.na(Amphib_clusters_per_stem)) ))
+
+SBMP_wooramel_bundles_plot <- ggplot(SBMP_wooramel_bundles, aes(x=Year, y=mean)) +
+  geom_errorbar(aes(ymin=mean-se, ymax=mean+se), width=.02, colour="black", position=pd) +
+  #geom_line(position=pd) +
+  geom_point(position=pd, size=3, fill="black") + # 21 is filled circle
+  scale_x_continuous(limits=c(min(2014), max(SBMP_wooramel_bundles$Year+0.125)), breaks=min(SBMP_wooramel_bundles$Year):max(SBMP_wooramel_bundles$Year)) +
+  scale_y_continuous(limits=c(min(0), max(30)))+
+  xlab("Year") +
+  ylab(expression(paste("Mean no. of leaf bundles per stem", sep = ""))) +
+  ggtitle("d) Wooramel") +
+  geom_smooth(method=lm, colour = 1, linetype = 3, se=TRUE, fullrange=TRUE)+
+  theme_bw() + graphics
+SBMP_wooramel_bundles_plot
+
+attach(SBMP_westerngulf_bundles)
+MannKendall(mean)
+detach(SBMP_westerngulf_bundles)
+
+
+####################################################################################
+#Leaves per bundle
+####################################################################################
+
+#Overall leaves per bundle
+
+SBMP_leafperbundle <- plyr::ddply(SBMP, .(Year), summarise,
+                            N    = length(!is.na(Mean_leaves_per_cluster)),
+                            mean = mean(Mean_leaves_per_cluster, na.rm=TRUE),
+                            sd   = sd(Mean_leaves_per_cluster, na.rm=TRUE),
+                            se   = sd(Mean_leaves_per_cluster, na.rm=TRUE) / sqrt(length(!is.na(Mean_leaves_per_cluster)) ))
+
+SBMP_leafperbundle_plot <- ggplot(SBMP_leafperbundle, aes(x=Year, y=mean)) +
+  geom_errorbar(aes(ymin=mean-se, ymax=mean+se), width=.02, colour="black", position=pd) +
+  #geom_line(position=pd) +
+  geom_point(position=pd, size=3, fill="black") + # 21 is filled circle
+  scale_x_continuous(limits=c(min(2014), max(SBMP_leafperbundle$Year+0.125)), breaks=min(SBMP_leafperbundle$Year):max(SBMP_leafperbundle$Year)) +
+  scale_y_continuous(limits=c(min(0), max(15)))+
+  xlab("Year") +
+  ylab(expression(paste("Mean no. of leaves per bundle", sep = ""))) +
+  geom_smooth(method=lm, colour = 1, linetype = 3, se=TRUE, fullrange=TRUE)+
+  theme_bw() + graphics
+SBMP_leafperbundle_plot
+
+attach(SBMP_leafperbundle)
+MannKendall(mean)
+detach(SBMP_leafperbundle)
+
+####################################################################################
+#western gulf leaf per bundle
+
+SBMP_westerngulf_leafperbundle <- plyr::ddply(SBMP_westerngulf, .(Year), summarise,
+                                        N    = length(!is.na(Mean_leaves_per_cluster)),
+                                        mean = mean(Mean_leaves_per_cluster, na.rm=TRUE),
+                                        sd   = sd(Mean_leaves_per_cluster, na.rm=TRUE),
+                                        se   = sd(Mean_leaves_per_cluster, na.rm=TRUE) / sqrt(length(!is.na(Mean_leaves_per_cluster)) ))
+
+SBMP_westerngulf_leafperbundle_plot <- ggplot(SBMP_westerngulf_leafperbundle, aes(x=Year, y=mean)) +
+  geom_errorbar(aes(ymin=mean-se, ymax=mean+se), width=.02, colour="black", position=pd) +
+  #geom_line(position=pd) +
+  geom_point(position=pd, size=3, fill="black") + # 21 is filled circle
+  scale_x_continuous(limits=c(min(2014), max(SBMP_westerngulf_leafperbundle$Year+0.125)), breaks=min(SBMP_westerngulf_leafperbundle$Year):max(SBMP_westerngulf_leafperbundle$Year)) +
+  scale_y_continuous(limits=c(min(0), max(15)))+
+  xlab("Year") +
+  ylab(expression(paste("Mean no. of leaves per bundle", sep = ""))) +
+  ggtitle("a) Western Gulf") +
+  geom_smooth(method=lm, colour = 1, linetype = 3, se=TRUE, fullrange=TRUE)+
+  theme_bw() + graphics
+SBMP_westerngulf_leafperbundle_plot
+
+attach(SBMP_westerngulf_leafperbundle)
+MannKendall(mean)
+detach(SBMP_westerngulf_leafperbundle)
+
+####################################################################################
+#peron leaf per bundle
+
+SBMP_peron_leafperbundle <- plyr::ddply(SBMP_peron, .(Year), summarise,
+                                  N    = length(!is.na(Mean_leaves_per_cluster)),
+                                  mean = mean(Mean_leaves_per_cluster, na.rm=TRUE),
+                                  sd   = sd(Mean_leaves_per_cluster, na.rm=TRUE),
+                                  se   = sd(Mean_leaves_per_cluster, na.rm=TRUE) / sqrt(length(!is.na(Mean_leaves_per_cluster)) ))
+
+SBMP_peron_leafperbundle_plot <- ggplot(SBMP_peron_leafperbundle, aes(x=Year, y=mean)) +
+  geom_errorbar(aes(ymin=mean-se, ymax=mean+se), width=.02, colour="black", position=pd) +
+  #geom_line(position=pd) +
+  geom_point(position=pd, size=3, fill="black") + # 21 is filled circle
+  scale_x_continuous(limits=c(min(2014), max(SBMP_peron_leafperbundle$Year+0.125)), breaks=min(SBMP_peron_leafperbundle$Year):max(SBMP_peron_leafperbundle$Year)) +
+  scale_y_continuous(limits=c(min(0), max(15)))+
+  xlab("Year") +
+  ylab(expression(paste("Mean no. of leaves per bundle", sep = ""))) +
+  ggtitle("b) Peron") +
+  geom_smooth(method=lm, colour = 1, linetype = 3, se=TRUE, fullrange=TRUE)+
+  theme_bw() + graphics
+SBMP_peron_leafperbundle_plot
+
+attach(SBMP_peron_leafperbundle)
+MannKendall(mean)
+detach(SBMP_peron_leafperbundle)
+
+####################################################################################
+#monkeymia leaf per bundle
+
+SBMP_monkeymia_leafperbundle <- plyr::ddply(SBMP_monkeymia, .(Year), summarise,
+                                      N    = length(!is.na(Mean_leaves_per_cluster)),
+                                      mean = mean(Mean_leaves_per_cluster, na.rm=TRUE),
+                                      sd   = sd(Mean_leaves_per_cluster, na.rm=TRUE),
+                                      se   = sd(Mean_leaves_per_cluster, na.rm=TRUE) / sqrt(length(!is.na(Mean_leaves_per_cluster)) ))
+
+SBMP_monkeymia_leafperbundle_plot <- ggplot(SBMP_monkeymia_leafperbundle, aes(x=Year, y=mean)) +
+  geom_errorbar(aes(ymin=mean-se, ymax=mean+se), width=.02, colour="black", position=pd) +
+  #geom_line(position=pd) +
+  geom_point(position=pd, size=3, fill="black") + # 21 is filled circle
+  scale_x_continuous(limits=c(min(2014), max(SBMP_monkeymia_leafperbundle$Year+0.125)), breaks=min(SBMP_monkeymia_leafperbundle$Year):max(SBMP_monkeymia_leafperbundle$Year)) +
+  scale_y_continuous(limits=c(min(0), max(15)))+
+  xlab("Year") +
+  ylab(expression(paste("Mean no. of leaves per bundle", sep = ""))) +
+  ggtitle("c) Monkey Mia") +
+  geom_smooth(method=lm, colour = 1, linetype = 3, se=TRUE, fullrange=TRUE)+
+  theme_bw() + graphics
+SBMP_monkeymia_leafperbundle_plot
+
+attach(SBMP_monkeymia_leafperbundle)
+MannKendall(mean)
+detach(SBMP_monkeymia_leafperbundle)
+
+####################################################################################
+#wooramel leaf per bundle
+
+SBMP_wooramel_leafperbundle <- plyr::ddply(SBMP_wooramel, .(Year), summarise,
+                                     N    = length(!is.na(Mean_leaves_per_cluster)),
+                                     mean = mean(Mean_leaves_per_cluster, na.rm=TRUE),
+                                     sd   = sd(Mean_leaves_per_cluster, na.rm=TRUE),
+                                     se   = sd(Mean_leaves_per_cluster, na.rm=TRUE) / sqrt(length(!is.na(Mean_leaves_per_cluster)) ))
+
+SBMP_wooramel_leafperbundle_plot <- ggplot(SBMP_wooramel_leafperbundle, aes(x=Year, y=mean)) +
+  geom_errorbar(aes(ymin=mean-se, ymax=mean+se), width=.02, colour="black", position=pd) +
+  #geom_line(position=pd) +
+  geom_point(position=pd, size=3, fill="black") + # 21 is filled circle
+  scale_x_continuous(limits=c(min(2014), max(SBMP_wooramel_leafperbundle$Year+0.125)), breaks=min(SBMP_wooramel_leafperbundle$Year):max(SBMP_wooramel_leafperbundle$Year)) +
+  scale_y_continuous(limits=c(min(0), max(15)))+
+  xlab("Year") +
+  ylab(expression(paste("Mean no. of leaves per bundle", sep = ""))) +
+  ggtitle("d) Wooramel") +
+  geom_smooth(method=lm, colour = 1, linetype = 3, se=TRUE, fullrange=TRUE)+
+  theme_bw() + graphics
+SBMP_wooramel_leafperbundle_plot
+
+attach(SBMP_wooramel_leafperbundle)
+MannKendall(mean)
+detach(SBMP_wooramel_leafperbundle)
 
 #####################################################################################
+#Create figures (will be saved to current workdir)
+#####################################################################################
 
-# Step 4: Create PDF (will be saved to current workdir)
+#Amphibolis density
 
-pdf(pdf_fn, width=8, height=3)
-grid.arrange(SBMP_e_plot, SBMP_m_plot, ncol=2)
+png(png_SBMP_overall_amphib_density_fn, width=500, height=300)
+grid.arrange(SBMP_amphibdensity_plot)
 dev.off()
 
+pdf(pdf_SBMP_amphib_density_fn, width=8, height=7)
+grid.arrange(SBMP_amphib_westerngulf_density_plot, SBMP_amphib_peron_density_plot, SBMP_amphib_monkeymia_density_plot,ncol=2)
+dev.off()
 
-## Step 5: Upload to CKAN
-ckanr::resource_update(pdf_rid, pdf_fn)
+png(png_SBMP_amphib_density_fn, width=1000, height=800)
+grid.arrange(SBMP_amphib_westerngulf_density_plot, SBMP_amphib_peron_density_plot, SBMP_amphib_monkeymia_density_plot,ncol=2)
+dev.off()
+
+#Leaf bundles per stem
+
+png(png_SBMP_overall_leaf_bundles_fn, width=500, height=300)
+grid.arrange(SBMP_leafperbundle_plot)
+dev.off()
+
+pdf(pdf_SBMP_leaf_bundles_fn, width=8, height=7)
+grid.arrange(SBMP_westerngulf_bundles_plot, SBMP_peron_bundles_plot, SBMP_monkeymia_bundles_plot, SBMP_wooramel_bundles_plot,ncol=2)
+dev.off()
+
+png(png_SBMP_leaf_bundles_fn, width=1000, height=800)
+grid.arrange(SBMP_westerngulf_bundles_plot, SBMP_peron_bundles_plot, SBMP_monkeymia_bundles_plot, SBMP_wooramel_bundles_plot,ncol=2)
+dev.off()
+
+#Leaves per bundle per stem
+
+png(png_SBMP_overall_leaf_per_bundle_fn, width=500, height=300)
+grid.arrange(SBMP_leafperbundle_plot)
+dev.off()
+
+pdf(pdf_SBMP_leaf_per_bundle_fn, width=8, height=7)
+grid.arrange(SBMP_westerngulf_leafperbundle_plot, SBMP_peron_leafperbundle_plot, SBMP_monkeymia_leafperbundle_plot, SBMP_wooramel_leafperbundle_plot,ncol=2)
+dev.off()
+
+png(png_SBMP_leaf_per_bundle_fn, width=1000, height=800)
+grid.arrange(SBMP_westerngulf_leafperbundle_plot, SBMP_peron_leafperbundle_plot, SBMP_monkeymia_leafperbundle_plot, SBMP_wooramel_leafperbundle_plot, ncol=2)
+dev.off()
+
+#####################################################################################
+#Upload figures and script back to CKAN
+#####################################################################################
+
+ckanr::resource_update(png_SBMP_overall_amphib_density_rid,png_SBMP_overall_amphib_density_fn)
+ckanr::resource_update(pdf_SBMP_amphib_density_rid, pdf_SBMP_amphib_density_fn)
+ckanr::resource_update(png_SBMP_amphib_density_rid, png_SBMP_amphib_density_fn)
+
+ckanr::resource_update(png_SBMP_overall_leaf_bundles_rid, png_SBMP_overall_leaf_bundles_fn)
+ckanr::resource_update(png_SBMP_leaf_bundles_rid, png_SBMP_leaf_bundles_fn)
+ckanr::resource_update(pdf_SBMP_leaf_bundles_rid, pdf_SBMP_leaf_bundles_fn)
+
+ckanr::resource_update(png_SBMP_overall_leaf_per_bundle_rid, png_SBMP_overall_leaf_per_bundle_fn)
+ckanr::resource_update(png_SBMP_leaf_per_bundle_rid, png_SBMP_leaf_per_bundle_fn)
+ckanr::resource_update(pdf_SBMP_leaf_per_bundle_rid, pdf_SBMP_leaf_per_bundle_fn)
+
 ckanr::resource_update(txt_rid, "Amphib_bundles_code.R")
 
-# Step 6: set workdir to main report location
-setwd("~/projects/data-pipelines")
+#####################################################################################
+#set workdir to main report location
+setwd("~/projects")
+######################################################################################

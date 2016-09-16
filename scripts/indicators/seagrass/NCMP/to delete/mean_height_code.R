@@ -1,5 +1,5 @@
 setwd("~/projects/data-pipelines/scripts/indicators/seagrass/NCMP")
-source("~/projects/data-pipelines/scripts/ckan.R")
+source("~/projects/data-pipelines/setup/ckan.R")
 source("~/projects/data-pipelines/scripts/ckan_secret.R")
 library(ggplot2)
 #install.packages("gridExtra")
@@ -142,4 +142,4 @@ ckanr::resource_update(pdf_rid, pdf_fn)
 ckanr::resource_update(txt_rid, "mean_height_code.R")
 
 # Step 6: set workdir to main report location
-setwd("~/projects")
+setwd("~/projects/data-pipelines")

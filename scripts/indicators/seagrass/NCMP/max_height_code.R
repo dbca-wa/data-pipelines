@@ -1,5 +1,5 @@
 setwd("~/projects/data-pipelines/scripts/indicators/seagrass/NCMP")
-source("~/projects/data-pipelines/setup/ckan.R")
+source("~/projects/data-pipelines/scripts/ckan.R")
 source("~/projects/data-pipelines/scripts/ckan_secret.R")
 library(ggplot2)
 #install.packages("gridExtra")
@@ -28,7 +28,7 @@ graphics = theme(axis.text.x=element_text(angle=45, hjust=0.9), #rotates the x a
                  panel.border=element_blank(), #removes border
                  panel.background=element_blank(), #needed to ensure integrity of axis lines
                  legend.justification=c(10,10), legend.position=c(10,10), # Positions legend (x,y) in this case removes it from the graph
-                 
+
                  legend.title = element_text(),
                  legend.key = element_blank()
 )
@@ -36,15 +36,15 @@ graphics = theme(axis.text.x=element_text(angle=45, hjust=0.9), #rotates the x a
 ##################################################################################
 # #NCMP_Geographe Bay inshore Shoot density
 # #Creates a data frame summarised for the sites included. Repeat for each 'sector' or reporting area
-# 
+#
 # NCMP_in = subset(d, Site %in% c("Dunsborough", "Buayanup", "Vasse Diversion", "Busselton Jetty", "Port Geographe", "Vasse-Wonnerup", "Forrest Beach"))
-# 
+#
 # d_sum <- plyr::ddply(NCMP_in, .(Year, Zone), summarise,
 #                      N    = length(!is.na(Maximum_height_mm)),
 #                      mean = mean(Maximum_height_mm, na.rm=TRUE),
 #                      sd   = sd(Maximum_height_mm, na.rm=TRUE),
 #                      se   = sd(Maximum_height_mm, na.rm=TRUE) / sqrt(length(!is.na(Maximum_height_mm)) ))
-# 
+#
 # NCMP_in_plot <- ggplot(d_sum, aes(x=Year, y=mean, group=Zone, linetype=Zone, shape=Zone)) +
 #   geom_errorbar(aes(ymin=mean-se, ymax=mean+se), width=.00, colour="black", position=pd) +
 #   geom_line(position=pd) +
@@ -55,7 +55,7 @@ graphics = theme(axis.text.x=element_text(angle=45, hjust=0.9), #rotates the x a
 #   ylab(expression(paste("Mean max height (mm)", sep = ""))) +
 #   ggtitle("a) Geographe Bay_near shore")+
 #   theme_bw() + graphics
-# 
+#
 # NCMP_in_plot
 
 #############################################################
@@ -143,4 +143,4 @@ ckanr::resource_update(pdf_rid, pdf_fn)
 ckanr::resource_update(txt_rid, "max_height_code.R")
 
 # Step 6: set workdir to main report location
-setwd("~/projects/data-pipelines")
+setwd("~/projects")
