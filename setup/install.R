@@ -1,0 +1,20 @@
+#' Install or update all required packages
+if (!require("pacman")) install.packages("pacman")
+pacman::p_load(bitops,
+               caTools,
+               ckanr,
+               colorspace,
+               dplyr,
+               ggplot2,
+               Hmisc,
+               knitr,
+               lubridate,
+               markdown,
+               readr,
+               rjson,
+               RColorBrewer,
+               RCurl,
+               scales,
+               shiny,
+               stringr,
+               update=T)
