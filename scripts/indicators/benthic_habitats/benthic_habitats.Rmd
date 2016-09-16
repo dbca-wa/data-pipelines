@@ -1,0 +1,119 @@
+---
+title: "Benthic Habitats"
+author: "Florian Mayer"
+date: "06/12/2015"
+output: html_document
+---
+
+# Preparation
+
+This workbook lives inside the MPA report source code. 
+It is under [version control]() and also uploads itself to the 
+[internal data catalogue]().
+
+To prepare the environment:
+
+* the work dir is set to the respective folder inside the MPA reports (the convention is to 
+ keep the MPA reports underneath `~/projects`),
+* source custom functions (eg. loading a CSV from CKAN),
+* source the secret CKAN settings (CKAN URL and API key),
+* load required libraries.
+
+```{r}
+setwd("~/projects/data-pipelines/scripts/indicators/benthic_habitats")
+source("~/projects/data-pipelines/setup/ckan.R")
+source("~/projects/data-pipelines/setup/ckan_setup.R")
+library(tidyr) # clean data
+library(dplyr) # munge clean data
+library(ggplot2) # visualise munged data
+library(DT) # DataTables widget
+library(vegan) # Multivariate community data analysis
+```
+
+Next, the CKAN resource IDs of the raw data CSV, the workbook, and the output PDF
+figure are defined.
+
+```{r}
+csv_rid <- "216cdeb3-7c94-46bd-be62-531e2b469c57"
+pdf_rid = "40ca93b6-09e5-457a-bb8a-3e884b61d75d"
+pdf_fn <- "habitat.pdf"
+txt_rid = "efbe602f-8800-4198-be63-eed01e03338f"
+txt_fn <- "benthic_habitats.Rmd"
+```
+
+# Load data
+Now, the raw data are read from CKAN and parsed into correct data types.
+
+```{r}
+d <- load_ckan_csv(csv_rid, date_colnames = c('date', 'Date', 'time', 'Time'))
+
+dplyr::tbl_df(d)
+dplyr::glimpse(d)
+```
+
+# Create site profiles
+Data is grouped by Surveys (individual samplings of transects = "Replicate").
+We'll retain the spatial hierarchy of a surveyed transect's Park, Sector, Zone 
+and Site, as well as the temporal coordinates (Date).
+
+With the survey code (which contains the full spatial hierarchy as well as the Date)
+as `row.names`, data are split up into site profiles as responding variables `X` 
+(abundance of each taxon) and factor variables for each site `Y` in absence of 
+real explanatory variables.
+
+```{r}
+sp3 <- d %>% 
+  tbl_df() %>% 
+  group_by(Survey, Date, Park, Sector, Zone, Site, ReplicateCode, Level3Class) %>%
+  tally() %>%
+  spread(Level3Class, n, fill=0)
+
+row.names(sp3) <- sp3$Survey
+
+Y = select(sp3, -Survey, -Date, -Park, -Sector, -Zone, -Site, -ReplicateCode)
+X = select(sp3, Date, Park, Sector, Zone, Site, ReplicateCode)
+```
+
+Now `X` and `Y` look like this:
+
+```{r, echo=FALSE}
+datatable(X)
+datatable(Y)
+```
+
+# Ordination
+Let's run a non-metric multidimensional scaling (NMDS) for demo purposes 
+(don't interpret the result).
+
+```{r}
+Y.mds <- metaMDS(Y)
+Y.mds
+```
+
+Let's plot the results and save the figure as a PDF.
+
+```{r}
+plot(Y.mds, type="n", main="Non-metric multidimensional scaling")
+points(Y.mds, display="sites", cex=0.8, pch=21, col="red", bg="yellow")
+text(Y.mds, display="spec", cex=0.7, col="blue")
+
+pdf(pdf_fn, height = 7, width = 7)
+plot(Y.mds, type="n", main="Non-metric multidimensional scaling")
+points(Y.mds, display="sites", cex=0.8, pch=21, col="red", bg="yellow")
+text(Y.mds, display="spec", cex=0.7, col="blue")
+dev.off()
+```
+
+# Post analysis: Upload and cleanup
+
+* Create a file `ckan_secret` with this line containing your `CKAN API_KEY`:
+* ```library(ckanr); ckanr::ckanr_setup(url="http://internal-data.dpaw.wa.gov.au/", key="API_KEY")```
+* The PDF and R script must already exist on CKAN (if not, create them once)
+* Upload the figure (PDF) and this script (TXT) to CKAN
+* Set workdir to main report location
+
+```{r}
+# ckanr::resource_update(pdf_rid, pdf_fn)
+# ckanr::resource_update(txt_rid, txt_fn)
+setwd("~/projects/data-pipelines")
+```
