@@ -1,12 +1,12 @@
 # data-pipelines
 Reproducible insight and scientific programming
 
-## Setup Rstudio Server access for Parks and Wildlife staff
+## First-time setup of Rstudio Server for Parks and Wildlife staff
 Before you can access RStudio Server, follow the next section.
 If you wish to setup this repository from a local RStudio Desktop installation,
 skip the next section.
 
-### One-off: Make yourself at home on kens-xenmate-dev
+### Setup kens-xenmate-dev
 On Parks and Wildlife's [remote desktop](https://guacamole.dpaw.wa.gov.au/),
 select "Linux Mint SSH", enter your Parks and Wildlife username (not email) and
 password, then type:
@@ -28,7 +28,7 @@ Close the browser tab. This operation achieved the following:
 * The new directory "projects" inside your home folder will hold your R projects
   and keep your home directory neat and uncluttered.
   
-### Add your SSH key to your Github account
+### Setup SSH
 * Create a Github account
 * [RStudio Server](https://rstudio.dpaw.wa.gov.au/) > Tools > Global Options 
   > Git > Create RSA key > no password > view public key > copy
@@ -37,7 +37,7 @@ Close the browser tab. This operation achieved the following:
 * Notify Florian Mayer to add your Github account as collaborator to this repository
   to gain write access.
 
-### Clone this repository
+## Setup of data-pipelines
 In either your local RStudio Desktop, or in Parks and Wildlife's 
 [RStudio Server](https://rstudio.dpaw.wa.gov.au/):
 
@@ -46,7 +46,7 @@ In either your local RStudio Desktop, or in Parks and Wildlife's
 * Project directory name: should automatically be `data-pipelines`
 * Create project as subdirectory of: Browse > `projects`
 
-## Everyday use
+## Use and contribute
 We will work on one branch ("master"), as every collaborator's files are separated
 by folders. This will make merges trivially simple.
 
