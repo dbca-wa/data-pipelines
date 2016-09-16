@@ -1,6 +1,5 @@
 setwd("~/projects/data-pipelines/scripts/indicators/seagrass/SBMP")
 source("~/projects/data-pipelines/setup/ckan.R")
-source("~/projects/data-pipelines/scripts/ckan_secret.R")
 
 library(ggplot2)
 #install.packages("gridExtra")
@@ -15,12 +14,12 @@ pdf_fn = "final.pdf"
 d <- load_ckan_csv(csv_rid, date_colnames = c('date', 'Date'))
 
 names(d)[names(d) == 'Park_name'] <- 'Park'###Changes column name
-names(d)[names(d) == 'Sites'] <- 'Site'###Changes column name 
+names(d)[names(d) == 'Sites'] <- 'Site'###Changes column name
 pd <- position_dodge(0.1)
 graphics = theme(axis.text.x=element_text(angle=45, hjust=0.9), #rotates the x axis tick labels an angle of 45 degrees
                  axis.title.x=element_text(), #removes x axis title
                  axis.title.y=element_text(), #removes y axis title
-                 axis.line=element_line(colour="black"), #sets axis lines 
+                 axis.line=element_line(colour="black"), #sets axis lines
                  plot.title =element_text(hjust = 0.05),
                  panel.grid.minor = element_blank(), #removes minor grid lines
                  panel.grid.major = element_blank(), #removes major grid lines
@@ -33,8 +32,8 @@ graphics = theme(axis.text.x=element_text(angle=45, hjust=0.9), #rotates the x a
 ##################################################################################
 #SBMP_east Shoot density
 
-#Creates a data frame summarised for the sites included. Repeat for each 'sector' or reporting area     
-SBMP_e = subset(d, Site %in% c("Wooramel North", "Disappointment Reach")) 
+#Creates a data frame summarised for the sites included. Repeat for each 'sector' or reporting area
+SBMP_e = subset(d, Site %in% c("Wooramel North", "Disappointment Reach"))
 
 d_sum <- plyr::ddply(SBMP_e, .(Year, Zone), summarise,
                N    = length(!is.na(Pos_total)),
