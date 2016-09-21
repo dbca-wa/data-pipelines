@@ -1,6 +1,6 @@
 setwd("~/projects/data-pipelines/scripts/indicators/seagrass/SBMP")
-source("~/projects/data-pipelines/scripts/ckan.R")
-source("~/projects/data-pipelines/scripts/ckan_secret.R")
+source("~/projects/data-pipelines/setup/ckan.R")
+
 
 library(ggplot2)
 #install.packages("gridExtra")
@@ -124,7 +124,7 @@ SBMP_westerngulf_shootdensity_plot <- ggplot(SBMP_westerngulf_shootdensity, aes(
   scale_y_continuous(limits=c(min(0), max(15)))+
   xlab("Year") +
   ylab(expression(paste("Mean density (","0.04m"^-2,")", sep = ""))) +
-  ggtitle("a) Western Gulf") +
+  ggtitle("a) Western Gulf") element_text(size=5)+
   geom_smooth(method=lm, colour = 1, linetype = 3, se=FALSE, fullrange=TRUE)+
   # facet_wrap(~ Zone, nrow = 2)+
   theme_bw() + graphics
