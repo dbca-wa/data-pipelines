@@ -1,11 +1,12 @@
 setwd("~/projects/data-pipelines/scripts/indicators/seagrass/JBMP")
-source("~/projects/data-pipelines/scripts/ckan.R")
-source("~/projects/data-pipelines/scripts/ckan_secret.R")
+source("~/projects/data-pipelines/setup/ckan.R")
 
 library(ggplot2)
 #install.packages("gridExtra")
 library(gridExtra)
 library(plyr)
+library(dplyr)
+# install.packages("Kendall")
 library (Kendall)
 
 
@@ -499,7 +500,3 @@ ckanr::resource_update(png_JBMP_mean_height_rid, png_JBMP_mean_height_fn)
 ckanr::resource_update(png_mean_height_rid, png_mean_height_fn)
 ckanr::resource_update(txt_rid, "JBMP_shoot_density_and_canopy_height_code.R")
 
-#####################################################################################
-#set workdir to main report location
-setwd("~/projects")
-######################################################################################
