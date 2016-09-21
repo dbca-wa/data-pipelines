@@ -21,7 +21,7 @@ pacman::p_load(bitops,
                stringr,
                update=F)
 
-if (file.exists("ckan_setup.R")) source("ckan_setup.R")
+if (file.exists("~/projects/data-pipelines/setup/ckan_setup.R")) source("~/projects/data-pipelines/setup/ckan_setup.R")
 
 # Default to DPaW internal data catalogue
 ckanr::ckanr_setup(url="http://internal-data.dpaw.wa.gov.au/")
