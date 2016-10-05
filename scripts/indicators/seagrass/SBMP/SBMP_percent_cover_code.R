@@ -23,7 +23,7 @@ png_SBMP_amphib_percentcover_rid <- "22c9123f-80be-4f24-ab9b-caeb6df8fa13"#CKAN 
 png_SBMP_amphib_percentcover_fn = "SBMP percent cover Amphibolis.png"#Name of final figure
 pdf_SBMP_pos_percentcover_rid <- "ad4b61b9-f9e7-4f53-a8f3-90ee3628aa5d"#CKAN resource ID for final figure (pdf)
 pdf_SBMP_pos_percentcover_fn = "SBMP percent cover Posidonia.pdf"#Name of final figure
-png_SBMP_pos_percentcover_rid <- "22c9123f-80be-4f24-ab9b-caeb6df8fa13"#CKAN resource ID for final figure (pdf)
+png_SBMP_pos_percentcover_rid <- "96d9a4f5-4041-4070-9ba5-6bb518341321"#CKAN resource ID for final figure (pdf)
 png_SBMP_pos_percentcover_fn = "SBMP percent cover Posidonia.png"#Name of final figure
 png_SBMP_overall_percentcover_rid <- "f8508298-dc4c-4099-8c02-ce9ced6c5142"#CKAN resource ID for final figure (png)
 png_SBMP_overall_percentcover_fn = "SBMP overall percent cover.png"#Name of final figure
@@ -41,16 +41,17 @@ names(d)[names(d) == 'Sites'] <- 'Site'###Changes column name
 #####################################################################################################
 
 pd <- position_dodge(0.1)
-graphics = theme(axis.text.x=element_text(angle=45, hjust=0.9), #rotates the x axis tick labels an angle of 45 degrees
-                 axis.title.x=element_text(), #removes x axis title
-                 axis.title.y=element_text(), #removes y axis title
+graphics = theme(axis.text.x=element_text(angle=45, size = 15, hjust=0.9), #rotates the x axis tick labels an angle of 45 degrees
+                 axis.title.x=element_text(size = 20), #removes x axis title
+                 axis.title.y=element_text(size = 20), #removes y axis title
+                 axis.text.y=element_text(size = 15),
                  axis.line=element_line(colour="black"), #sets axis lines
                  plot.title =element_text(hjust = 0.05),
                  panel.grid.minor = element_blank(), #removes minor grid lines
                  panel.grid.major = element_blank(), #removes major grid lines
                  panel.border=element_blank(), #removes border
                  panel.background=element_blank(), #needed to ensure integrity of axis lines
-                 legend.justification=c(1,1), legend.position=c(1,1), # Positions legend (x,y) in this case removes it from the graph
+                 legend.justification=c(10,10), legend.position=c(10,10), # Positions legend (x,y) in this case removes it from the graph
                  legend.title = element_text(),
                  legend.key = element_blank())
 
@@ -59,12 +60,12 @@ graphics = theme(axis.text.x=element_text(angle=45, hjust=0.9), #rotates the x a
 ##################################################################################
 
 # All seagrass pooled
-SGcover=count(d, c("Site", "Year", "Location", "Level1Class")) #counts number of observations per site, per year
+SGcover=count(d, c("Site", "Zone", "Year", "Location", "Level1Class")) #counts number of observations per site, per year
 SGcover_obs=count(SGcover, c("Site", "Year"), "freq") #counts number of observations made at each site per year
 SBMP_SGpercentcover <- join(SGcover, SGcover_obs, by = c("Site", "Year")) #adds total count of site observations agains the right site/year to allow percentage calculation
-names(SBMP_SGpercentcover)[4] <- "category" #Rename column to make more sense
-names(SBMP_SGpercentcover)[5] <- "category_count" #Rename column to make more sense
-names(SBMP_SGpercentcover) [6] <- "total_count"
+names(SBMP_SGpercentcover)[5] <- "category" #Rename column to make more sense
+names(SBMP_SGpercentcover)[6] <- "category_count" #Rename column to make more sense
+names(SBMP_SGpercentcover) [7] <- "total_count"
 SBMP_SGpercentcover$percent = SBMP_SGpercentcover$category_count/SBMP_SGpercentcover$total_count *100
 
 SG_cover <- subset(SBMP_SGpercentcover, category == c("SEAGRASS"))
@@ -76,6 +77,7 @@ SBMP_percentcover <- join(cover, cover_obs, by = c("Site", "Year")) #adds total 
 names(SBMP_percentcover)[5] <- "category_count" #Rename column to make more sense
 names(SBMP_percentcover)[6] <- "total_count" #Rename column to make more sense
 names(SBMP_percentcover) [4] <- "genus"
+
 SBMP_percentcover$percent = SBMP_percentcover$category_count/SBMP_percentcover$total_count *100
 
 amphibolis_cover <- subset(SBMP_percentcover, genus == c("Amphibolis spp."))
@@ -133,10 +135,11 @@ SBMP_percentcover_plot <- ggplot(All_SBMP_cover, aes(x=Year, y=mean))+#, colour 
   scale_x_continuous(limits=c(min(All_SBMP_cover$Year-0.125), max(All_SBMP_cover$Year+0.125)), breaks=min(All_SBMP_cover$Year):max(All_SBMP_cover$Year)) +
   scale_y_continuous(limits=c(min(0), max(100)))+
   xlab("Year") +
-  ylab(expression(Mean~percent~cover~(all~seagrass))) +
+  ylab(expression(paste("Mean percent cover"))) +
+  # ggtitle("a) All seagrass")+
 #  facet_wrap(~ Category, nrow = 2)+
 #  geom_smooth(method=lm, colour = 1, linetype = 3, se=FALSE, fullrange=TRUE)+
-  theme_bw() + graphics
+  theme_bw()
 
 SBMP_percentcover_plot
 
@@ -160,10 +163,11 @@ SBMP_amphibolis_percentcover_plot <- ggplot(SBMP_amphib_cover, aes(x=Year, y=mea
   scale_x_continuous(limits=c(min(SBMP_amphib_cover$Year-0.125), max(SBMP_amphib_cover$Year+0.125)), breaks=min(SBMP_amphib_cover$Year):max(SBMP_amphib_cover$Year)) +
   scale_y_continuous(limits=c(min(0), max(100)))+
   xlab("Year") +
-  ylab(expression(Mean~percent~cover~of~italic(Amphibolis))) +
+  ylab(expression(Mean~percent~cover)) +
+  ggtitle(expression("b) Amphibolis"))+
   #  facet_wrap(~ Category, nrow = 2)+
   #  geom_smooth(method=lm, colour = 1, linetype = 3, se=FALSE, fullrange=TRUE)+
-  theme_bw() + graphics
+  theme_bw())
 
 SBMP_amphibolis_percentcover_plot
 
@@ -186,10 +190,12 @@ SBMP_posidonia_percentcover_plot <- ggplot(SBMP_posidonia_cover, aes(x=Year, y=m
   scale_x_continuous(limits=c(min(SBMP_posidonia_cover$Year-0.125), max(SBMP_posidonia_cover$Year+0.125)), breaks=min(SBMP_posidonia_cover$Year):max(SBMP_posidonia_cover$Year)) +
   scale_y_continuous(limits=c(min(0), max(100)))+
   xlab("Year") +
-  ylab(expression(Mean~percent~cover~of ~italic(Posidonia))) +
+  ylab(expression(Mean~percent~cover)) +
+  # ggtitle("c)" italic("Posidonia")+
+  ggtitle("c) Posidonia")+
   #  facet_wrap(~ Category, nrow = 2)+
   #  geom_smooth(method=lm, colour = 1, linetype = 3, se=FALSE, fullrange=TRUE)+
-  theme_bw() + graphics
+  theme_bw())
 
 SBMP_posidonia_percentcover_plot
 
@@ -258,13 +264,10 @@ detach(SBMP_amphib_cover)
 
 #Percent cover
 
-png(png_SBMP_overall_percentcover_fn, width=500, height=800)
-grid.arrange(SBMP_percentcover_plot, SBMP_amphibolis_percentcover_plot, SBMP_posidonia_percentcover_plot)
+png(png_SBMP_overall_percentcover_fn, width=500, height=600)
+grid.arrange(SBMP_percentcover_plot, SBMP_amphibolis_percentcover_plot, SBMP_posidonia_percentcover_plot, ncol=1)
 dev.off()
 
-pdf(png_SBMP_overall_percentcover_fn, width=8, height=7)
-grid.arrange(SBMP_percentcover_plot, SBMP_amphibolis_percentcover_plot, SBMP_posidonia_percentcover_plot)
-dev.off()
 
 png(png_SBMP_amphib_percentcover_fn, width=600, height=800)
 grid.arrange(SBMP_amphib_percentcover_plot)
@@ -294,7 +297,7 @@ ckanr::resource_update(png_SBMP_amphib_percentcover_rid, png_SBMP_amphib_percent
 ckanr::resource_update(pdf_SBMP_pos_percentcover_rid, pdf_SBMP_pos_percentcover_fn)
 ckanr::resource_update(png_SBMP_pos_percentcover_rid, png_SBMP_pos_percentcover_fn)
 
-ckanr::resource_update(txt_rid, "SBpercent_cover_code.R")
+ckanr::resource_update(txt_rid, "SBMP_percent_cover_code.R")
 
 #####################################################################################
 #set workdir to main report location

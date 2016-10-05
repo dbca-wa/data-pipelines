@@ -79,7 +79,6 @@ SIMP_warnbro = subset(d, Site %in% c("Warnbro Sound 2.5m" , "Warnbro Sound 3.2m"
 SIMP_shoalwater = subset(d, Site %in% c("Penguin Island" , "Seal Island", "Bird Island"))
 SIMP_north = subset(d, Site %in% c("Causeway"))
 
-
 ####################################################################################
 #SHOOT DENSITY
 ####################################################################################
