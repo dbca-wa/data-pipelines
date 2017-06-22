@@ -60,3 +60,31 @@ Commence your work, which will change files. When done:
 * Add, commit
 * Pull, merge if necessary, commit
 * Push
+
+## Configure secret API keys
+First, find your profile in the [data catalogue](https://data.dpaw.wa.gov.au/)
+by clicking on your name (top right when logged in) and copy your API key.
+Add the following with your respective API key to `.Rprofile` in your
+Home folder (Files > Home), then restart the R session:
+
+```{r}
+Sys.setenv(CKAN_API_KEY = "your-api-key-goes-here")
+```
+Now your CKAN API key is available to R scripts as `Sys.getenv("CKAN_API_KEY")`.
+
+## Reading data from CKAN
+Follow the example in `scripts/indicators/template/indicator_template/code.R`:
+
+```{r}
+source("~/projects/data-pipelines/setup/ckan.R")
+setwd("~/projects/data-pipelines/scripts/indicators/template") # change this
+csv_rid <- "fd874a78-4d65-46fe-ba07-3b1ef0c54269"
+d <- load_ckan_csv(csv_rid)
+dplyr::glimpse(d)
+```
+
+`d` is now a tibble with standard date columns parsed as Dates.
+See the template, and `setup/ckan.R` for more options.
+
+Older scripts can remove the sourcing of "ckan_setup.R" or "ckan_secret.R", the 
+rest should just work.

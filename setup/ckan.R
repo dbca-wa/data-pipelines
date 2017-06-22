@@ -1,10 +1,14 @@
 #' R functions to retrieve content from CKAN
 #' @author Florian.Mayer@dpaw.wa.gov.au
 #'
+
+# install.packages("devtools")
+# install.packages("dplyr")
+# devtools::install_github("parksandwildlife/ckanr")
+
 if (!require("pacman")) install.packages("pacman")
 pacman::p_load(bitops,
                caTools,
-               ckanr,
                colorspace,
                dplyr,
                ggplot2,
@@ -21,11 +25,17 @@ pacman::p_load(bitops,
                stringr,
                update=F)
 
-if (file.exists("~/projects/data-pipelines/setup/ckan_setup.R")) source("~/projects/data-pipelines/setup/ckan_setup.R")
 
-# Default to DPaW internal data catalogue
-ckanr::ckanr_setup(url="http://internal-data.dpaw.wa.gov.au/")
+# Set CKAN_URL to DPaW data catalogue
+Sys.setenv(CKAN_URL="https://data.dpaw.wa.gov.au")
+
+# Setup ckanr
+ckanr::ckanr_setup(url=Sys.getenv("CKAN_URL"), key=Sys.getenv("CKAN_API_KEY"))
+ckan <- ckanr::src_ckan("https://data.dpaw.wa.gov.au/")
+
+# Set default resource ID
 default_resource_id <- "ccc68eb7-8105-4cc8-8112-57bf1558e82f"
+
 
 #' Get CPR data from intermediary CSV by park and asset slug
 #'
@@ -150,58 +160,43 @@ mpa <- function(url,
   r
 }
 
-#' Load a CSV from a URL
-#'
-#' @param url The URL of a CSV file
-#' @param date_colnames The column names of date columns, default:
-#'    'date', 'Date', date.start', 'date.end', 'year', 'Year'
-#' @param date_formats The date formats to expect, default:
-#'    'YmdHMSz', 'YmdHMS','Ymd','dmY', 'Y'
-#' @param timezone The timezone, default: 'Australia/Perth'
-#' @return A data.frame of the CSV, with parsed dates and strings as factors
-load_csv <- function(url,
-                     date_colnames = c('date', 'Date',
-                                       'date.start', 'date.end',
-                                       'start.date','end.date',
-                                       'year', 'Year'),
-                     date_formats = c('YmdHMSz', 'YmdHMS','Ymd','dmY', 'Y'),
-                     timezone = 'Australia/Perth'){
-  df <-read.table(url, sep = ',', header = T, stringsAsFactors = T)
-  cn <- names(df)
-  df[cn %in% date_colnames] <- lapply(
-    df[cn %in% date_colnames],
-    function(x){x<- lubridate::parse_date_time(x,
-                                               orders = date_formats,
-                                               tz = timezone)}
-  )
-  names(df) <- Hmisc::capitalize(names(df))
-  df
-}
-
-#' Load CSV from CKAN given a resource id
+#' Load CSV from CKAN's datastore given a resource id
 #'
 #' @param res_id The resource id of a CKAN CSV resource
-#' @param ckanurl The base url of the CKAN catalogue, default: ckanr::get_default_url()
-#' @param parse_dates Whether to parse date_colnames as dates of format date_formats
-#'    into PosixCt
-#' @param date_colnames The column names of date columns, default: 'date', 'Date',
-#'    'date.start', 'date.end', 'year', 'Year'
-#' @param date_formats The date formats to expect, default: 'YmdHMSz', 'YmdHMS','Ymd','dmY', 'Y'
+#' @param ckan An optional ckanr::src_ckan, default: NULL
+#'    (create new src_ckan from Sys.getenv("CKAN"))
+#' @param parse_dates Whether to parse date_colnames as dates of format
+#'    date_formats into PosixCt
+#' @param date_colnames The column names of date columns,
+#'    default: 'date', 'Date', 'date.start', 'date.end', 'year', 'Year'
+#' @param date_formats The date formats to expect,
+#'    default: 'YmdHMSz', 'YmdHMS','Ymd','dmY', 'Y'
 #' @param timezone The timezone, default: 'Australia/Perth'
 #' @return A data.frame of the CSV, with parsed dates and strings as factors
 load_ckan_csv <- function(res_id,
-                          ckanurl = ckanr::get_default_url(),
                           parse_dates = T,
                           date_colnames = c('date', 'Date',
                                             'date.start', 'date.end',
                                             'start.date','end.date',
                                             'year', 'Year'),
                           date_formats = c('YmdHMSz', 'YmdHMS','Ymd','dmY', 'Y'),
-                          timezone = 'Australia/Perth'){
-  r <- ckan_res(res_id, url = ckanurl)
-  df <- load_csv(r$url,
-                 date_colnames = date_colnames,
-                 date_formats = date_formats,
-                 timezone = timezone)
+                          timezone = 'Australia/Perth',
+                          ckan = NULL){
+  # Set CKAN as dplyr data source
+  if (is.null(ckan)) ckan = ckanr::src_ckan(Sys.getenv("CKAN_URL"))
+
+  # Read resource from datastore (db table) through API using only resource ID
+  df <- dplyr::tbl(src = ckan$con, from = res_id) %>% as_tibble(.)
+
+  # Parse dates, sanitize column names
+  cn <- names(df)
+  df[cn %in% date_colnames] <- lapply(
+    df[cn %in% date_colnames],
+    function(x){
+      x <- lubridate::parse_date_time(x, orders = date_formats, tz = timezone)
+    }
+  )
+  names(df) <- Hmisc::capitalize(names(df))
+
   df
 }
