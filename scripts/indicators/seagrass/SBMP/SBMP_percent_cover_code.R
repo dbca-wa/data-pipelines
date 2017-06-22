@@ -13,7 +13,7 @@ library (Kendall)
 #Define all CKAN resource IDs
 ######################################################################################################
 
-csv_rid <- "20180ac3-9b5a-493e-9669-b7a2aff28f68"#CKAN resource ID for data
+csv_rid <- "619d13a7-5df5-46e3-8391-50a2390e8df2"#CKAN resource ID for data
 txt_rid <- "0bba4f55-e3af-490e-88bb-738660ef16e2"#CKAN resource ID for r-script
 
 #Percent cover
@@ -33,8 +33,7 @@ png_SBMP_overall_percentcover_fn = "SBMP overall percent cover.png"#Name of fina
 ###################################################################################################
 
 d <- load_ckan_csv(csv_rid, date_colnames = c('date', 'Date'))
-names(d)[names(d) == 'Park_name'] <- 'Park'###Changes column name
-names(d)[names(d) == 'Sites'] <- 'Site'###Changes column name
+names(d)[names(d) == 'Region'] <- 'Park'###Changes column name
 
 ####################################################################################################
 #Define graphic properties
@@ -42,8 +41,8 @@ names(d)[names(d) == 'Sites'] <- 'Site'###Changes column name
 
 pd <- position_dodge(0.1)
 graphics = theme(axis.text.x=element_text(angle=45, size = 15, hjust=0.9), #rotates the x axis tick labels an angle of 45 degrees
-                 axis.title.x=element_text(size = 20), #removes x axis title
-                 axis.title.y=element_text(size = 20), #removes y axis title
+                 axis.title.x=element_blank(), #removes x axis title
+                 axis.title.y=element_blank(), #removes y axis title
                  axis.text.y=element_text(size = 15),
                  axis.line=element_line(colour="black"), #sets axis lines
                  plot.title =element_text(hjust = 0.05),
@@ -60,7 +59,8 @@ graphics = theme(axis.text.x=element_text(angle=45, size = 15, hjust=0.9), #rota
 ##################################################################################
 
 # All seagrass pooled
-SGcover=count(d, c("Site", "Zone", "Year", "Location", "Level1Class")) #counts number of observations per site, per year
+SBMP = subset (d, Park=="Shark Bay Marine Park")
+SGcover=count(SBMP, c("Site", "Zone", "Year", "Location", "Level1Class")) #counts number of observations per site, per year
 SGcover_obs=count(SGcover, c("Site", "Year"), "freq") #counts number of observations made at each site per year
 SBMP_SGpercentcover <- join(SGcover, SGcover_obs, by = c("Site", "Year")) #adds total count of site observations agains the right site/year to allow percentage calculation
 names(SBMP_SGpercentcover)[5] <- "category" #Rename column to make more sense
@@ -71,7 +71,7 @@ SBMP_SGpercentcover$percent = SBMP_SGpercentcover$category_count/SBMP_SGpercentc
 SG_cover <- subset(SBMP_SGpercentcover, category == c("SEAGRASS"))
 
 #Amphibolis and Posidonia seperated
-cover=count(d, c("Site", "Year","Location", "Level3Class")) #counts number of observations per site, per year
+cover=count(SBMP, c("Site", "Year","Location", "Level3Class")) #counts number of observations per site, per year
 cover_obs=count(cover, c("Site", "Year"), "freq") #counts number of observations made at each site per year
 SBMP_percentcover <- join(cover, cover_obs, by = c("Site", "Year")) #adds total count of site observations agains the right site/year to allow percentage calculation
 names(SBMP_percentcover)[5] <- "category_count" #Rename column to make more sense
@@ -81,9 +81,10 @@ names(SBMP_percentcover) [4] <- "genus"
 SBMP_percentcover$percent = SBMP_percentcover$category_count/SBMP_percentcover$total_count *100
 
 amphibolis_cover <- subset(SBMP_percentcover, genus == c("Amphibolis spp."))
-amphib_cover <- subset (amphibolis_cover, Site %in% c("East Peron", "Monkey Mia Control", "Monkey Mia outer bank", "Pearl Farm Control", "Peron Site 3", "Herald Bight west Amphibolis", "Useless Loop North Amphibolis",  "0456 Shark Bay Amphibolis", "0481 Shark Bay Amphibolis",  "0433 Shark Bay Amphibolis",  "0459 Shark Bay Amphibolis",  "0466 Shark Bay Amphibolis", "0380 Settlement Amphibolis", "0595 Shark Bay Amphibolis",  "0037 Shark Bay Amphibolis",  "Wooramel North Amphibolis", "Disappointment Reach Amphibolis", "Gladstone Marker",  "Gladestone site 2",  "Herald Loop"))
+amphib_cover <- subset (amphibolis_cover, Site %in% c("Herald Bight west Amphibolis","Herald Loop_Amphibolis","Gladstone Site 2_Amphibolis","Gladstone Marker_Amphibolis","0433 Shark Bay Amphibolis","SBMR 0581 Amphibolis","0037 Shark Bay Amphibolis","0595 Shark Bay Amphibolis","0459 Shark Bay Amphibolis","SBMR 0464 Amphibolis","0466 Shark Bay Amphibolis","0456 Shark Bay Amphibolis","0481 Shark Bay Amphibolis","0380 Settlement Amphibolis","Useless Loop North_Amphibolis","Wooramel north_Amphibolis","Disappointment Reach Amphibolis"))
+
 posidonia_cover <- subset(SBMP_percentcover, genus == c("Posidonia spp."))
-pos_cover <- subset (posidonia_cover, Site %in% c("Monkey Mia inner bank", "Peron Site 4", "Denham", "Sandy Point", "Big Lagoon", "South Passage", "Useless Loop South", "Useless Loop North", "Peron South", "Disappointment Reach", "Wooramel North", "Monkey Mia Inner Bank", "Monkey Mia Pearl Control", "East Peron", "0380 Settlement", "Monkey Mia South", "Monkey Mia south_outer"))
+pos_cover <- subset (posidonia_cover, Site %in% c("Denham", "Sandy Point", "Big Lagoon", "South Passage", "Useless Loop South", "Useless Loop North", "Peron South", "Disappointment Reach", "Wooramel North", "Monkey Mia Inner Bank", "Monkey Mia Pearl Control", "East Peron", "0380 Settlement", "Monkey Mia South", "Monkey Mia South outer"))
 
 # Posidonia and Amphibolis region subsets
 amphib_cover = within(amphib_cover, levels(Location)[levels(Location) == "Western Gulf"] <- "Western Gulf")
@@ -107,7 +108,7 @@ pos_cover = within(pos_cover, levels(Location)[levels(Location) == "Monkey Mia"]
 pos_cover = within(pos_cover, levels(Location)[levels(Location) == "Peron East"] <- "Monkey Mia")
 pos_cover = within(pos_cover, levels(Location)[levels(Location) == "Eastern Gulf"] <- "Eastern Gulf")
 pos_cover = within(pos_cover, levels(Location)[levels(Location) == "Gladstone"] <- "Eastern Gulf")
-pos_cover = within(pos_cover, levels(Location)[levels(Location) == "Monkey Mia inner bank"] <- "Eastern Gulf")
+pos_cover = within(pos_cover, levels(Location)[levels(Location) == "Monkey Mia inner bank"] <- "Monkey Mia")
 pos_cover = within(pos_cover, levels(Location)[levels(Location) == "Peron Site 4"] <- "Eastern Gulf")
 
 
@@ -135,11 +136,11 @@ SBMP_percentcover_plot <- ggplot(All_SBMP_cover, aes(x=Year, y=mean))+#, colour 
   scale_x_continuous(limits=c(min(All_SBMP_cover$Year-0.125), max(All_SBMP_cover$Year+0.125)), breaks=min(All_SBMP_cover$Year):max(All_SBMP_cover$Year)) +
   scale_y_continuous(limits=c(min(0), max(100)))+
   xlab("Year") +
-  ylab(expression(paste("Mean percent cover"))) +
-  # ggtitle("a) All seagrass")+
+  # ylab(expression(paste("Mean percent cover"))) +
+  ggtitle("a)")+
 #  facet_wrap(~ Category, nrow = 2)+
 #  geom_smooth(method=lm, colour = 1, linetype = 3, se=FALSE, fullrange=TRUE)+
-  theme_bw()
+  theme_bw()+ graphics
 
 SBMP_percentcover_plot
 
@@ -164,10 +165,10 @@ SBMP_amphibolis_percentcover_plot <- ggplot(SBMP_amphib_cover, aes(x=Year, y=mea
   scale_y_continuous(limits=c(min(0), max(100)))+
   xlab("Year") +
   ylab(expression(Mean~percent~cover)) +
-  ggtitle(expression("b) Amphibolis"))+
+  ggtitle(expression("b)"))+
   #  facet_wrap(~ Category, nrow = 2)+
   #  geom_smooth(method=lm, colour = 1, linetype = 3, se=FALSE, fullrange=TRUE)+
-  theme_bw())
+  theme_bw()+ graphics
 
 SBMP_amphibolis_percentcover_plot
 
@@ -190,12 +191,12 @@ SBMP_posidonia_percentcover_plot <- ggplot(SBMP_posidonia_cover, aes(x=Year, y=m
   scale_x_continuous(limits=c(min(SBMP_posidonia_cover$Year-0.125), max(SBMP_posidonia_cover$Year+0.125)), breaks=min(SBMP_posidonia_cover$Year):max(SBMP_posidonia_cover$Year)) +
   scale_y_continuous(limits=c(min(0), max(100)))+
   xlab("Year") +
-  ylab(expression(Mean~percent~cover)) +
-  # ggtitle("c)" italic("Posidonia")+
-  ggtitle("c) Posidonia")+
+  # ylab(expression(Mean~percent~cover)) +
+   # ggtitle("c)" italic("Posidonia")+
+  ggtitle("c)")+
   #  facet_wrap(~ Category, nrow = 2)+
   #  geom_smooth(method=lm, colour = 1, linetype = 3, se=FALSE, fullrange=TRUE)+
-  theme_bw())
+  theme_bw ()+ graphics
 
 SBMP_posidonia_percentcover_plot
 
@@ -222,7 +223,7 @@ SBMP_amphib_percentcover_plot <- ggplot(SBMP_amphib_cover, aes(x=Year, y=mean))+
   ylab(expression(Mean~percent~cover~of~italic(Amphibolis))) +
   facet_wrap(~ Location, nrow = 4)+
   #  geom_smooth(method=lm, colour = 1, linetype = 3, se=FALSE, fullrange=TRUE)+
-  theme_bw() + graphics
+  theme(strip.text = element_text(size=12)) + graphics
 
 SBMP_amphib_percentcover_plot
 
@@ -250,7 +251,7 @@ SBMP_pos_percentcover_plot <- ggplot(SBMP_pos_cover, aes(x=Year, y=mean))+#, col
   ylab(expression(Mean~percent~cover~of~italic(Posidonia))) +
   facet_wrap(~ Location, nrow = 4)+
   #  geom_smooth(method=lm, colour = 1, linetype = 3, se=FALSE, fullrange=TRUE)+
-  theme_bw() + graphics
+  theme(strip.text = element_text(size=12)) + graphics
 
 SBMP_pos_percentcover_plot
 
@@ -264,7 +265,7 @@ detach(SBMP_amphib_cover)
 
 #Percent cover
 
-png(png_SBMP_overall_percentcover_fn, width=500, height=600)
+png(png_SBMP_overall_percentcover_fn, width=500, height=900)
 grid.arrange(SBMP_percentcover_plot, SBMP_amphibolis_percentcover_plot, SBMP_posidonia_percentcover_plot, ncol=1)
 dev.off()
 
