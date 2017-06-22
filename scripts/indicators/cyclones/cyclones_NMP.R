@@ -20,7 +20,7 @@ pd <- position_dodge(0.1)
 graphics = theme(axis.text.x=element_text(angle=75, hjust=0.9), #rotates the x axis tick labels an angle of 45 degrees
                  axis.title.x=element_text(), #removes x axis title
                  axis.title.y=element_text(), #removes y axis title
-                 axis.line=element_line(colour="black"), #sets axis lines 
+                 axis.line=element_line(colour="black"), #sets axis lines
                  plot.title =element_text(hjust = 0.05),
                  panel.grid.minor = element_blank(), #removes minor grid lines
                  panel.grid.major = element_blank(), #removes major grid lines
@@ -34,7 +34,7 @@ graphics = theme(axis.text.x=element_text(angle=75, hjust=0.9), #rotates the x a
 ##################################################################################
 #Ningaloo number of cyclones
 
-ninN = subset(c_sum, Location =="Ningaloo " & Radius == "200") 
+ninN = subset(c_sum, Location =="Ningaloo " & Radius == "200")
 
 c_ninN <- plyr::ddply(ninN, .(Year), summarise,
                       N    = length(!is.na(Time.in.radius)))
@@ -54,7 +54,7 @@ ninN_plot
 
 #Ningaloo cyclones_200km
 
-nin200 = subset(c_sum, Location =="Ningaloo " & Radius == "200") 
+nin200 = subset(c_sum, Location =="Ningaloo " & Radius == "200")
 
 c_nin200 <- plyr::ddply(nin200, .(Year), summarise,
                         N    = length(!is.na(Time.in.radius)),
@@ -70,14 +70,14 @@ nin200_plot <- ggplot(c_nin200, aes(x=Year, y=mean)) +
   scale_y_continuous(expand = c(0,0), limits=c(min(0), max(60)))+
   xlab("Year") +
   ylab(expression(paste("Time in perimeter (hrs)", sep = ""))) +
-  ggtitle("a) Time within 200km")+
+  ggtitle("b) Time within 200km")+
   theme_bw() + graphics
 
 nin200_plot
 
 #Ningaloo (Exmouth) cyclones_50km
 
-nin50 = subset(c_sum, Location =="Ningaloo (Exmouth)" & Radius == "50") 
+nin50 = subset(c_sum, Location =="Ningaloo (Exmouth)" & Radius == "50")
 
 c_nin50 <- plyr::ddply(nin50, .(Year), summarise,
                        N    = length(!is.na(Time.in.radius)),
@@ -100,7 +100,7 @@ nin50_e_plot
 
 #Ningaloo (Coral Bay) cyclones_50km
 
-nin_cb_50 = subset(c_sum, Location =="Ningaloo (Coral Bay)" & Radius == "50") 
+nin_cb_50 = subset(c_sum, Location =="Ningaloo (Coral Bay)" & Radius == "50")
 
 c_nin50_cb <- plyr::ddply(nin_cb_50, .(Year), summarise,
                        N    = length(!is.na(Time.in.radius)),
@@ -144,7 +144,7 @@ ninp200_plot
 
 # Step 4: Create PDF (will be saved to current workdir)
 
-pdf(pdf_fn, width=8, height=7)
+pdf(pdf_fn, width=10, height=10)
 grid.arrange(ninN_plot, nin200_plot, nin_cb_50_plot, nin50_e_plot, ninp200_plot, ncol=2)
 dev.off()
 

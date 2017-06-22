@@ -1,6 +1,5 @@
 setwd("~/projects/data-pipelines/scripts/indicators/seagrass/SBMP")
-source("~/projects/data-pipelines/scripts/ckan.R")
-source("~/projects/data-pipelines/scripts/ckan_secret.R")
+source("~/projects/data-pipelines/setup/ckan.R")
 
 library(ggplot2)
 #install.packages("gridExtra")
@@ -54,9 +53,10 @@ names(d)[names(d) == 'Sites'] <- 'Site'###Changes column name
 #####################################################################################################
 
 pd <- position_dodge(0.1)
-graphics = theme(axis.text.x=element_text(angle=45, hjust=0.9), #rotates the x axis tick labels an angle of 45 degrees
-                 axis.title.x=element_text(), #removes x axis title
-                 axis.title.y=element_text(), #removes y axis title
+graphics = theme(axis.text.x=element_text(angle=45, size = 15, hjust=0.9), #rotates the x axis tick labels an angle of 45 degrees
+                 axis.title.x=element_text(size = 20), #removes x axis title
+                 axis.title.y=element_text(size = 20), #removes y axis title
+                 axis.text.y=element_text(size = 15),
                  axis.line=element_line(colour="black"), #sets axis lines
                  plot.title =element_text(hjust = 0.05),
                  panel.grid.minor = element_blank(), #removes minor grid lines
@@ -104,7 +104,11 @@ SBMP_amphibdensity_plot <- ggplot(SBMP_amphibdensity, aes(x=Year, y=mean)) +
   xlab("Year") +
   ylab(expression(Mean~density~of~italic(Amphibolis)~("0.04m"^2))) +
   geom_smooth(method=lm, colour = 1, linetype = 3, se=TRUE, fullrange=TRUE)+
-  theme_bw() + graphics
+  theme_bw() + graphics+
+  theme(axis.text.x=element_text(angle=45, size = 10, hjust=0.9), #rotates the x axis tick labels an angle of 45 degrees
+        axis.title.x=element_text( size = 15), #removes x axis title
+        axis.title.y=element_text(size = 15), #removes y axis title
+        axis.text.y=element_text(size = 10))
 
 SBMP_amphibdensity_plot
 
@@ -131,7 +135,8 @@ SBMP_amphib_westerngulf_density_plot <- ggplot(SBMP_amphib_westerngulf_density, 
   ylab(expression(Mean~density~of~italic(Amphibolis)~("0.04m"^2))) +
   ggtitle("a) Western Gulf") +
   geom_smooth(method=lm, colour = 1, linetype = 3, se=TRUE, fullrange=TRUE)+
-  theme_bw() + graphics
+  theme_bw() + graphics+
+  theme(plot.title = element_text(size = 25))
 
 SBMP_amphib_westerngulf_density_plot
 
@@ -158,7 +163,8 @@ SBMP_amphib_peron_density_plot <- ggplot(SBMP_amphib_peron_density, aes(x=Year, 
   ylab(expression(Mean~density~of~italic(Amphibolis)~("0.04m"^2))) +
   ggtitle("b) Peron") +
   geom_smooth(method=lm, colour = 1, linetype = 3, se=TRUE, fullrange=TRUE)+
-  theme_bw() + graphics
+  theme_bw() + graphics+
+  theme(plot.title = element_text(size = 25))
 
 SBMP_amphib_peron_density_plot
 
@@ -185,7 +191,8 @@ SBMP_amphib_monkeymia_density_plot <- ggplot(SBMP_amphib_monkeymia_density, aes(
   ylab(expression(Mean~density~of~italic(Amphibolis)~("0.04m"^2))) +
   ggtitle("c) Monkey Mia") +
   geom_smooth(method=lm, colour = 1, linetype = 3, se=TRUE, fullrange=TRUE)+
-  theme_bw() + graphics
+  theme_bw() + graphics+
+  theme(plot.title = element_text(size = 25))
 
 SBMP_amphib_monkeymia_density_plot
 
@@ -212,7 +219,8 @@ SBMP_amphib_wooramel_density_plot <- ggplot(SBMP_amphib_wooramel_density, aes(x=
   ylab(expression(Mean~density~of~italic(Amphibolis)~("0.04m"^2))) +
   ggtitle("d) Wooramel") +
   geom_smooth(method=lm, colour = 1, linetype = 3, se=TRUE, fullrange=TRUE)+
-  theme_bw() + graphics
+  theme_bw() + graphics+
+  theme(plot.title = element_text(size = 25))
 
 SBMP_amphib_wooramel_density_plot
 
@@ -242,7 +250,12 @@ SBMP_bundles_plot <- ggplot(SBMP_bundles, aes(x=Year, y=mean)) +
   xlab("Year") +
   ylab(expression(paste("Mean no. of leaf bundles per stem", sep = ""))) +
   geom_smooth(method=lm, colour = 1, linetype = 3, se=TRUE, fullrange=TRUE)+
-  theme_bw() + graphics
+  theme_bw() + graphics+
+  theme(axis.text.x=element_text(angle=45, size = 10, hjust=0.9), #rotates the x axis tick labels an angle of 45 degrees
+        axis.title.x=element_text( size = 15), #removes x axis title
+        axis.title.y=element_text(size = 15), #removes y axis title
+        axis.text.y=element_text(size = 10))
+
 SBMP_bundles_plot
 
 attach(SBMP_bundles)
@@ -268,7 +281,9 @@ SBMP_westerngulf_bundles_plot <- ggplot(SBMP_westerngulf_bundles, aes(x=Year, y=
   ylab(expression(paste("Mean no. of leaf bundles per stem", sep = ""))) +
   ggtitle("a) Western Gulf") +
   geom_smooth(method=lm, colour = 1, linetype = 3, se=TRUE, fullrange=TRUE)+
-  theme_bw() + graphics
+  theme_bw() + graphics+
+  theme(plot.title = element_text(size = 25))
+
 SBMP_westerngulf_bundles_plot
 
 attach(SBMP_westerngulf_bundles)
@@ -294,7 +309,9 @@ SBMP_peron_bundles_plot <- ggplot(SBMP_peron_bundles, aes(x=Year, y=mean)) +
   ylab(expression(paste("Mean no. of leaf bundles per stem", sep = ""))) +
   ggtitle("b) Peron") +
   geom_smooth(method=lm, colour = 1, linetype = 3, se=TRUE, fullrange=TRUE)+
-  theme_bw() + graphics
+  theme_bw() + graphics+
+  theme(plot.title = element_text(size = 25))
+
 SBMP_peron_bundles_plot
 
 attach(SBMP_westerngulf_bundles)
@@ -320,7 +337,9 @@ SBMP_monkeymia_bundles_plot <- ggplot(SBMP_monkeymia_bundles, aes(x=Year, y=mean
   ylab(expression(paste("Mean no. of leaf bundles per stem", sep = ""))) +
   ggtitle("c) Monkey Mia") +
   geom_smooth(method=lm, colour = 1, linetype = 3, se=TRUE, fullrange=TRUE)+
-  theme_bw() + graphics
+  theme_bw() + graphics+
+  theme(plot.title = element_text(size = 25))
+
 SBMP_monkeymia_bundles_plot
 
 attach(SBMP_westerngulf_bundles)
@@ -346,7 +365,9 @@ SBMP_wooramel_bundles_plot <- ggplot(SBMP_wooramel_bundles, aes(x=Year, y=mean))
   ylab(expression(paste("Mean no. of leaf bundles per stem", sep = ""))) +
   ggtitle("d) Wooramel") +
   geom_smooth(method=lm, colour = 1, linetype = 3, se=TRUE, fullrange=TRUE)+
-  theme_bw() + graphics
+  theme_bw() + graphics+
+  theme(plot.title = element_text(size = 25))
+
 SBMP_wooramel_bundles_plot
 
 attach(SBMP_westerngulf_bundles)
@@ -375,7 +396,12 @@ SBMP_leafperbundle_plot <- ggplot(SBMP_leafperbundle, aes(x=Year, y=mean)) +
   xlab("Year") +
   ylab(expression(paste("Mean no. of leaves per bundle", sep = ""))) +
   geom_smooth(method=lm, colour = 1, linetype = 3, se=TRUE, fullrange=TRUE)+
-  theme_bw() + graphics
+  theme_bw() + graphics+
+  theme(axis.text.x=element_text(angle=45, size = 10, hjust=0.9), #rotates the x axis tick labels an angle of 45 degrees
+        axis.title.x=element_text( size = 15), #removes x axis title
+        axis.title.y=element_text(size = 15), #removes y axis title
+        axis.text.y=element_text(size = 10))
+
 SBMP_leafperbundle_plot
 
 attach(SBMP_leafperbundle)
@@ -401,7 +427,9 @@ SBMP_westerngulf_leafperbundle_plot <- ggplot(SBMP_westerngulf_leafperbundle, ae
   ylab(expression(paste("Mean no. of leaves per bundle", sep = ""))) +
   ggtitle("a) Western Gulf") +
   geom_smooth(method=lm, colour = 1, linetype = 3, se=TRUE, fullrange=TRUE)+
-  theme_bw() + graphics
+  theme_bw() + graphics+
+  theme(plot.title = element_text(size = 25))
+
 SBMP_westerngulf_leafperbundle_plot
 
 attach(SBMP_westerngulf_leafperbundle)
@@ -427,7 +455,9 @@ SBMP_peron_leafperbundle_plot <- ggplot(SBMP_peron_leafperbundle, aes(x=Year, y=
   ylab(expression(paste("Mean no. of leaves per bundle", sep = ""))) +
   ggtitle("b) Peron") +
   geom_smooth(method=lm, colour = 1, linetype = 3, se=TRUE, fullrange=TRUE)+
-  theme_bw() + graphics
+  theme_bw() + graphics+
+  theme(plot.title = element_text(size = 25))
+
 SBMP_peron_leafperbundle_plot
 
 attach(SBMP_peron_leafperbundle)
@@ -453,7 +483,9 @@ SBMP_monkeymia_leafperbundle_plot <- ggplot(SBMP_monkeymia_leafperbundle, aes(x=
   ylab(expression(paste("Mean no. of leaves per bundle", sep = ""))) +
   ggtitle("c) Monkey Mia") +
   geom_smooth(method=lm, colour = 1, linetype = 3, se=TRUE, fullrange=TRUE)+
-  theme_bw() + graphics
+  theme_bw() + graphics+
+  theme(plot.title = element_text(size = 25))
+
 SBMP_monkeymia_leafperbundle_plot
 
 attach(SBMP_monkeymia_leafperbundle)
@@ -479,7 +511,9 @@ SBMP_wooramel_leafperbundle_plot <- ggplot(SBMP_wooramel_leafperbundle, aes(x=Ye
   ylab(expression(paste("Mean no. of leaves per bundle", sep = ""))) +
   ggtitle("d) Wooramel") +
   geom_smooth(method=lm, colour = 1, linetype = 3, se=TRUE, fullrange=TRUE)+
-  theme_bw() + graphics
+  theme_bw() + graphics+
+  theme(plot.title = element_text(size = 25))
+
 SBMP_wooramel_leafperbundle_plot
 
 attach(SBMP_wooramel_leafperbundle)

@@ -56,9 +56,10 @@ names(d)[names(d) == 'Sites'] <- 'Site'###Changes column name
 #####################################################################################################
 
 pd <- position_dodge(0.1)
-graphics = theme(axis.text.x=element_text(angle=45, hjust=0.9), #rotates the x axis tick labels an angle of 45 degrees
-                 axis.title.x=element_text(), #removes x axis title
-                 axis.title.y=element_text(), #removes y axis title
+graphics = theme(axis.text.x=element_text(angle=45, size = 15, hjust=0.9), #rotates the x axis tick labels an angle of 45 degrees
+                 axis.title.x=element_text(size = 20), #removes x axis title
+                 axis.title.y=element_text(size = 20), #removes y axis title
+                 axis.text.y=element_text(size = 15),
                  axis.line=element_line(colour="black"), #sets axis lines
                  plot.title =element_text(hjust = 0.05),
                  panel.grid.minor = element_blank(), #removes minor grid lines
@@ -76,10 +77,9 @@ graphics = theme(axis.text.x=element_text(angle=45, hjust=0.9), #rotates the x a
 
 SBMP = subset(d, Park %in% c("SBMP"))
 SBMP_westerngulf = subset(d, Site %in% c("0380 Settlement", "Sandy Point", "South Passage", "Useless Loop North", "Useless Loop South"))
-SBMP_peron = subset(d, Site %in% c("Big Lagoon" , "Denham", "Peron south"))
-SBMP_monkeymia = subset(d, Site %in% c("East Peron" , "Monkey Mia inner bank", "Monkey Mia south outer" , "Monkey Mia Pearl Control", "Monkey Mia south"))
+SBMP_peron = subset(d, Site %in% c("Big Lagoon", "Denham", "Peron South"))
+SBMP_monkeymia = subset(d, Site %in% c("Monkey Mia Inner Bank" , "Monkey Mia Pearl Control", "East Peron" , "Monkey Mia South", "Monkey Mia south_outer"))
 SBMP_wooramel = subset(d, Site %in% c("Wooramel North", "Disappointment Reach"))
-
 
 ####################################################################################
 #SHOOT DENSITY
@@ -101,7 +101,12 @@ SBMP_shootdensity_plot <- ggplot(SBMP_shootdensity, aes(x=Year, y=mean)) +
   xlab("Year") +
   ylab(expression(paste("Mean density (","0.04m"^-2,")", sep = ""))) +
   geom_smooth(method=lm, colour = 1, linetype = 3, se=TRUE, fullrange=TRUE)+
-  theme_bw() + graphics
+  theme_bw() + graphics+
+  theme(axis.text.x=element_text(angle=45, size = 10, hjust=0.9), #rotates the x axis tick labels an angle of 45 degrees
+      axis.title.x=element_text( size = 15), #removes x axis title
+      axis.title.y=element_text(size = 15), #removes y axis title
+      axis.text.y=element_text(size = 10))
+
 SBMP_shootdensity_plot
 
 attach(SBMP_shootdensity)
@@ -124,10 +129,11 @@ SBMP_westerngulf_shootdensity_plot <- ggplot(SBMP_westerngulf_shootdensity, aes(
   scale_y_continuous(limits=c(min(0), max(15)))+
   xlab("Year") +
   ylab(expression(paste("Mean density (","0.04m"^-2,")", sep = ""))) +
-  ggtitle("a) Western Gulf") element_text(size=5)+
+  ggtitle("a) Western Gulf")+
   geom_smooth(method=lm, colour = 1, linetype = 3, se=FALSE, fullrange=TRUE)+
   # facet_wrap(~ Zone, nrow = 2)+
-  theme_bw() + graphics
+  theme_bw() + graphics+
+  theme(plot.title = element_text(size = 25))
 
 SBMP_westerngulf_shootdensity_plot
 
@@ -154,7 +160,8 @@ SBMP_peron_shootdensity_plot<-ggplot(SBMP_peron_shootdensity, aes(x=Year, y=mean
   ylab(expression(paste("Mean density (","0.04m"^-2,")", sep = ""))) +
   ggtitle("b) Peron")+
   geom_smooth(method=lm, colour = 1, linetype =3, se=FALSE,fullrange=TRUE)+
-  theme_bw() + graphics
+  theme_bw() + graphics+
+  theme(plot.title = element_text(size = 25))
 
 SBMP_peron_shootdensity_plot
 
@@ -181,7 +188,8 @@ SBMP_monkeymia_shootdensity_plot <- ggplot(SBMP_monkeymia_shootdensity, aes(x=Ye
   ylab(expression(paste("Mean density (","0.04m"^-2,")", sep = ""))) +
   ggtitle("c) Monkey Mia")+
   geom_smooth(method=lm, colour = 1, linetype = 3, se = FALSE, fullrange=TRUE) +
-  theme_bw() + graphics
+  theme_bw() + graphics+
+  theme(plot.title = element_text(size = 25))
 
 SBMP_monkeymia_shootdensity_plot
 
@@ -208,7 +216,8 @@ SBMP_wooramel_shootdensity_plot<-ggplot(SBMP_wooramel_shootdensity, aes(x=Year, 
   ylab(expression(paste("Mean density (","0.04m"^-2,")", sep = ""))) +
   ggtitle("d) Wooramel")+
   geom_smooth(method=lm, colour = 1, linetype = 3, se = FALSE, fullrange=TRUE) +
-  theme_bw() + graphics
+  theme_bw() + graphics+
+  theme(plot.title = element_text(size = 25))
 
 SBMP_wooramel_shootdensity_plot
 
@@ -236,7 +245,12 @@ SBMP_maxheight_plot <- ggplot(SBMP_maxheight, aes(x=Year, y=mean)) +
   xlab("Year") +
   ylab(expression(paste("Mean maximum canopy height (mm)", sep = ""))) +
   geom_smooth(method=lm, colour = 1, linetype=3, se=TRUE, fullrange=TRUE)+
-  theme_bw() + graphics
+  theme_bw() + graphics+
+  theme(axis.text.x=element_text(angle=45, size = 10, hjust=0.9), #rotates the x axis tick labels an angle of 45 degrees
+        axis.title.x=element_text( size = 15), #removes x axis title
+        axis.title.y=element_text(size = 15), #removes y axis title
+        axis.text.y=element_text(size = 10))
+
 SBMP_maxheight_plot
 
 attach(SBMP_maxheight)
@@ -262,7 +276,8 @@ SBMP_westerngulf_maxheight_plot <- ggplot(SBMP_westerngulf_maxheight, aes(x=Year
   ggtitle("a) Western Gulf")+
   geom_smooth(method=lm, colour = 1, linetype = 3, se=FALSE, fullrange=TRUE)+
   # facet_wrap(~ Zone, nrow = 2)+
-  theme_bw() + graphics
+  theme_bw() + graphics+
+  theme(plot.title = element_text(size = 25))
 
 SBMP_westerngulf_maxheight_plot
 
@@ -289,7 +304,8 @@ SBMP_peron_maxheight_plot<-ggplot(SBMP_peron_maxheight, aes(x=Year, y=mean))+
   ylab(expression(paste("Mean maximum canopy height (mm)", sep = ""))) +
   ggtitle("b) Peron")+
   geom_smooth(method=lm, colour = 1, linetype = 3, se=TRUE, fullrange=TRUE)+
-  theme_bw() + graphics
+  theme_bw() + graphics+
+  theme(plot.title = element_text(size = 25))
 
 SBMP_peron_maxheight_plot
 
@@ -316,7 +332,8 @@ SBMP_monkeymia_maxheight_plot <- ggplot(SBMP_monkeymia_maxheight, aes(x=Year, y=
   ylab(expression(paste("Mean maximum canopy height (mm)", sep = ""))) +
   ggtitle("c) Monkey Mia")+
   geom_smooth(method=lm, colour = 1, linetype = 3, se=FALSE, fullrange=TRUE)+
-  theme_bw() + graphics
+  theme_bw() + graphics+
+  theme(plot.title = element_text(size = 25))
 
 SBMP_monkeymia_maxheight_plot
 
@@ -343,7 +360,8 @@ SBMP_wooramel_maxheight_plot<-ggplot(SBMP_wooramel_maxheight, aes(x=Year, y=mean
   ylab(expression(paste("Mean maximum canopy height (mm)", sep = ""))) +
   ggtitle("d) Wooramel")+
   geom_smooth(method=lm, colour = 1, linetype = 3, se=TRUE, fullrange=TRUE)+
-  theme_bw() + graphics
+  theme_bw() + graphics+
+  theme(plot.title = element_text(size = 25))
 
 SBMP_wooramel_maxheight_plot
 
@@ -372,7 +390,12 @@ SBMP_meanheight_plot <- ggplot(SBMP_meanheight, aes(x=Year, y=mean)) +
   xlab("Year") +
   ylab(expression(paste("Mean canopy height (mm)", sep = ""))) +
   geom_smooth(method=lm, colour = 1, linetype=3, se=TRUE, fullrange=TRUE)+
-  theme_bw() + graphics
+  theme_bw() + graphics+
+  theme(axis.text.x=element_text(angle=45, size = 10, hjust=0.9), #rotates the x axis tick labels an angle of 45 degrees
+        axis.title.x=element_text( size = 15), #removes x axis title
+        axis.title.y=element_text(size = 15), #removes y axis title
+        axis.text.y=element_text(size = 10))
+
 SBMP_meanheight_plot
 
 attach(SBMP_meanheight)
@@ -398,7 +421,8 @@ SBMP_westerngulf_meanheight_plot <- ggplot(SBMP_westerngulf_meanheight, aes(x=Ye
   ggtitle("a) Western Gulf")+
   geom_smooth(method=lm, colour = 1, linetype = 3, se=FALSE, fullrange=TRUE)+
   # facet_wrap(~ Zone, nrow = 2)+
-  theme_bw() + graphics
+  theme_bw() + graphics+
+  theme(plot.title = element_text(size = 25))
 
 SBMP_westerngulf_meanheight_plot
 
@@ -425,7 +449,8 @@ SBMP_peron_meanheight_plot<-ggplot(SBMP_peron_meanheight, aes(x=Year, y=mean))+
   ylab(expression(paste("Mean canopy height (mm)", sep = ""))) +
   ggtitle("b) Peron")+
   geom_smooth(method=lm, colour = 1, linetype = 3,se=TRUE, fullrange=TRUE)+
-  theme_bw() + graphics
+  theme_bw() + graphics+
+  theme(plot.title = element_text(size = 25))
 
 SBMP_peron_meanheight_plot
 
@@ -452,7 +477,8 @@ SBMP_monkeymia_meanheight_plot <- ggplot(SBMP_monkeymia_meanheight, aes(x=Year, 
   ylab(expression(paste("Mean canopy height (mm)", sep = ""))) +
   ggtitle("c) Monkey Mia")+
   geom_smooth(method=lm, colour = 1, linetype = 3, se=FALSE, fullrange=TRUE)+
-  theme_bw() + graphics
+  theme_bw() + graphics+
+  theme(plot.title = element_text(size = 25))
 
 SBMP_monkeymia_meanheight_plot
 
@@ -479,7 +505,8 @@ SBMP_wooramel_meanheight_plot<-ggplot(SBMP_wooramel_meanheight, aes(x=Year, y=me
   ylab(expression(paste("Mean canopy height (mm)", sep = ""))) +
   ggtitle("d) Wooramel")+
   geom_smooth(method=lm, colour = 1, linetype = 3, se=TRUE, fullrange=TRUE)+
-  theme_bw() + graphics
+  theme_bw() + graphics+
+  theme(plot.title = element_text(size = 25))
 
 SBMP_wooramel_meanheight_plot
 
