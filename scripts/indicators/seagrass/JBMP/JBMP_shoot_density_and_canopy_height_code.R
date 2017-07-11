@@ -75,10 +75,9 @@ graphics = theme(axis.text.x=element_text(angle=45, hjust=0.9), #rotates the x a
 ##################################################################################
 
 JBMP = subset(d, Park %in% c("JBMP"))
-JBMP_south = subset(d, Site %in% c("Becher Point", "Becher Point SZ", "Port Kennedy"))
-JBMP_warnbro = subset(d, Site %in% c("Warnbro Sound 2.5m" , "Warnbro Sound 3.2m", "Warnbro Sound 5.2m" , "Warnbro Sound 7.0m", "Warnbro Sound 2.0m" , "Mersey Point"))
-JBMP_shoalwater = subset(d, Site %in% c("Penguin Island" , "Seal Island", "Bird Island"))
-JBMP_north = subset(d, Site %in% c("Causeway"))
+JBMP_south = subset(d, Site %in% c("Kangaroo Point", "Cervantes Island", "Green Island"))
+JBMP_centre = subset(d, Site %in% c("Jurien Impact Site 2.5" , "Boullanger Island 2.5", "Boullanger Island 3.5" , "Boullanger Island 5.5"))
+JBMP_north = subset(d, Site %in% c("Fishermans Island 2.5","Fishermans Island 3.5", "Fishermans Island 5.5"))
 
 
 ####################################################################################
