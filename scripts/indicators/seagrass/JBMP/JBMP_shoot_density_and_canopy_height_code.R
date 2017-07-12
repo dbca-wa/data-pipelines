@@ -96,7 +96,7 @@ JBMP_shootdensity_plot <- ggplot(JBMP_shootdensity, aes(x=Year, y=mean)) +
   #geom_line(position=pd) +
   geom_point(position=pd, size=3, fill="black") + # 21 is filled circle
   scale_x_continuous(limits=c(min(JBMP_shootdensity$Year-0.125), max(JBMP_shootdensity$Year+0.125)), breaks=min(JBMP_shootdensity$Year):max(JBMP_shootdensity$Year)) +
-  scale_y_continuous(limits=c(min(0), max(50)))+
+  scale_y_continuous(limits=c(min(0), max(60)))+
   # xlab("Year") +
   ylab(expression(paste("Mean density (","0.04m"^-2,")", sep = ""))) +
   geom_smooth(method=lm, colour = 1, se=TRUE, fullrange=TRUE)+
@@ -122,7 +122,7 @@ JBMP_south_shootdensity_plot <- ggplot(JBMP_south_shootdensity, aes(x=Year, y=me
   #geom_line(position=pd) +
   geom_point(position=pd, size=3, fill="black") +
   scale_x_continuous(limits=c(min(JBMP_south_shootdensity$Year-0.125), max(JBMP_south_shootdensity$Year+0.125)), breaks=min(JBMP_south_shootdensity$Year):max(JBMP_south_shootdensity$Year)) +
-  scale_y_continuous(limits=c(min(0), max(50)))+
+  scale_y_continuous(limits=c(min(0), max(60)))+
   # xlab("Year") +
   ylab(expression(paste("Mean density (","0.04m"^-2,")", sep = ""))) +
   ggtitle("a) South") +
@@ -149,7 +149,7 @@ JBMP_centre_shootdensity_plot<-ggplot(JBMP_centre_shootdensity, aes(x=Year, y=me
   #geom_line(position=pd) +
   geom_point(position=pd, size=3, fill="black") + # 21 is filled circle
   scale_x_continuous(limits=c(min(JBMP_centre_shootdensity$Year-0.125), max(JBMP_centre_shootdensity$Year+0.125)), breaks=min(JBMP_centre_shootdensity$Year):max(JBMP_centre_shootdensity$Year)) +
-  scale_y_continuous(limits=c(min(0), max(50)))+
+  scale_y_continuous(limits=c(min(0), max(60)))+
   # xlab("Year") +
   ylab(expression(paste("Mean density (","0.04m"^-2,")", sep = ""))) +
   ggtitle("b) Centre")+
@@ -176,7 +176,7 @@ JBMP_north_shootdensity_plot<-ggplot(JBMP_north_shootdensity, aes(x=Year, y=mean
   #geom_line(position=pd) +
   geom_point(position=pd, size=3, fill="black") + # 21 is filled circle
   scale_x_continuous(limits=c(min(JBMP_north_shootdensity$Year-0.125), max(JBMP_north_shootdensity$Year+0.125)), breaks=min(JBMP_north_shootdensity$Year):max(JBMP_north_shootdensity$Year)) +
-  scale_y_continuous(limits=c(min(0), max(50)))+
+  scale_y_continuous(limits=c(min(0), max(60)))+
   xlab("Year") +
   ylab(expression(paste("Mean density (","0.04m"^-2,")", sep = ""))) +
   ggtitle("d) North")+
