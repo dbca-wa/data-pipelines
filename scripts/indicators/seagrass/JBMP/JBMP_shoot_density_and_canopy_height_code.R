@@ -129,52 +129,36 @@ JBMP_south_shootdensity_plot <- ggplot(JBMP_south_shootdensity, aes(x=Year, y=me
 
 JBMP_south_shootdensity_plot
 
+attach(JBMP_south_shootdensity)
+MannKendall(mean)
+detach(JBMP_south_shootdensity)
 
 #############################################################
-#Warnbro Sound shoot density
+#JBMP_centre shoot density
 
-JBMP_warnbro_shootdensity <- ddply(JBMP_warnbro, .(Year, Zone), summarise,
+JBMP_centre_shootdensity <- ddply(JBMP_centre, .(Year, Zone), summarise,
                      N    = length(!is.na(Pos_total)),
                      mean = mean(Pos_total, na.rm=TRUE),
                      sd   = sd(Pos_total, na.rm=TRUE),
                      se   = sd(Pos_total, na.rm=TRUE) / sqrt(length(!is.na(Pos_total)) ))
 
-JBMP_warnbro_shootdensity_plot<-ggplot(JBMP_warnbro_shootdensity, aes(x=Year, y=mean, group=Zone, linetype=Zone, shape=Zone)) +
+JBMP_centre_shootdensity_plot<-ggplot(JBMP_centre_shootdensity, aes(x=Year, y=mean, group=Zone, linetype=Zone, shape=Zone)) +
   geom_errorbar(aes(ymin=mean-se, ymax=mean+se), width=.02, colour="black", position=pd) +
   #geom_line(position=pd) +
   geom_point(position=pd, size=3, fill="black") + # 21 is filled circle
-  scale_x_continuous(limits=c(min(JBMP_warnbro_shootdensity$Year-0.125), max(JBMP_warnbro_shootdensity$Year+0.125)), breaks=min(JBMP_warnbro_shootdensity$Year):max(JBMP_warnbro_shootdensity$Year)) +
+  scale_x_continuous(limits=c(min(JBMP_centre_shootdensity$Year-0.125), max(JBMP_centre_shootdensity$Year+0.125)), breaks=min(JBMP_centre_shootdensity$Year):max(JBMP_centre_shootdensity$Year)) +
   scale_y_continuous(limits=c(min(0), max(50)))+
   xlab("Year") +
   ylab(expression(paste("Mean density (","0.04m"^-2,")", sep = ""))) +
-  ggtitle("b) Warnbro Sound")+
+  ggtitle("b) Centre")+
   geom_smooth(method=lm, colour = 1, se=FALSE,fullrange=TRUE)+
   theme_bw() + graphics
 
-JBMP_warnbro_shootdensity_plot
+JBMP_centre_shootdensity_plot
 
-#################################################################
-#JBMP_shoalwater Bay shoot density
-
-JBMP_shoalwater_shootdensity <- ddply(JBMP_shoalwater, .(Year, Zone), summarise,
-                     N    = length(!is.na(Pos_total)),
-                     mean = mean(Pos_total, na.rm=TRUE),
-                     sd   = sd(Pos_total, na.rm=TRUE),
-                     se   = sd(Pos_total, na.rm=TRUE) / sqrt(length(!is.na(Pos_total)) ))
-
-JBMP_shoalwater_shootdensity_plot <- ggplot(JBMP_shoalwater_shootdensity, aes(x=Year, y=mean, group=Zone, linetype=Zone, shape=Zone)) +
-  geom_errorbar(aes(ymin=mean-se, ymax=mean+se), width=.02, colour="black", position=pd) +
-  #geom_line(position=pd) +
-  geom_point(position=pd, size=3, fill="black") + # 21 is filled circle
-  scale_x_continuous(limits=c(min(JBMP_shoalwater_shootdensity$Year-0.125), max(JBMP_shoalwater_shootdensity$Year+0.125)), breaks=min(JBMP_shoalwater_shootdensity$Year):max(JBMP_shoalwater_shootdensity$Year)) +
-  scale_y_continuous(limits=c(min(0), max(50)))+
-  xlab("Year") +
-  ylab(expression(paste("Mean density (","0.04m"^-2,")", sep = ""))) +
-  ggtitle("c) Shoalwater Bay")+
-  geom_smooth(method=lm, colour = 1, se = FALSE, fullrange=TRUE) +
-  theme_bw() + graphics
-
-JBMP_shoalwater_shootdensity_plot
+attach(JBMP_centre_shootdensity)
+MannKendall(mean)
+detach(JBMP_centre_shootdensity)
 
 ###########################################################################
 #JBMP_north shoot density
