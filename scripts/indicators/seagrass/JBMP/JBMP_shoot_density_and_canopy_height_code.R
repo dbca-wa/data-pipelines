@@ -184,6 +184,10 @@ JBMP_north_shootdensity_plot<-ggplot(JBMP_north_shootdensity, aes(x=Year, y=mean
 JBMP_north_shootdensity_plot
 
 
+attach(JBMP_north_shootdensity)
+MannKendall(mean)
+detach(JBMP_north_shootdensity)
+
 ####################################################################################
 #MAXIMUM CANOPY HEIGHT
 ####################################################################################
@@ -234,75 +238,63 @@ JBMP_south_maxheight_plot <- ggplot(JBMP_south_maxheight, aes(x=Year, y=mean, gr
 
 JBMP_south_maxheight_plot
 
+attach(JBMP_south_maxheight)
+MannKendall(mean)
+detach(JBMP_south_maxheight)
 
 #############################################################
-#Warnbro Sound max canopy height
+#WJBMP_centre max canopy height
 
-JBMP_warnbro_maxheight <- ddply(JBMP_warnbro, .(Year, Zone), summarise,
+JBMP_centre_maxheight <- ddply(JBMP_centre, .(Year, Zone), summarise,
                                    N    = length(!is.na(Maximum_height_mm)),
                                    mean = mean(Maximum_height_mm, na.rm=TRUE),
                                    sd   = sd(Maximum_height_mm, na.rm=TRUE),
                                    se   = sd(Maximum_height_mm, na.rm=TRUE) / sqrt(length(!is.na(Maximum_height_mm)) ))
 
-JBMP_warnbro_maxheight_plot<-ggplot(JBMP_warnbro_maxheight, aes(x=Year, y=mean, group=Zone, linetype=Zone, shape=Zone)) +
+JBMP_warnbro_maxheight_plot<-ggplot(JBMP_centre_maxheight, aes(x=Year, y=mean, group=Zone, linetype=Zone, shape=Zone)) +
   geom_errorbar(aes(ymin=mean-se, ymax=mean+se), width=.02, colour="black", position=pd) +
   # geom_line(position=pd) +
   geom_point(position=pd, size=3, fill="black") + # 21 is filled circle
-  scale_x_continuous(limits=c(min(2009), max(JBMP_warnbro_maxheight$Year+0.125)), breaks=min(JBMP_warnbro_maxheight$Year):max(JBMP_warnbro_maxheight$Year)) +
+  scale_x_continuous(limits=c(min(2009), max(JBMP_centre_maxheight$Year+0.125)), breaks=min(JBMP_centre_maxheight$Year):max(JBMP_centre_maxheight$Year)) +
   scale_y_continuous(limits=c(min(0), max(1000)))+
   xlab("Year") +
   ylab(expression(paste("Mean max height (mm)", sep = ""))) +
-  ggtitle("b) Warnbro Sound")+
+  ggtitle("b) Centre")+
   geom_smooth(method=lm, colour = 1, se=FALSE, fullrange=FALSE)+
     theme_bw() + graphics
 
 JBMP_warnbro_maxheight_plot
 
-#################################################################
-#JBMP_shoalwater maxy canopy height
+attach(JBMP_north_maxheight)
+MannKendall(mean)
+detach(JBMP_north_maxheight)
 
-JBMP_shoalwater_maxheight <- ddply(JBMP_shoalwater, .(Year, Zone), summarise,
+#################################################################
+#JBMP_north max canopy height
+
+JBMP_north_maxheight <- ddply(JBMP_north, .(Year, Zone), summarise,
                                       N    = length(!is.na(Maximum_height_mm)),
                                       mean = mean(Maximum_height_mm, na.rm=TRUE),
                                       sd   = sd(Maximum_height_mm, na.rm=TRUE),
                                       se   = sd(Maximum_height_mm, na.rm=TRUE) / sqrt(length(!is.na(Maximum_height_mm)) ))
 
-JBMP_shoalwater_maxheight_plot <- ggplot(JBMP_shoalwater_maxheight, aes(x=Year, y=mean, group=Zone, linetype=Zone, shape=Zone)) +
+JBMP_north_maxheight_plot <- ggplot(JBMP_north_maxheight, aes(x=Year, y=mean, group=Zone, linetype=Zone, shape=Zone)) +
   geom_errorbar(aes(ymin=mean-se, ymax=mean+se), width=.02, colour="black", position=pd) +
   # geom_line(position=pd) +
   geom_point(position=pd, size=3, fill="black") + # 21 is filled circle
-  scale_x_continuous(limits=c(min(2009), max(JBMP_shoalwater_maxheight$Year+0.125)), breaks=min(JBMP_shoalwater_maxheight$Year):max(JBMP_shoalwater_maxheight$Year)) +
+  scale_x_continuous(limits=c(min(2009), max(JBMP_north_maxheight$Year+0.125)), breaks=min(JBMP_north_maxheight$Year):max(JBMP_north_maxheight$Year)) +
   scale_y_continuous(limits=c(min(0), max(1000)))+
   xlab("Year") +
   ylab(expression(paste("Mean max height (mm)", sep = ""))) +
-  ggtitle("c) Shoalwater Bay")+
+  ggtitle("c) North")+
   geom_smooth(method=lm, colour = 1, se=FALSE, fullrange=FALSE)+
   theme_bw() + graphics
 
-JBMP_shoalwater_maxheight_plot
-
-###########################################################################
-#JBMP_north max canopy height
-
-JBMP_north_maxheight <- ddply(JBMP_north, .(Year, Zone), summarise,
-                                 N    = length(!is.na(Maximum_height_mm)),
-                                 mean = mean(Maximum_height_mm, na.rm=TRUE),
-                                 sd   = sd(Maximum_height_mm, na.rm=TRUE),
-                                 se   = sd(Maximum_height_mm, na.rm=TRUE) / sqrt(length(!is.na(Maximum_height_mm)) ))
-
-JBMP_north_maxheight_plot<-ggplot(JBMP_north_maxheight, aes(x=Year, y=mean, group=Zone, linetype=Zone, shape=Zone)) +
-  geom_errorbar(aes(ymin=mean-se, ymax=mean+se), width=.02, colour="black", position=pd) +
-  # geom_line(position=pd) +
-  geom_point(position=pd, size=3, fill="black") + # 21 is filled circle
-  scale_x_continuous(limits=c(min(JBMP_north_maxheight$Year-0.125), max(JBMP_north_maxheight$Year+0.125)), breaks=min(JBMP_north_maxheight$Year):max(JBMP_north_maxheight$Year)) +
-  scale_y_continuous(limits=c(min(0), max(1000)))+
-  xlab("Year") +
-  ylab(expression(paste("Mean max height (mm)", sep = ""))) +
-  ggtitle("d) Point Peron")+
-  geom_smooth(method=lm, colour = 1, se=FALSE, fullrange=TRUE)+
-  theme_bw() + graphics
-
 JBMP_north_maxheight_plot
+
+attach(JBMP_north_maxheight)
+MannKendall(mean)
+detach(JBMP_north_maxheight)
 
 
 ####################################################################################
@@ -333,7 +325,9 @@ attach(JBMP_meanheight)
 MannKendall(mean)
 detach(JBMP_meanheight)
 
+######################################################################################################################
 #JBMP_south max canopy height
+
 JBMP_south_meanheight <- plyr::ddply(JBMP_south, .(Year, Zone), summarise,
                                     N    = length(!is.na(Mean_height_mm)),
                                     mean = mean(Mean_height_mm, na.rm=TRUE),
@@ -354,76 +348,63 @@ JBMP_south_meanheight_plot <- ggplot(JBMP_south_meanheight, aes(x=Year, y=mean, 
 
 JBMP_south_meanheight_plot
 
+attach(JBMP_south_meanheight)
+MannKendall(mean)
+detach(JBMP_south_meanheight)
 
 #############################################################
-#Warnbro Sound max canopy height
+#JBMP_centre max canopy height
 
-JBMP_warnbro_meanheight <- ddply(JBMP_warnbro, .(Year, Zone), summarise,
+JBMP_centre_meanheight <- ddply(JBMP_centre, .(Year, Zone), summarise,
                                 N    = length(!is.na(Mean_height_mm)),
                                 mean = mean(Mean_height_mm, na.rm=TRUE),
                                 sd   = sd(Mean_height_mm, na.rm=TRUE),
                                 se   = sd(Mean_height_mm, na.rm=TRUE) / sqrt(length(!is.na(Mean_height_mm)) ))
 
-JBMP_warnbro_meanheight_plot<-ggplot(JBMP_warnbro_meanheight, aes(x=Year, y=mean, group=Zone, linetype=Zone, shape=Zone)) +
+JBMP_centre_meanheight_plot<-ggplot(JBMP_centre_meanheight, aes(x=Year, y=mean, group=Zone, linetype=Zone, shape=Zone)) +
   geom_errorbar(aes(ymin=mean-se, ymax=mean+se), width=.02, colour="black", position=pd) +
   # geom_line(position=pd) +
   geom_point(position=pd, size=3, fill="black") + # 21 is filled circle
-  scale_x_continuous(limits=c(min(2013), max(JBMP_warnbro_meanheight$Year+0.125)), breaks=min(JBMP_warnbro_meanheight$Year):max(JBMP_warnbro_meanheight$Year)) +
+  scale_x_continuous(limits=c(min(2013), max(JBMP_centre_meanheight$Year+0.125)), breaks=min(JBMP_centre_meanheight$Year):max(JBMP_centre_meanheight$Year)) +
   scale_y_continuous(limits=c(min(0), max(1000)))+
   xlab("Year") +
   ylab(expression(paste("Mean max height (mm)", sep = ""))) +
-  ggtitle("b) Warnbro Sound")+
+  ggtitle("b) Centre")+
   geom_smooth(method=lm, colour = 1, se=FALSE, fullrange=TRUE)+
   theme_bw() + graphics
 
-JBMP_warnbro_meanheight_plot
+JBMP_centre_meanheight_plot
+
+attach(JBMP_centre_meanheight)
+MannKendall(mean)
+detach(JBMP_centre_meanheight)
 
 #################################################################
-#JBMP_shoalwater maxy canopy height
+#JBMP_north maxy canopy height
 
-JBMP_shoalwater_meanheight <- ddply(JBMP_shoalwater, .(Year, Zone), summarise,
+JBMP_north_meanheight <- ddply(JBMP_north, .(Year, Zone), summarise,
                                    N    = length(!is.na(Mean_height_mm)),
                                    mean = mean(Mean_height_mm, na.rm=TRUE),
                                    sd   = sd(Mean_height_mm, na.rm=TRUE),
                                    se   = sd(Mean_height_mm, na.rm=TRUE) / sqrt(length(!is.na(Mean_height_mm)) ))
 
-JBMP_shoalwater_meanheight_plot <- ggplot(JBMP_shoalwater_meanheight, aes(x=Year, y=mean, group=Zone, linetype=Zone, shape=Zone)) +
+JBMP_north_meanheight_plot <- ggplot(JBMP_north_meanheight, aes(x=Year, y=mean, group=Zone, linetype=Zone, shape=Zone)) +
   geom_errorbar(aes(ymin=mean-se, ymax=mean+se), width=.02, colour="black", position=pd) +
   # geom_line(position=pd) +
   geom_point(position=pd, size=3, fill="black") + # 21 is filled circle
-  scale_x_continuous(limits=c(min(2012), max(JBMP_shoalwater_meanheight$Year+0.125)), breaks=min(JBMP_shoalwater_meanheight$Year):max(JBMP_shoalwater_meanheight$Year)) +
+  scale_x_continuous(limits=c(min(2012), max(JBMP_north_meanheight$Year+0.125)), breaks=min(JBMP_north_meanheight$Year):max(JBMP_north_meanheight$Year)) +
   scale_y_continuous(limits=c(min(0), max(1000)))+
   xlab("Year") +
   ylab(expression(paste("Mean max height (mm)", sep = ""))) +
-  ggtitle("c) Shoalwater Bay")+
-  geom_smooth(method=lm, colour = 1, se=FALSE, fullrange=TRUE)+
-  theme_bw() + graphics
-
-JBMP_shoalwater_meanheight_plot
-
-###########################################################################
-#JBMP_north max canopy height
-
-JBMP_north_meanheight <- ddply(JBMP_north, .(Year, Zone), summarise,
-                              N    = length(!is.na(Mean_height_mm)),
-                              mean = mean(Mean_height_mm, na.rm=TRUE),
-                              sd   = sd(Mean_height_mm, na.rm=TRUE),
-                              se   = sd(Mean_height_mm, na.rm=TRUE) / sqrt(length(!is.na(Mean_height_mm)) ))
-
-JBMP_north_meanheight_plot<-ggplot(JBMP_north_meanheight, aes(x=Year, y=mean, group=Zone, linetype=Zone, shape=Zone)) +
-  geom_errorbar(aes(ymin=mean-se, ymax=mean+se), width=.02, colour="black", position=pd) +
-  # geom_line(position=pd) +
-  geom_point(position=pd, size=3, fill="black") + # 21 is filled circle
-  scale_x_continuous(limits=c(min(JBMP_north_meanheight$Year-0.125), max(JBMP_north_meanheight$Year+0.125)), breaks=min(JBMP_north_meanheight$Year):max(JBMP_north_meanheight$Year)) +
-  scale_y_continuous(limits=c(min(0), max(1000)))+
-  xlab("Year") +
-  ylab(expression(paste("Mean max height (mm)", sep = ""))) +
-  ggtitle("d) Point Peron")+
+  ggtitle("c) North")+
   geom_smooth(method=lm, colour = 1, se=FALSE, fullrange=TRUE)+
   theme_bw() + graphics
 
 JBMP_north_meanheight_plot
 
+attach(JBMP_north_meanheight)
+MannKendall(mean)
+detach(JBMP_north_meanheight)
 
 
 #####################################################################################
@@ -437,11 +418,11 @@ grid.arrange(JBMP_shootdensity_plot)
 dev.off()
 
 pdf(pdf_shoot_density_fn, width=8, height=7)
-grid.arrange(JBMP_south_shootdensity_plot, JBMP_warnbro_shootdensity_plot, JBMP_shoalwater_shootdensity_plot, JBMP_north_shootdensity_plot,ncol=2)
+grid.arrange(JBMP_south_shootdensity_plot, JBMP_centre_shootdensity_plot, JBMP_north_shootdensity_plot,ncol=2)
 dev.off()
 
 png(png_shoot_density_fn, width=1000, height=800)
-grid.arrange(JBMP_south_shootdensity_plot, JBMP_warnbro_shootdensity_plot, JBMP_shoalwater_shootdensity_plot, JBMP_north_shootdensity_plot, ncol=2)
+grid.arrange(JBMP_south_shootdensity_plot, JBMP_centre_shootdensity_plot, JBMP_north_shootdensity_plot, ncol=2)
 dev.off()
 
 #Maximum canopy height
@@ -450,11 +431,11 @@ grid.arrange(JBMP_maxheight_plot)
 dev.off()
 
 pdf(pdf_max_height_fn, width=8, height=7)
-grid.arrange(JBMP_south_maxheight_plot, JBMP_warnbro_maxheight_plot, JBMP_shoalwater_maxheight_plot, JBMP_north_maxheight_plot, ncol=2)
+grid.arrange(JBMP_south_maxheight_plot, JBMP_centre_maxheight_plot, JBMP_north_maxheight_plot, ncol=2)
 dev.off()
 
 png(png_max_height_fn, width=1000, height=800)
-grid.arrange(JBMP_south_maxheight_plot, JBMP_warnbro_maxheight_plot, JBMP_shoalwater_maxheight_plot, JBMP_north_maxheight_plot, ncol=2)
+grid.arrange(JBMP_south_maxheight_plot, JBMP_centre_maxheight_plot, JBMP_north_maxheight_plot, ncol=2)
 dev.off()
 
 #Mean canopy height
@@ -463,11 +444,11 @@ grid.arrange(JBMP_meanheight_plot)
 dev.off()
 
 pdf(pdf_mean_height_fn, width=8, height=7)
-grid.arrange(JBMP_south_meanheight_plot, JBMP_warnbro_meanheight_plot, JBMP_shoalwater_meanheight_plot, JBMP_north_meanheight_plot, ncol=2)
+grid.arrange(JBMP_south_meanheight_plot, JBMP_centre_meanheight_plot, JBMP_north_meanheight_plot, ncol=2)
 dev.off()
 
 png(png_mean_height_fn, width=1000, height=800)
-grid.arrange(JBMP_south_meanheight_plot, JBMP_warnbro_meanheight_plot, JBMP_shoalwater_meanheight_plot, JBMP_north_meanheight_plot, ncol=2)
+grid.arrange(JBMP_south_meanheight_plot, JBMP_centre_meanheight_plot, JBMP_north_meanheight_plot, ncol=2)
 dev.off()
 
 
