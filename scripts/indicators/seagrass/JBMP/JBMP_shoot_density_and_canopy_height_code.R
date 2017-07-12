@@ -97,10 +97,11 @@ JBMP_shootdensity_plot <- ggplot(JBMP_shootdensity, aes(x=Year, y=mean)) +
   geom_point(position=pd, size=3, fill="black") + # 21 is filled circle
   scale_x_continuous(limits=c(min(JBMP_shootdensity$Year-0.125), max(JBMP_shootdensity$Year+0.125)), breaks=min(JBMP_shootdensity$Year):max(JBMP_shootdensity$Year)) +
   scale_y_continuous(limits=c(min(0), max(50)))+
-  xlab("Year") +
+  # xlab("Year") +
   ylab(expression(paste("Mean density (","0.04m"^-2,")", sep = ""))) +
   geom_smooth(method=lm, colour = 1, se=TRUE, fullrange=TRUE)+
   theme_bw() + graphics
+
 JBMP_shootdensity_plot
 
 attach(JBMP_shootdensity)
@@ -122,10 +123,10 @@ JBMP_south_shootdensity_plot <- ggplot(JBMP_south_shootdensity, aes(x=Year, y=me
   geom_point(position=pd, size=3, fill="black") +
   scale_x_continuous(limits=c(min(JBMP_south_shootdensity$Year-0.125), max(JBMP_south_shootdensity$Year+0.125)), breaks=min(JBMP_south_shootdensity$Year):max(JBMP_south_shootdensity$Year)) +
   scale_y_continuous(limits=c(min(0), max(50)))+
-  xlab("Year") +
+  # xlab("Year") +
   ylab(expression(paste("Mean density (","0.04m"^-2,")", sep = ""))) +
   ggtitle("a) South") +
-  geom_smooth(method=lm, colour = 1, se=FALSE, fullrange=TRUE)+
+  # geom_smooth(method=lm, colour = 1, se=FALSE, fullrange=TRUE)+
   theme_bw() + graphics
 
 JBMP_south_shootdensity_plot
@@ -152,7 +153,7 @@ JBMP_centre_shootdensity_plot<-ggplot(JBMP_centre_shootdensity, aes(x=Year, y=me
   # xlab("Year") +
   ylab(expression(paste("Mean density (","0.04m"^-2,")", sep = ""))) +
   ggtitle("b) Centre")+
-  geom_smooth(method=lm, colour = 1, se=FALSE, fullrange=TRUE)+
+  geom_smooth(method=lm, colour = 1, se=TRUE, fullrange=TRUE)+
   theme_bw() + graphics
 
 JBMP_centre_shootdensity_plot
@@ -179,7 +180,7 @@ JBMP_north_shootdensity_plot<-ggplot(JBMP_north_shootdensity, aes(x=Year, y=mean
   xlab("Year") +
   ylab(expression(paste("Mean density (","0.04m"^-2,")", sep = ""))) +
   ggtitle("d) North")+
-  geom_smooth(method=gam, colour = 1, se=TRUE, fullrange=TRUE) +
+  # geom_smooth(method=loess, colour = 1, se=TRUE, fullrange=TRUE) +
   theme_bw() + graphics
 
 JBMP_north_shootdensity_plot
@@ -204,11 +205,11 @@ JBMP_maxheight_plot <- ggplot(JBMP_maxheight, aes(x=Year, y=mean)) +
   geom_errorbar(aes(ymin=mean-se, ymax=mean+se), width=.02, colour="black", position=pd) +
   # geom_line(position=pd) +
   geom_point(position=pd, size=3, fill="black") + # 21 is filled circle
-  scale_x_continuous(limits=c(min(2009), max(JBMP_maxheight$Year+0.125)), breaks=min(JBMP_maxheight$Year):max(JBMP_maxheight$Year)) +
+  scale_x_continuous(limits=c(min(JBMP_maxheight$Year-0.125), max(JBMP_maxheight$Year+0.125)), breaks=min(JBMP_maxheight$Year):max(JBMP_maxheight$Year)) +
   scale_y_continuous(limits=c(min(0), max(1000)))+
   xlab("Year") +
   ylab(expression(paste("Mean max height (mm)", sep = ""))) +
-  geom_smooth(method=lm, colour = 1, se=FALSE, fullrange=FALSE)+
+  # geom_smooth(method=lm, colour = 1, se=FALSE, fullrange=FALSE)+
   theme_bw() + graphics
 
 JBMP_maxheight_plot
@@ -234,7 +235,7 @@ JBMP_south_maxheight_plot <- ggplot(JBMP_south_maxheight, aes(x=Year, y=mean)) +
   xlab("Year") +
   ylab(expression(paste("Mean max height (mm)", sep = ""))) +
   ggtitle("a) South") +
-  geom_smooth(method=lm, colour = 1, se=FALSE, fullrange=TRUE)+
+  # geom_smooth(method=lm, colour = 1, se=FALSE, fullrange=TRUE)+
     theme_bw() + graphics
 
 JBMP_south_maxheight_plot
@@ -244,7 +245,7 @@ MannKendall(mean)
 detach(JBMP_south_maxheight)
 
 #############################################################
-#WJBMP_centre max canopy height
+#JBMP_centre max canopy height
 
 JBMP_centre_maxheight <- ddply(JBMP_centre, .(Year), summarise,
                                    N    = length(!is.na(Maximum_height_mm)),
@@ -256,12 +257,12 @@ JBMP_centre_maxheight_plot<-ggplot(JBMP_centre_maxheight, aes(x=Year, y=mean)) +
   geom_errorbar(aes(ymin=mean-se, ymax=mean+se), width=.02, colour="black", position=pd) +
   # geom_line(position=pd) +
   geom_point(position=pd, size=3, fill="black") + # 21 is filled circle
-  scale_x_continuous(limits=c(min(2009), max(JBMP_centre_maxheight$Year+0.125)), breaks=min(JBMP_centre_maxheight$Year):max(JBMP_centre_maxheight$Year)) +
+  scale_x_continuous(limits=c(min(JBMP_centre_maxheight$Year-0.125), max(JBMP_centre_maxheight$Year+0.125)), breaks=min(JBMP_centre_maxheight$Year):max(JBMP_centre_maxheight$Year)) +
   scale_y_continuous(limits=c(min(0), max(1000)))+
   xlab("Year") +
   ylab(expression(paste("Mean max height (mm)", sep = ""))) +
   ggtitle("b) Centre")+
-  geom_smooth(method=lm, colour = 1, se=FALSE, fullrange=FALSE)+
+  # geom_smooth(method=lm, colour = 1, se=FALSE, fullrange=FALSE)+
     theme_bw() + graphics
 
 JBMP_centre_maxheight_plot
@@ -283,12 +284,12 @@ JBMP_north_maxheight_plot <- ggplot(JBMP_north_maxheight, aes(x=Year, y=mean)) +
   geom_errorbar(aes(ymin=mean-se, ymax=mean+se), width=.02, colour="black", position=pd) +
   # geom_line(position=pd) +
   geom_point(position=pd, size=3, fill="black") + # 21 is filled circle
-  scale_x_continuous(limits=c(min(2009), max(JBMP_north_maxheight$Year+0.125)), breaks=min(JBMP_north_maxheight$Year):max(JBMP_north_maxheight$Year)) +
+  scale_x_continuous(limits=c(min(JBMP_north_maxheight$Year-0.125), max(JBMP_north_maxheight$Year+0.125)), breaks=min(JBMP_north_maxheight$Year):max(JBMP_north_maxheight$Year)) +
   scale_y_continuous(limits=c(min(0), max(1000)))+
   xlab("Year") +
   ylab(expression(paste("Mean max height (mm)", sep = ""))) +
   ggtitle("c) North")+
-  geom_smooth(method=lm, colour = 1, se=FALSE, fullrange=FALSE)+
+  # geom_smooth(method=lm, colour = 1, se=FALSE, fullrange=FALSE)+
   theme_bw() + graphics
 
 JBMP_north_maxheight_plot
@@ -313,11 +314,11 @@ JBMP_meanheight_plot <- ggplot(JBMP_meanheight, aes(x=Year, y=mean)) +
   geom_errorbar(aes(ymin=mean-se, ymax=mean+se), width=.02, colour="black", position=pd) +
   # geom_line(position=pd) +
   geom_point(position=pd, size=3, fill="black") + # 21 is filled circle
-  scale_x_continuous(limits=c(min(2012), max(JBMP_meanheight$Year+0.125)), breaks=min(JBMP_meanheight$Year):max(JBMP_meanheight$Year)) +
+  scale_x_continuous(limits=c(min(JBMP_meanheight$Year-0.125), max(JBMP_meanheight$Year+0.125)), breaks=min(JBMP_meanheight$Year):max(JBMP_meanheight$Year)) +
   scale_y_continuous(limits=c(min(0), max(1000)))+
   xlab("Year") +
   ylab(expression(paste("Mean height (mm)", sep = ""))) +
-  geom_smooth(method=lm, colour = 1, se=FALSE, fullrange=FALSE)+
+  geom_smooth(method=lm, colour = 1, se=TRUE, fullrange=FALSE)+
   theme_bw() + graphics
 
 JBMP_meanheight_plot
@@ -339,12 +340,12 @@ JBMP_south_meanheight_plot <- ggplot(JBMP_south_meanheight, aes(x=Year, y=mean))
   geom_errorbar(aes(ymin=mean-se, ymax=mean+se), width=.02, colour="black", position=pd) +
   # geom_line(position=pd) +
   geom_point(position=pd, size=3, fill="black") + # 21 is filled circle
-  scale_x_continuous(limits=c(min(JBMP_south_meanheight$Year-0.125), max(JBMP_south_meanheight$Year+0.125)), breaks=min(JBMP_south_meanheight$Year):max(JBMP_south_meanheight$Year)) +
+  scale_x_continuous(limits=c(min(2013), max(JBMP_south_meanheight$Year+0.125)), breaks=min(JBMP_south_meanheight$Year):max(JBMP_south_meanheight$Year)) +
   scale_y_continuous(limits=c(min(0), max(1000)))+
   xlab("Year") +
   ylab(expression(paste("Mean height (mm)", sep = ""))) +
   ggtitle("a) South") +
-  geom_smooth(method=lm, colour = 1, se=FALSE, fullrange=TRUE)+
+  # geom_smooth(method=lm, colour = 1, se=FALSE, fullrange=TRUE)+
   theme_bw() + graphics
 
 JBMP_south_meanheight_plot
@@ -366,12 +367,12 @@ JBMP_centre_meanheight_plot<-ggplot(JBMP_centre_meanheight, aes(x=Year, y=mean))
   geom_errorbar(aes(ymin=mean-se, ymax=mean+se), width=.02, colour="black", position=pd) +
   # geom_line(position=pd) +
   geom_point(position=pd, size=3, fill="black") + # 21 is filled circle
-  scale_x_continuous(limits=c(min(2013), max(JBMP_centre_meanheight$Year+0.125)), breaks=min(JBMP_centre_meanheight$Year):max(JBMP_centre_meanheight$Year)) +
+  scale_x_continuous(limits=c(min(JBMP_centre_meanheight$Year-0.125), max(JBMP_centre_meanheight$Year+0.125)), breaks=min(JBMP_centre_meanheight$Year):max(JBMP_centre_meanheight$Year)) +
   scale_y_continuous(limits=c(min(0), max(1000)))+
   xlab("Year") +
   ylab(expression(paste("Mean max height (mm)", sep = ""))) +
   ggtitle("b) Centre")+
-  geom_smooth(method=lm, colour = 1, se=FALSE, fullrange=TRUE)+
+  geom_smooth(method=lm, colour = 1, se=TRUE, fullrange=TRUE)+
   theme_bw() + graphics
 
 JBMP_centre_meanheight_plot
@@ -393,12 +394,12 @@ JBMP_north_meanheight_plot <- ggplot(JBMP_north_meanheight, aes(x=Year, y=mean))
   geom_errorbar(aes(ymin=mean-se, ymax=mean+se), width=.02, colour="black", position=pd) +
   # geom_line(position=pd) +
   geom_point(position=pd, size=3, fill="black") + # 21 is filled circle
-  scale_x_continuous(limits=c(min(2012), max(JBMP_north_meanheight$Year+0.125)), breaks=min(JBMP_north_meanheight$Year):max(JBMP_north_meanheight$Year)) +
+  scale_x_continuous(limits=c(min(JBMP_north_meanheight$Year-0.125), max(JBMP_north_meanheight$Year+0.125)), breaks=min(JBMP_north_meanheight$Year):max(JBMP_north_meanheight$Year)) +
   scale_y_continuous(limits=c(min(0), max(1000)))+
   xlab("Year") +
   ylab(expression(paste("Mean max height (mm)", sep = ""))) +
   ggtitle("c) North")+
-  geom_smooth(method=lm, colour = 1, se=FALSE, fullrange=TRUE)+
+  # geom_smooth(method=lm, colour = 1, se=FALSE, fullrange=TRUE)+
   theme_bw() + graphics
 
 JBMP_north_meanheight_plot
