@@ -122,11 +122,11 @@ JBMP_south_shootdensity_plot <- ggplot(JBMP_south_shootdensity, aes(x=Year, y=me
   #geom_line(position=pd) +
   geom_point(position=pd, size=3, fill="black") +
   # scale_x_continuous(limits=c(min(JBMP_south_shootdensity$Year-0.125), max(JBMP_south_shootdensity$Year+0.125)), breaks=min(JBMP_south_shootdensity$Year):max(JBMP_south_shootdensity$Year)) +
-  scale_x_continuous(breaks = seq(2011,2016,1), limits=c(min(2003),(max(2017))))+
+  scale_x_continuous(breaks = seq(2003,2017,1), limits=c(min(2003),(max(2017))))+
   scale_y_continuous(limits=c(min(0), max(60)))+
   # xlab("Year") +
   ylab(expression(paste("Mean density (","0.04m"^-2,")", sep = ""))) +
-  ggtitle("a) South") +
+  ggtitle("c) South") +
   # geom_smooth(method=lm, colour = 1, se=FALSE, fullrange=TRUE)+
   theme_bw() + graphics
 
@@ -180,7 +180,7 @@ JBMP_north_shootdensity_plot<-ggplot(JBMP_north_shootdensity, aes(x=Year, y=mean
   scale_y_continuous(limits=c(min(0), max(60)))+
   xlab("Year") +
   ylab(expression(paste("Mean density (","0.04m"^-2,")", sep = ""))) +
-  ggtitle("d) North")+
+  ggtitle("a) North")+
   # geom_smooth(method=loess, colour = 1, se=TRUE, fullrange=TRUE) +
   theme_bw() + graphics
 
@@ -231,11 +231,12 @@ JBMP_south_maxheight_plot <- ggplot(JBMP_south_maxheight, aes(x=Year, y=mean)) +
   geom_errorbar(aes(ymin=mean-se, ymax=mean+se), width=.02, colour="black", position=pd) +
   # geom_line(position=pd) +
   geom_point(position=pd, size=3, fill="black") + # 21 is filled circle
-  scale_x_continuous(limits=c(min(JBMP_south_maxheight$Year-0.125), max(JBMP_south_maxheight$Year+0.125)), breaks=min(JBMP_south_maxheight$Year):max(JBMP_south_maxheight$Year)) +
+  # scale_x_continuous(limits=c(min(JBMP_south_maxheight$Year-0.125), max(JBMP_south_maxheight$Year+0.125)), breaks=min(JBMP_south_maxheight$Year):max(JBMP_south_maxheight$Year)) +
+  scale_x_continuous(breaks = seq(2003,2017,1), limits=c(min(2003),(max(2017))))+
   scale_y_continuous(limits=c(min(0), max(1000)))+
   xlab("Year") +
   ylab(expression(paste("Mean max height (mm)", sep = ""))) +
-  ggtitle("a) South") +
+  ggtitle("c) South") +
   # geom_smooth(method=lm, colour = 1, se=FALSE, fullrange=TRUE)+
     theme_bw() + graphics
 
@@ -289,7 +290,7 @@ JBMP_north_maxheight_plot <- ggplot(JBMP_north_maxheight, aes(x=Year, y=mean)) +
   scale_y_continuous(limits=c(min(0), max(1000)))+
   xlab("Year") +
   ylab(expression(paste("Mean max height (mm)", sep = ""))) +
-  ggtitle("c) North")+
+  ggtitle("a) North")+
   # geom_smooth(method=lm, colour = 1, se=FALSE, fullrange=FALSE)+
   theme_bw() + graphics
 
