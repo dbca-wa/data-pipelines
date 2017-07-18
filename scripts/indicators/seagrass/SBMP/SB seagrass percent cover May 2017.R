@@ -5,9 +5,11 @@ source("~/projects/data-pipelines/setup/ckan.R")
 library(ggplot2)
 #install.packages("gridExtra")
 library(gridExtra)
+detach("package:dplyr", unload=TRUE)
 library(plyr)
 library(car)
 library (Kendall)
+
 
 ######################################################################################################
 #Define all CKAN resource IDs
@@ -81,7 +83,7 @@ names(SBMP_percentcover) [4] <- "genus"
 SBMP_percentcover$percent = SBMP_percentcover$category_count/SBMP_percentcover$total_count *100
 
 amphibolis_cover <- subset(SBMP_percentcover, genus == c("Amphibolis spp."))
-amphib_cover <- subset (amphibolis_cover, Site %in% c("Herald Bight west Amphibolis","Herald Loop_Amphibolis","Gladstone Site 2_Amphibolis","Gladstone Marker_Amphibolis","0433 Shark Bay Amphibolis","SBMR 0581 Amphibolis","0037 Shark Bay Amphibolis","0595 Shark Bay Amphibolis","0459 Shark Bay Amphibolis","SBMR 0464 Amphibolis","0466 Shark Bay Amphibolis","0456 Shark Bay Amphibolis","0481 Shark Bay Amphibolis","0380 Settlement Amphibolis","Useless Loop North_Amphibolis","Wooramel north_Amphibolis","Disappointment Reach Amphibolis"))
+amphib_cover <- subset (amphibolis_cover, Site %in% c("Monkey Mia control_Amphibolis","Monkey Mia Outer Bank_Amphibolis","Peron Site 3","Herald Bight west Amphibolis","Herald Loop_Amphibolis","Gladstone Site 2_Amphibolis","Gladstone Marker_Amphibolis","0433 Shark Bay Amphibolis","SBMR 0581 Amphibolis","0037 Shark Bay Amphibolis","0595 Shark Bay Amphibolis","0459 Shark Bay Amphibolis","SBMR 0464 Amphibolis","0466 Shark Bay Amphibolis","0456 Shark Bay Amphibolis","0481 Shark Bay Amphibolis","0380 Settlement Amphibolis","Useless Loop North_Amphibolis","Wooramel north_Amphibolis","Disappointment Reach Amphibolis"))
 
 posidonia_cover <- subset(SBMP_percentcover, genus == c("Posidonia spp."))
 pos_cover <- subset (posidonia_cover, Site %in% c("Denham", "Sandy Point", "Big Lagoon", "South Passage", "Useless Loop South", "Useless Loop North", "Peron South", "Disappointment Reach", "Wooramel North", "Monkey Mia Inner Bank", "Monkey Mia Pearl Control", "East Peron", "0380 Settlement", "Monkey Mia South", "Monkey Mia South outer"))
@@ -92,10 +94,6 @@ amphib_cover = within(amphib_cover, levels(Location)[levels(Location) == "Dirk H
 amphib_cover = within(amphib_cover, levels(Location)[levels(Location) == "South-Western Gulf"] <- "Peron")
 amphib_cover = within(amphib_cover, levels(Location)[levels(Location) == "Peron West"] <- "Peron")
 amphib_cover = within(amphib_cover, levels(Location)[levels(Location) == "Monkey Mia"] <- "Monkey Mia")
-amphib_cover = within(amphib_cover, levels(Location)[levels(Location) == "Monkey Mia Control"] <- "Monkey Mia")
-amphib_cover = within(amphib_cover, levels(Location)[levels(Location) == "Monkey Mia outer bank"] <- "Monkey Mia")
-amphib_cover = within(amphib_cover, levels(Location)[levels(Location) == "Pearl Farm Control"] <- "Monkey Mia")
-amphib_cover = within(amphib_cover, levels(Location)[levels(Location) == "Peron Site 3"] <- "Monkey Mia")
 amphib_cover = within(amphib_cover, levels(Location)[levels(Location) == "Peron East"] <- "Monkey Mia")
 amphib_cover = within(amphib_cover, levels(Location)[levels(Location) == "Eastern Gulf"] <- "Eastern Gulf")
 amphib_cover = within(amphib_cover, levels(Location)[levels(Location) == "Gladstone"] <- "Eastern Gulf")
@@ -108,8 +106,6 @@ pos_cover = within(pos_cover, levels(Location)[levels(Location) == "Monkey Mia"]
 pos_cover = within(pos_cover, levels(Location)[levels(Location) == "Peron East"] <- "Monkey Mia")
 pos_cover = within(pos_cover, levels(Location)[levels(Location) == "Eastern Gulf"] <- "Eastern Gulf")
 pos_cover = within(pos_cover, levels(Location)[levels(Location) == "Gladstone"] <- "Eastern Gulf")
-pos_cover = within(pos_cover, levels(Location)[levels(Location) == "Monkey Mia inner bank"] <- "Monkey Mia")
-pos_cover = within(pos_cover, levels(Location)[levels(Location) == "Peron Site 4"] <- "Eastern Gulf")
 
 
 amphib_cover$Location <- factor(amphib_cover$Location, levels= c("Western Gulf", "Peron", "Monkey Mia", "Eastern Gulf"))
@@ -124,10 +120,10 @@ pos_cover<-pos_cover[order(pos_cover$Location), ]
 
 #Overall percent cover
 All_SBMP_cover <- plyr::ddply(SG_cover, .(Year), summarise,
-                                  N    = length(!is.na(percent)),
-                                  mean = mean(percent, na.rm=TRUE),
-                                  sd   = sd(percent, na.rm=TRUE),
-                                  se   = sd(percent, na.rm=TRUE) / sqrt(length(!is.na(percent)) ))
+                              N    = length(!is.na(percent)),
+                              mean = mean(percent, na.rm=TRUE),
+                              sd   = sd(percent, na.rm=TRUE),
+                              se   = sd(percent, na.rm=TRUE) / sqrt(length(!is.na(percent)) ))
 
 SBMP_percentcover_plot <- ggplot(All_SBMP_cover, aes(x=Year, y=mean))+#, colour = Category, group=Category, linetype=Category, shape=Category)) +
   geom_errorbar(aes(ymin=mean-se, ymax=mean+se), width=.02, colour="black", linetype = 1, position=pd) +
@@ -138,8 +134,8 @@ SBMP_percentcover_plot <- ggplot(All_SBMP_cover, aes(x=Year, y=mean))+#, colour 
   xlab("Year") +
   # ylab(expression(paste("Mean percent cover"))) +
   ggtitle("a)")+
-#  facet_wrap(~ Category, nrow = 2)+
-#  geom_smooth(method=lm, colour = 1, linetype = 3, se=FALSE, fullrange=TRUE)+
+  #  facet_wrap(~ Category, nrow = 2)+
+  #  geom_smooth(method=lm, colour = 1, linetype = 3, se=FALSE, fullrange=TRUE)+
   theme_bw()+ graphics
 
 SBMP_percentcover_plot
@@ -152,10 +148,10 @@ detach(All_SBMP_cover)
 #Overall Amphibolis percent cover
 
 SBMP_amphib_cover <- plyr::ddply(amphib_cover, .(Year), summarise,
-                          N    = length(!is.na(percent)),
-                          mean = mean(percent, na.rm=TRUE),
-                          sd   = sd(percent, na.rm=TRUE),
-                          se   = sd(percent, na.rm=TRUE) / sqrt(length(!is.na(percent)) ))
+                                 N    = length(!is.na(percent)),
+                                 mean = mean(percent, na.rm=TRUE),
+                                 sd   = sd(percent, na.rm=TRUE),
+                                 se   = sd(percent, na.rm=TRUE) / sqrt(length(!is.na(percent)) ))
 
 SBMP_amphibolis_percentcover_plot <- ggplot(SBMP_amphib_cover, aes(x=Year, y=mean))+#, colour = Category, group=Category, linetype=Category, shape=Category)) +
   geom_errorbar(aes(ymin=mean-se, ymax=mean+se), width=.02, colour="black", linetype = 1, position=pd) +
@@ -164,7 +160,7 @@ SBMP_amphibolis_percentcover_plot <- ggplot(SBMP_amphib_cover, aes(x=Year, y=mea
   scale_x_continuous(limits=c(min(SBMP_amphib_cover$Year-0.125), max(SBMP_amphib_cover$Year+0.125)), breaks=min(SBMP_amphib_cover$Year):max(SBMP_amphib_cover$Year)) +
   scale_y_continuous(limits=c(min(0), max(100)))+
   xlab("Year") +
-  ylab(expression(Mean~percent~cover)) +
+  # ylab(expression(paste("Mean percent cover", sep = ""))) +
   ggtitle(expression("b)"))+
   #  facet_wrap(~ Category, nrow = 2)+
   #  geom_smooth(method=lm, colour = 1, linetype = 3, se=FALSE, fullrange=TRUE)+
@@ -179,10 +175,10 @@ detach(SBMP_amphib_cover)
 #############################################################
 #Overall Posidonia percent cover
 SBMP_posidonia_cover <- plyr::ddply(posidonia_cover, .(Year), summarise,
-                                 N    = length(!is.na(percent)),
-                                 mean = mean(percent, na.rm=TRUE),
-                                 sd   = sd(percent, na.rm=TRUE),
-                                 se   = sd(percent, na.rm=TRUE) / sqrt(length(!is.na(percent)) ))
+                                    N    = length(!is.na(percent)),
+                                    mean = mean(percent, na.rm=TRUE),
+                                    sd   = sd(percent, na.rm=TRUE),
+                                    se   = sd(percent, na.rm=TRUE) / sqrt(length(!is.na(percent)) ))
 
 SBMP_posidonia_percentcover_plot <- ggplot(SBMP_posidonia_cover, aes(x=Year, y=mean))+#, colour = Category, group=Category, linetype=Category, shape=Category)) +
   geom_errorbar(aes(ymin=mean-se, ymax=mean+se), width=.02, colour="black", linetype = 1, position=pd) +
@@ -191,9 +187,9 @@ SBMP_posidonia_percentcover_plot <- ggplot(SBMP_posidonia_cover, aes(x=Year, y=m
   scale_x_continuous(limits=c(min(SBMP_posidonia_cover$Year-0.125), max(SBMP_posidonia_cover$Year+0.125)), breaks=min(SBMP_posidonia_cover$Year):max(SBMP_posidonia_cover$Year)) +
   scale_y_continuous(limits=c(min(0), max(100)))+
   xlab("Year") +
-  # ylab(expression(Mean~percent~cover)) +
-   # ggtitle("c)" italic("Posidonia")+
-  ggtitle("c)")+
+  ylab(expression(paste("Mean canopy height (mm)"))) +
+  # ggtitle("c)" italic("Posidonia"))+
+  # ggtitle("c)")+
   #  facet_wrap(~ Category, nrow = 2)+
   #  geom_smooth(method=lm, colour = 1, linetype = 3, se=FALSE, fullrange=TRUE)+
   theme_bw ()+ graphics
@@ -220,7 +216,7 @@ SBMP_amphib_percentcover_plot <- ggplot(SBMP_amphib_cover, aes(x=Year, y=mean))+
   scale_x_continuous(limits=c(min(SBMP_amphib_cover$Year-0.125), max(SBMP_amphib_cover$Year+0.125)), breaks=min(SBMP_amphib_cover$Year):max(SBMP_amphib_cover$Year)) +
   scale_y_continuous(limits=c(min(0), max(100)))+
   xlab("Year") +
-  ylab(expression(Mean~percent~cover~of~italic(Amphibolis))) +
+  ylab(expression(Mean~percent~cover)) +
   facet_wrap(~ Location, nrow = 4)+
   #  geom_smooth(method=lm, colour = 1, linetype = 3, se=FALSE, fullrange=TRUE)+
   theme(strip.text = element_text(size=12)) + graphics
@@ -236,10 +232,10 @@ detach(SBMP_amphib_cover)
 #Posidonia percent cover
 
 SBMP_pos_cover <- plyr::ddply(pos_cover, .(Year, Location), summarise,
-                                      N    = length(!is.na(percent)),
-                                      mean = mean(percent, na.rm=TRUE),
-                                      sd   = sd(percent, na.rm=TRUE),
-                                      se   = sd(percent, na.rm=TRUE) / sqrt(length(!is.na(percent)) ))
+                              N    = length(!is.na(percent)),
+                              mean = mean(percent, na.rm=TRUE),
+                              sd   = sd(percent, na.rm=TRUE),
+                              se   = sd(percent, na.rm=TRUE) / sqrt(length(!is.na(percent)) ))
 
 SBMP_pos_percentcover_plot <- ggplot(SBMP_pos_cover, aes(x=Year, y=mean))+#, colour = Category, group=Category, linetype=Category, shape=Category)) +
   geom_errorbar(aes(ymin=mean-se, ymax=mean+se), width=.02, colour="black", linetype = 1, position=pd) +

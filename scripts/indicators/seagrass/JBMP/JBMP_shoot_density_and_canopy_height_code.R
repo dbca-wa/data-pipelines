@@ -121,7 +121,8 @@ JBMP_south_shootdensity_plot <- ggplot(JBMP_south_shootdensity, aes(x=Year, y=me
   geom_errorbar(aes(ymin=mean-se, ymax=mean+se), width=.02, colour="black", position=pd) +
   #geom_line(position=pd) +
   geom_point(position=pd, size=3, fill="black") +
-  scale_x_continuous(limits=c(min(JBMP_south_shootdensity$Year-0.125), max(JBMP_south_shootdensity$Year+0.125)), breaks=min(JBMP_south_shootdensity$Year):max(JBMP_south_shootdensity$Year)) +
+  # scale_x_continuous(limits=c(min(JBMP_south_shootdensity$Year-0.125), max(JBMP_south_shootdensity$Year+0.125)), breaks=min(JBMP_south_shootdensity$Year):max(JBMP_south_shootdensity$Year)) +
+  scale_x_continuous(breaks = seq(2011,2016,1), limits=c(min(2003),(max(2017))))+
   scale_y_continuous(limits=c(min(0), max(60)))+
   # xlab("Year") +
   ylab(expression(paste("Mean density (","0.04m"^-2,")", sep = ""))) +
