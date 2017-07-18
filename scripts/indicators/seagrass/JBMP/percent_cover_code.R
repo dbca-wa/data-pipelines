@@ -7,17 +7,37 @@ library(ggplot2)
 library(gridExtra)
 library(plyr)
 
-csv_rid <- "b0b546ed-ab74-4592-8429-7175cd637de4"
-pdf_rid <- "98ab4aed-b646-4e8e-b5f7-f8589309ab70"
-txt_rid <- "f7f8a6d8-7f29-4b74-86e6-f8d3659c6342"
-pdf_fn = "final.pdf"
+######################################################################################################
+#Define all CKAN resource IDs
+######################################################################################################
+
+csv_rid <- "b0b546ed-ab74-4592-8429-7175cd637de4"#CKAN resource ID for data
+txt_rid <- "0bba4f55-e3af-490e-88bb-738660ef16e2"#CKAN resource ID for r-script
+
+
+#Percent cover
+png_JBMP_overall_percentcover_rid <- "f8508298-dc4c-4099-8c02-ce9ced6c5142"#CKAN resource ID for final figure (png)
+png_JBMP_overall_percentcover_fn = "JBMP overall percent cover.png"#Name of final figure
+png_JBMP_percentcover_rid <- "96d9a4f5-4041-4070-9ba5-6bb518341321"#CKAN resource ID for final figure (pdf)
+png_JBMP_percentcover_fn = "JBMP percent cover.png"#Name of final figure
+
+###################################################################################################
+#Load data
+###################################################################################################
 
 d <- load_ckan_csv(csv_rid, date_colnames = c('date', 'Date'))
+d<-Camera_data
+names(d)[names(d) == 'Region'] <- 'Park'###Changes column name
+
+####################################################################################################
+#Define graphic properties
+#####################################################################################################
 
 pd <- position_dodge(0.1)
-graphics = theme(axis.text.x=element_text(angle=45, hjust=0.9), #rotates the x axis tick labels an angle of 45 degrees
-                 axis.title.x=element_text(), #removes x axis title
-                 axis.title.y=element_text(), #removes y axis title
+graphics = theme(axis.text.x=element_text(angle=45, size = 15, hjust=0.9), #rotates the x axis tick labels an angle of 45 degrees
+                 axis.title.x=element_blank(), #removes x axis title
+                 axis.title.y=element_blank(), #removes y axis title
+                 axis.text.y=element_text(size = 15),
                  axis.line=element_line(colour="black"), #sets axis lines
                  plot.title =element_text(hjust = 0.05),
                  panel.grid.minor = element_blank(), #removes minor grid lines
@@ -26,99 +46,162 @@ graphics = theme(axis.text.x=element_text(angle=45, hjust=0.9), #rotates the x a
                  panel.background=element_blank(), #needed to ensure integrity of axis lines
                  legend.justification=c(10,10), legend.position=c(10,10), # Positions legend (x,y) in this case removes it from the graph
                  legend.title = element_text(),
-                 legend.key = element_blank()
-)
+                 legend.key = element_blank())
 
 ##################################################################################
 #Percent cover calculations for all data
-cover=count(d, c("Sector", "Zone", "Site", "Year", "Level5Class")) #counts number of observations per site, per year
-cover_obs=count(cover, c("Site", "Year"), "freq") #counts number of observations made at each site per year
-cover_add <- join(cover, cover_obs, by = c("Site", "Year")) #adds total count of site observations agains the right site/year to allow percentage calculation
-pos_cover = subset(cover_add, Level5Class %in% c("Posidonia sinuosa","Posidonia australis")) #Extracts cover information only
-pos_total = count(pos_cover, c("Sector","Zone", "Site", "Year", "freq.1"), "freq")
-names(pos_total)[5] <- "total_count" #Rename column to make more sense
-names(pos_total)[6] <- "pos_count" #Rename column to make more sense
-pos_total$percent = pos_total$pos_count/pos_total$total_count *100 #Calculate percent cover
-
 ##################################################################################
+
+# All seagrass pooled
+JBMP = subset (d, Park=="Jurien Bay Marine Park")
+SGcover=count(JBMP, c("Site", "Zone", "Year", "Location", "Level1Class")) #counts number of observations per site, per year
+SGcover_obs=count(SGcover, c("Site", "Year"), "freq") #counts number of observations made at each site per year
+JBMP_SGpercentcover <- join(SGcover, SGcover_obs, by = c("Site", "Year")) #adds total count of site observations agains the right site/year to allow percentage calculation
+names(JBMP_SGpercentcover)[5] <- "category" #Rename column to make more sense
+names(JBMP_SGpercentcover)[6] <- "category_count" #Rename column to make more sense
+names(JBMP_SGpercentcover) [7] <- "total_count"
+JBMP_SGpercentcover$percent = JBMP_SGpercentcover$category_count/JBMP_SGpercentcover$total_count *100
+
+SG_cover <- subset(JBMP_SGpercentcover, category == c("SEAGRASS"))
+
+
+# Region subsets
+JBMP<-SG_cover
+JBMP_south = subset(SG_cover, Site %in% c("Cervantes Island",  "Green Island", "Kangaroo Point"))
+JBMP_centre = subset(SG_cover, Site %in% c("Boullanger Island 2.5",  "Boullanger Island 3.5",  "Boullanger Island 5.5","Jurien Impact Site 2.5"))
+JBMP_north = subset(SG_cover, Site %in% c( "Fishermans Island 2.5",  "Fishermans Island 3.5",  "Fishermans Island 5.5"))
+
+
+#################################################################
+#PERCENT COVER
+#################################################################
+
+#Overall percent cover
+
+JBMP_cover <- plyr::ddply(JBMP, .(Year), summarise,
+                              N    = length(!is.na(percent)),
+                              mean = mean(percent, na.rm=TRUE),
+                              sd   = sd(percent, na.rm=TRUE),
+                              se   = sd(percent, na.rm=TRUE) / sqrt(length(!is.na(percent)) ))
+
+JBMP_percentcover_plot <- ggplot(JBMP_cover, aes(x=Year, y=mean))+#, colour = Category, group=Category, linetype=Category, shape=Category)) +
+  geom_errorbar(aes(ymin=mean-se, ymax=mean+se), width=.02, colour="black", linetype = 1, position=pd) +
+  #geom_line(position=pd) +
+  geom_point(position=pd, size=3) + # 21 is filled circle
+  scale_x_continuous(limits=c(min(JBMP_cover$Year-0.125), max(JBMP_cover$Year+0.125)), breaks=min(JBMP_cover$Year):max(JBMP_cover$Year)) +
+  scale_y_continuous(limits=c(min(0), max(100)))+
+  xlab("Year") +
+  # ylab(expression(paste("Mean percent cover"))) +
+  ggtitle("a)")+
+  #  facet_wrap(~ Category, nrow = 2)+
+  #  geom_smooth(method=lm, colour = 1, linetype = 3, se=FALSE, fullrange=TRUE)+
+  theme_bw()+ graphics
+
+JBMP_percentcover_plot
+
+attach(JBMP_cover)
+MannKendall(mean)
+detach(JBMP_cover)
+
+################################################################
 #JBMP_south percent cover
 
-#Creates a data frame summarised for the sites included. Repeat for each 'sector' or reporting area
-JBMP_s = subset(pos_total, Site %in% c("Green Island", "Kangaroo Point", "Cervantes Island"))
+JBMP_south_cover <- plyr::ddply(JBMP_south, .(Year), summarise,
+                          N    = length(!is.na(percent)),
+                          mean = mean(percent, na.rm=TRUE),
+                          sd   = sd(percent, na.rm=TRUE),
+                          se   = sd(percent, na.rm=TRUE) / sqrt(length(!is.na(percent)) ))
 
-d_sum <- plyr::ddply(JBMP_s, .(Year, Zone), summarise,
-                     N    = length(!is.na(percent)),
-                     mean = mean(percent, na.rm=TRUE),
-                     sd   = sd(percent, na.rm=TRUE),
-                     se   = sd(percent, na.rm=TRUE) / sqrt(length(!is.na(percent)) ))
-
-JBMP_s_plot <- ggplot(d_sum, aes(x=Year, y=mean, group=Zone, linetype=Zone, shape=Zone)) +
-  geom_errorbar(aes(ymin=mean-se, ymax=mean+se), width=.02, colour="black", position=pd) +
-  geom_line(position=pd) +
-  geom_point(position=pd, size=3, fill="black") + # 21 is filled circle
-  scale_x_continuous(limits=c(min(d_sum$Year-0.125), max(d_sum$Year+0.125)), breaks=min(d_sum$Year):max(d_sum$Year)) +
+JBMP_south_plot <- ggplot(JBMP_south_cover, aes(x=Year, y=mean))+#, colour = Category, group=Category, linetype=Category, shape=Category)) +
+  geom_errorbar(aes(ymin=mean-se, ymax=mean+se), width=.02, colour="black", linetype = 1, position=pd) +
+  #geom_line(position=pd) +
+  geom_point(position=pd, size=3) + # 21 is filled circle
+  # scale_x_continuous(limits=c(min(2011), max(2016)), breaks=min(JBMP_south_cover$Year):max(JBMP_south_cover$Year)) +
+  scale_x_continuous(breaks = seq(2011,2016,1), limits=c(min(2011),(max(2016))))+
   scale_y_continuous(limits=c(min(0), max(100)))+
   xlab("Year") +
-  ylab(expression(paste("Mean percent cover", sep = ""))) +
-  ggtitle("a) South")+
-  theme_bw() + graphics
+  # ylab(expression(paste("Mean percent cover"))) +
+  ggtitle("c) south")+
+  #  facet_wrap(~ Category, nrow = 2)+
+  #  geom_smooth(method=lm, colour = 1, linetype = 3, se=FALSE, fullrange=TRUE)+
+  theme_bw()+ graphics
 
-JBMP_s_plot
-unique(pos_total$Site)
-#################################################################
+JBMP_south_plot
+
+attach(JBMP_south_cover)
+MannKendall(mean)
+detach(JBMP_south_cover)
+
+################################################################
 #JBMP_centre percent cover
 
-JBMP_c = subset(pos_total, Site %in% c("Jurien Impact Site 2.5" , "Boullanger Island 2.5", "Boullanger Island 3.5" , "Boullanger Island 5.5"))
+JBMP_centre_cover <- plyr::ddply(JBMP_centre, .(Year), summarise,
+                                N    = length(!is.na(percent)),
+                                mean = mean(percent, na.rm=TRUE),
+                                sd   = sd(percent, na.rm=TRUE),
+                                se   = sd(percent, na.rm=TRUE) / sqrt(length(!is.na(percent)) ))
 
-d_sum_c <- plyr::ddply(JBMP_c, .(Year, Zone), summarise,
-                           N    = length(!is.na(percent)),
-                           mean = mean(percent, na.rm=TRUE),
-                           sd   = sd(percent, na.rm=TRUE),
-                           se   = sd(percent, na.rm=TRUE) / sqrt(length(!is.na(percent)) ))
-
-
-JBMP_c_plot <- ggplot(d_sum_c, aes(x=Year, y=mean, group=Zone, linetype=Zone, shape=Zone)) +
-  geom_errorbar(aes(ymin=mean-se, ymax=mean+se), width=.02, colour="black", position=pd) +
-  geom_line(position=pd) +
-  geom_point(position=pd, size=3, fill="black") + # 21 is filled circle
-  scale_x_continuous(limits=c(min(d_sum_c$Year-0.125), max(d_sum_c$Year+0.125)), breaks=min(d_sum_c$Year):max(d_sum_c$Year)) +
+JBMP_centre_plot <- ggplot(JBMP_centre_cover, aes(x=Year, y=mean))+#, colour = Category, group=Category, linetype=Category, shape=Category)) +
+  geom_errorbar(aes(ymin=mean-se, ymax=mean+se), width=.02, colour="black", linetype = 1, position=pd) +
+  #geom_line(position=pd) +
+  geom_point(position=pd, size=3) + # 21 is filled circle
+  scale_x_continuous(limits=c(min(JBMP_centre_cover$Year-0.125), max(JBMP_centre_cover$Year+0.125)), breaks=min(JBMP_centre_cover$Year):max(JBMP_centre_cover$Year)) +
   scale_y_continuous(limits=c(min(0), max(100)))+
   xlab("Year") +
-  ylab(expression(paste("Mean percent cover", sep = ""))) +
+  # ylab(expression(paste("Mean percent cover"))) +
   ggtitle("b) Centre")+
-  theme_bw() + graphics
+  #  facet_wrap(~ Category, nrow = 2)+
+  #  geom_smooth(method=lm, colour = 1, linetype = 3, se=FALSE, fullrange=TRUE)+
+  theme_bw()+ graphics
 
-JBMP_c_plot
-unique(JBMP_c$Site)
-###########################################################################
+JBMP_centre_plot
+
+attach(JBMP_centre_cover)
+MannKendall(mean)
+detach(JBMP_centre_cover)
+
+
+################################################################
 #JBMP_north percent cover
 
-JBMP_n = subset(pos_total, Site %in% c("Fishermans Island 2.5","Fishermans Island 3.5", "Fishermans Island 5.5"))
+JBMP_north_cover <- plyr::ddply(JBMP_north, .(Year), summarise,
+                                N    = length(!is.na(percent)),
+                                mean = mean(percent, na.rm=TRUE),
+                                sd   = sd(percent, na.rm=TRUE),
+                                se   = sd(percent, na.rm=TRUE) / sqrt(length(!is.na(percent)) ))
 
-d_sum_n <- plyr::ddply(JBMP_n, .(Year, Zone), summarise,
-                           N    = length(!is.na(percent)),
-                           mean = mean(percent, na.rm=TRUE),
-                           sd   = sd(percent, na.rm=TRUE),
-                           se   = sd(percent, na.rm=TRUE) / sqrt(length(!is.na(percent)) ))
-
-JBMP_n_plot<-ggplot(d_sum_n, aes(x=Year, y=mean, group=Zone, linetype=Zone, shape=Zone)) +
-  geom_errorbar(aes(ymin=mean-se, ymax=mean+se), width=.02, colour="black", position=pd) +
-  geom_line(position=pd) +
-  geom_point(position=pd, size=3, fill="black") + # 21 is filled circle
-  scale_x_continuous(limits=c(min(d_sum_n$Year-0.125), max(d_sum_n$Year+0.125)), breaks=min(d_sum_n$Year):max(d_sum_n$Year)) +
+JBMP_north_plot <- ggplot(JBMP_north_cover, aes(x=Year, y=mean))+#, colour = Category, group=Category, linetype=Category, shape=Category)) +
+  geom_errorbar(aes(ymin=mean-se, ymax=mean+se), width=.02, colour="black", linetype = 1, position=pd) +
+  #geom_line(position=pd) +
+  geom_point(position=pd, size=3) + # 21 is filled circle
+  scale_x_continuous(limits=c(min(JBMP_north_cover$Year-0.125), max(JBMP_north_cover$Year+0.125)), breaks=min(JBMP_north_cover$Year):max(JBMP_north_cover$Year)) +
   scale_y_continuous(limits=c(min(0), max(100)))+
   xlab("Year") +
-  ylab(expression(paste("Mean percent cover", sep = ""))) +
-  ggtitle("c) North")+
-  theme_bw() + graphics
+  # ylab(expression(paste("Mean percent cover"))) +
+  ggtitle("a) North")+
+  #  facet_wrap(~ Category, nrow = 2)+
+  #  geom_smooth(method=lm, colour = 1, linetype = 3, se=FALSE, fullrange=TRUE)+
+  theme_bw()+ graphics
 
-JBMP_n_plot
+JBMP_north_plot
+
+attach(JBMP_north_cover)
+MannKendall(mean)
+detach(JBMP_north_cover)
+
+
+#####################################################################################
+#Create figures (will be saved to current workdir)
 #####################################################################################
 
-# Step 4: Create PDF (will be saved to current workdir)
+#Percent cover
 
-pdf(pdf_fn, width=8, height=7)
-grid.arrange(JBMP_s_plot, JBMP_c_plot, JBMP_n_plot, ncol=2)
+png(png_JBMP_overall_percentcover_fn, width=600, height=400)
+grid.arrange(JBMP_percentcover_plot, ncol=1)
+dev.off()
+
+png(png_JBMP_percentcover_fn, width=600, height=800)
+grid.arrange(JBMP_north_plot, JBMP_centre_plot, JBMP_south_plot, ncol = 1)
 dev.off()
 
 

@@ -1,5 +1,6 @@
-setwd("~/projects/data-pipelines/scripts/indicators/seagrass/SBMP")
-source("~/projects/data-pipelines/setup/ckan.R")
+setwd("~/projects/mpa-reporting/scripts/indicators/seagrass/SBMP")
+source("~/projects/mpa-reporting/scripts/ckan.R")
+source("~/projects/mpa-reporting/scripts/ckan_secret.R")
 
 library(ggplot2)
 #install.packages("gridExtra")
@@ -23,9 +24,6 @@ png_SBMP_amphib_density_fn = "SBMP leaf bundles.png"#Name of final figure
 png_SBMP_overall_amphib_density_rid <- "fa41c293-46d8-4aec-9d8f-6637166d2e7a"#CKAN resource ID for final figure (png)
 png_SBMP_overall_amphib_density_fn = "SBMP overall leaf bundles.png"#Name of final figure
 
-#Amphibolis canopy height
-png_SBMP_amphib_height_fn = "SBMP canopy height.png"#Name of final figure
-
 #Leaf bundle plots
 pdf_SBMP_leaf_bundles_rid <- "24a36936-1905-46c1-8bde-a438a7e376a7"#CKAN resource ID for final figure (pdf)
 pdf_SBMP_leaf_bundles_fn = "SBMP leaf bundles.pdf"#Name of final figure
@@ -48,18 +46,18 @@ png_SBMP_overall_leaf_per_bundle_fn = "SBMP overall leaves per bundle.png"#Name 
 ###################################################################################################
 
 d <- load_ckan_csv(csv_rid, date_colnames = c('date', 'Date'))
-names(d)[names(d) == 'Site_name'] <- 'Site'###Changes column name
+names(d)[names(d) == 'Park_name'] <- 'Park'###Changes column name
+names(d)[names(d) == 'Site_name'] <- 'Site'###Changes column name 
 
 ####################################################################################################
 #Define graphic properties
 #####################################################################################################
 
 pd <- position_dodge(0.1)
-graphics = theme(axis.text.x=element_text(angle=45, size = 15, hjust=0.9), #rotates the x axis tick labels an angle of 45 degrees
-                 axis.title.x=element_text(size = 20), #removes x axis title
-                 axis.title.y=element_text(size = 20), #removes y axis title
-                 axis.text.y=element_text(size = 15),
-                 axis.line=element_line(colour="black"), #sets axis lines
+graphics = theme(axis.text.x=element_text(angle=45, hjust=0.9), #rotates the x axis tick labels an angle of 45 degrees
+                 axis.title.x=element_text(), #removes x axis title
+                 axis.title.y=element_text(), #removes y axis title
+                 axis.line=element_line(colour="black"), #sets axis lines 
                  plot.title =element_text(hjust = 0.05),
                  panel.grid.minor = element_blank(), #removes minor grid lines
                  panel.grid.major = element_blank(), #removes major grid lines
@@ -70,20 +68,20 @@ graphics = theme(axis.text.x=element_text(angle=45, size = 15, hjust=0.9), #rota
                  legend.key = element_blank())
 
 #################################################################################
-#Create subsets for each 'sector (Wooramel, Monkey Mia, Peron and Western Gulf) for SBMP
+#Create subsets for each 'sector (Wooramel, Monkey Mia, Peron and Western Gulf) for SBMP 
 ##################################################################################
 
 SBMP_amphib = subset (d, Method=="Amphibolis density" & Park %in% c("SBMP"))
-SBMP_amphib_westerngulf= subset(SBMP_amphib, Site %in% c("SBMR 0464 Amphibolis", "0481 Shark Bay Amphibolis", "0456 Shark Bay Amphibolis", "0037 Shark Bay Amphibolis", "0380 Settlement Amphibolis", "Useless Loop North_Amphibolis"))
-SBMP_amphib_peron = subset(SBMP_amphib, Site %in% c("0466 Shark Bay Amphibolis","0459 Shark Bay Amphibolis","SBMR 0581 Amphibolis","0433 Shark Bay Amphibolis","0595 Shark Bay Amphibolis"))
-SBMP_amphib_monkeymia = subset(SBMP_amphib, Site %in% c("Herald Bight west Amphibolis"))
-SBMP_amphib_wooramel = subset(SBMP_amphib, Site %in% c("Gladstone Site 2_Amphibolis", "Gladstone Marker_Amphibolis", "Herald Loop_Amphibolis", "Wooramel north_Amphibolis", "Disappointment Reach Amphibolis"))
+SBMP_amphib_westerngulf= subset(SBMP_amphib, Site %in% c("SBMR 0464 Amphibolis", "0037 Shark Bay Amphibolis", "0380 Settlement Amphibolis", "Useless Loop North_Amphibolis"))
+SBMP_amphib_peron = subset(SBMP_amphib, Site %in% c("SBMR 0581 Amphibolis","SBMR 0433 Amphibolis","SBMR 0459 Amphibolis","SBMP 0595 Amphibolis","SBMR 0466 Amphibolis"))
+SBMP_amphib_monkeymia = subset(SBMP_amphib, Site %in% c("Herald Bight west Amphibolis", "Monkey Mia Outer Bank_Amphibolis", "Monkey Mia control_Amphibolis"))
+SBMP_amphib_wooramel = subset(SBMP_amphib, Site %in% c("Gladstone Site 2_Amphibolis", "Gladstone Marker_Amphibolis", "Herald Loop_Amphibolis", "Wooramel north_Amphibolis", "Disappointment Reach_Amphibolis"))
 
 SBMP = subset (d, Method=="Amphibolis morphology" & Park %in% c("SBMP"))
-SBMP_westerngulf = subset(SBMP, Site %in% c("SBMR 0464 Amphibolis", "0481 Shark Bay Amphibolis", "0456 Shark Bay Amphibolis", "0037 Shark Bay Amphibolis", "0380 Settlement Amphibolis", "Useless Loop North_Amphibolis"))
-SBMP_peron = subset(SBMP, Site %in% c("0466 Shark Bay Amphibolis","0459 Shark Bay Amphibolis","SBMR 0581 Amphibolis","0433 Shark Bay Amphibolis","0595 Shark Bay Amphibolis"))
-SBMP_monkeymia = subset(SBMP, Site %in% c("Herald Bight west Amphibolis"))
-SBMP_wooramel = subset(SBMP, Site %in% c("Gladstone Site 2_Amphibolis", "Gladstone Marker_Amphibolis", "Herald Loop_Amphibolis", "Wooramel north_Amphibolis", "Disappointment Reach Amphibolis"))
+SBMP_westerngulf = subset(SBMP, Site %in% c("SBMR 0464 Amphibolis", "0037 Shark Bay Amphibolis", "0380 Settlement Amphibolis", "Useless Loop North_Amphibolis"))
+SBMP_peron = subset(SBMP, Site %in% c("SBMR 0581 Amphibolis","SBMR 0433 Amphibolis","SBMR 0459 Amphibolis","SBMP 0595 Amphibolis","SBMR 0466 Amphibolis"))
+SBMP_monkeymia = subset(SBMP, Site %in% c("Herald Bight west Amphibolis", "Monkey Mia Outer Bank_Amphibolis", "Monkey Mia control_Amphibolis"))
+SBMP_wooramel = subset(SBMP, Site %in% c("Gladstone Site 2_Amphibolis", "Gladstone Marker_Amphibolis", "Herald Loop_Amphibolis", "Wooramel north_Amphibolis", "Disappointment Reach_Amphibolis"))
 
 
 #################################################################
@@ -106,12 +104,8 @@ SBMP_amphibdensity_plot <- ggplot(SBMP_amphibdensity, aes(x=Year, y=mean)) +
   xlab("Year") +
   ylab(expression(Mean~density~of~italic(Amphibolis)~("0.04m"^2))) +
   geom_smooth(method=lm, colour = 1, linetype = 3, se=TRUE, fullrange=TRUE)+
-  theme_bw() + graphics+
-  theme(axis.text.x=element_text(angle=45, size = 10, hjust=0.9), #rotates the x axis tick labels an angle of 45 degrees
-        axis.title.x=element_text( size = 15), #removes x axis title
-        axis.title.y=element_text(size = 15), #removes y axis title
-        axis.text.y=element_text(size = 10))
-
+  theme_bw() + graphics
+  
 SBMP_amphibdensity_plot
 
 attach(SBMP_amphibdensity)
@@ -137,8 +131,7 @@ SBMP_amphib_westerngulf_density_plot <- ggplot(SBMP_amphib_westerngulf_density, 
   ylab(expression(Mean~density~of~italic(Amphibolis)~("0.04m"^2))) +
   ggtitle("a) Western Gulf") +
   geom_smooth(method=lm, colour = 1, linetype = 3, se=TRUE, fullrange=TRUE)+
-  theme_bw() + graphics+
-  theme(plot.title = element_text(size = 25))
+  theme_bw() + graphics
 
 SBMP_amphib_westerngulf_density_plot
 
@@ -165,8 +158,7 @@ SBMP_amphib_peron_density_plot <- ggplot(SBMP_amphib_peron_density, aes(x=Year, 
   ylab(expression(Mean~density~of~italic(Amphibolis)~("0.04m"^2))) +
   ggtitle("b) Peron") +
   geom_smooth(method=lm, colour = 1, linetype = 3, se=TRUE, fullrange=TRUE)+
-  theme_bw() + graphics+
-  theme(plot.title = element_text(size = 25))
+  theme_bw() + graphics
 
 SBMP_amphib_peron_density_plot
 
@@ -193,8 +185,7 @@ SBMP_amphib_monkeymia_density_plot <- ggplot(SBMP_amphib_monkeymia_density, aes(
   ylab(expression(Mean~density~of~italic(Amphibolis)~("0.04m"^2))) +
   ggtitle("c) Monkey Mia") +
   geom_smooth(method=lm, colour = 1, linetype = 3, se=TRUE, fullrange=TRUE)+
-  theme_bw() + graphics+
-  theme(plot.title = element_text(size = 25))
+  theme_bw() + graphics
 
 SBMP_amphib_monkeymia_density_plot
 
@@ -221,8 +212,7 @@ SBMP_amphib_wooramel_density_plot <- ggplot(SBMP_amphib_wooramel_density, aes(x=
   ylab(expression(Mean~density~of~italic(Amphibolis)~("0.04m"^2))) +
   ggtitle("d) Wooramel") +
   geom_smooth(method=lm, colour = 1, linetype = 3, se=TRUE, fullrange=TRUE)+
-  theme_bw() + graphics+
-  theme(plot.title = element_text(size = 25))
+  theme_bw() + graphics
 
 SBMP_amphib_wooramel_density_plot
 
@@ -230,44 +220,12 @@ attach(SBMP_amphib_wooramel_density)
 MannKendall(mean)
 detach(SBMP_amphib_wooramel_density)
 
-####################################################################################
-#MAXIMUM CANOPY HEIGHT
-####################################################################################
-
-#Overall max height
-SBMP_amphib_maxheight <- plyr::ddply(SBMP, .(Year), summarise,
-                              N    = length(!is.na(Maximum_height_mm)),
-                              mean = mean(Maximum_height_mm, na.rm=TRUE),
-                              sd   = sd(Maximum_height_mm, na.rm=TRUE),
-                              se   = sd(Maximum_height_mm, na.rm=TRUE) / sqrt(length(!is.na(Maximum_height_mm)) ))
-
-SBMP_maxheight_plot <- ggplot(SBMP_amphib_maxheight, aes(x=Year, y=mean)) +
-  geom_errorbar(aes(ymin=mean-se, ymax=mean+se), width=.02, colour="black", position=pd) +
-  #geom_line(position=pd) +
-  geom_point(position=pd, size=3, fill="black") + # 21 is filled circle
-  scale_x_continuous(limits=c(min(SBMP_amphib_maxheight$Year-0.125), max(SBMP_amphib_maxheight$Year+0.125)), breaks=min(SBMP_amphib_maxheight$Year):max(SBMP_amphib_maxheight$Year)) +
-  scale_y_continuous(limits=c(min(0), max(600)))+
-  xlab("Year") +
-  ylab(expression(paste("Mean max canopy height (mm)", sep = ""))) +
-  # geom_smooth(method=lm, colour = 1, linetype=3, se=TRUE, fullrange=TRUE)+
-  theme_bw() + graphics+
-  theme(axis.text.x=element_text(angle=45, size = 10, hjust=0.9), #rotates the x axis tick labels an angle of 45 degrees
-        axis.title.x=element_text( size = 15), #removes x axis title
-        axis.title.y=element_text(size = 15), #removes y axis title
-        axis.text.y=element_text(size = 10))
-
-SBMP_maxheight_plot
-
-attach(SBMP_maxheight)
-MannKendall(mean)
-detach(SBMP_maxheight)
-
 
 ####################################################################################
 #Leaf bundles per stem
 ####################################################################################
 
-#Overall bundles per stemdata:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAkAAAAJCAYAAADgkQYQAAAAMElEQVR42mNgIAXY2Nj8x8cHC8AwMl9XVxe3QqwKcJmIVwFWhehW4LQSXQCnm3ABAHD6MDrmRgfrAAAAAElFTkSuQmCC
+#Overall bundles per stem
 
 SBMP_bundles <- plyr::ddply(SBMP, .(Year), summarise,
                                  N    = length(!is.na(Amphib_clusters_per_stem)),
@@ -283,13 +241,8 @@ SBMP_bundles_plot <- ggplot(SBMP_bundles, aes(x=Year, y=mean)) +
   scale_y_continuous(limits=c(min(0), max(15)))+
   xlab("Year") +
   ylab(expression(paste("Mean no. of leaf bundles per stem", sep = ""))) +
-  # geom_smooth(method=lm, colour = 1, linetype = 3, se=TRUE, fullrange=TRUE)+
-  theme_bw() + graphics+
-  theme(axis.text.x=element_text(angle=45, size = 10, hjust=0.9), #rotates the x axis tick labels an angle of 45 degrees
-        axis.title.x=element_text( size = 15), #removes x axis title
-        axis.title.y=element_text(size = 15), #removes y axis title
-        axis.text.y=element_text(size = 10))
-
+  geom_smooth(method=lm, colour = 1, linetype = 3, se=TRUE, fullrange=TRUE)+
+  theme_bw() + graphics
 SBMP_bundles_plot
 
 attach(SBMP_bundles)
@@ -315,9 +268,7 @@ SBMP_westerngulf_bundles_plot <- ggplot(SBMP_westerngulf_bundles, aes(x=Year, y=
   ylab(expression(paste("Mean no. of leaf bundles per stem", sep = ""))) +
   ggtitle("a) Western Gulf") +
   geom_smooth(method=lm, colour = 1, linetype = 3, se=TRUE, fullrange=TRUE)+
-  theme_bw() + graphics+
-  theme(plot.title = element_text(size = 25))
-
+  theme_bw() + graphics
 SBMP_westerngulf_bundles_plot
 
 attach(SBMP_westerngulf_bundles)
@@ -343,9 +294,7 @@ SBMP_peron_bundles_plot <- ggplot(SBMP_peron_bundles, aes(x=Year, y=mean)) +
   ylab(expression(paste("Mean no. of leaf bundles per stem", sep = ""))) +
   ggtitle("b) Peron") +
   geom_smooth(method=lm, colour = 1, linetype = 3, se=TRUE, fullrange=TRUE)+
-  theme_bw() + graphics+
-  theme(plot.title = element_text(size = 25))
-
+  theme_bw() + graphics
 SBMP_peron_bundles_plot
 
 attach(SBMP_westerngulf_bundles)
@@ -365,15 +314,13 @@ SBMP_monkeymia_bundles_plot <- ggplot(SBMP_monkeymia_bundles, aes(x=Year, y=mean
   geom_errorbar(aes(ymin=mean-se, ymax=mean+se), width=.02, colour="black", position=pd) +
   #geom_line(position=pd) +
   geom_point(position=pd, size=3, fill="black") + # 21 is filled circle
-  scale_x_continuous(limits=c(min(2014), max(SBMP_monkeymia_bundles$Year+0.125)), breaks=min(SBMP_monkeymia_bundles$Year):max(SBMP_monkeymia_bundles$Year)) +
+  scale_x_continuous(limits=c(min(2009), max(SBMP_monkeymia_bundles$Year+0.125)), breaks=min(SBMP_monkeymia_bundles$Year):max(SBMP_monkeymia_bundles$Year)) +
   scale_y_continuous(limits=c(min(0), max(30)))+
   xlab("Year") +
   ylab(expression(paste("Mean no. of leaf bundles per stem", sep = ""))) +
   ggtitle("c) Monkey Mia") +
-  # geom_smooth(method=lm, colour = 1, linetype = 3, se=TRUE, fullrange=TRUE)+
-  theme_bw() + graphics+
-  theme(plot.title = element_text(size = 25))
-
+  geom_smooth(method=lm, colour = 1, linetype = 3, se=TRUE, fullrange=TRUE)+
+  theme_bw() + graphics
 SBMP_monkeymia_bundles_plot
 
 attach(SBMP_westerngulf_bundles)
@@ -399,9 +346,7 @@ SBMP_wooramel_bundles_plot <- ggplot(SBMP_wooramel_bundles, aes(x=Year, y=mean))
   ylab(expression(paste("Mean no. of leaf bundles per stem", sep = ""))) +
   ggtitle("d) Wooramel") +
   geom_smooth(method=lm, colour = 1, linetype = 3, se=TRUE, fullrange=TRUE)+
-  theme_bw() + graphics+
-  theme(plot.title = element_text(size = 25))
-
+  theme_bw() + graphics
 SBMP_wooramel_bundles_plot
 
 attach(SBMP_westerngulf_bundles)
@@ -429,13 +374,8 @@ SBMP_leafperbundle_plot <- ggplot(SBMP_leafperbundle, aes(x=Year, y=mean)) +
   scale_y_continuous(limits=c(min(0), max(15)))+
   xlab("Year") +
   ylab(expression(paste("Mean no. of leaves per bundle", sep = ""))) +
-  # geom_smooth(method=lm, colour = 1, linetype = 3, se=TRUE, fullrange=TRUE)+
-  theme_bw() + graphics+
-  theme(axis.text.x=element_text(angle=45, size = 10, hjust=0.9), #rotates the x axis tick labels an angle of 45 degrees
-        axis.title.x=element_text( size = 15), #removes x axis title
-        axis.title.y=element_text(size = 15), #removes y axis title
-        axis.text.y=element_text(size = 10))
-
+  geom_smooth(method=lm, colour = 1, linetype = 3, se=TRUE, fullrange=TRUE)+
+  theme_bw() + graphics
 SBMP_leafperbundle_plot
 
 attach(SBMP_leafperbundle)
@@ -461,9 +401,7 @@ SBMP_westerngulf_leafperbundle_plot <- ggplot(SBMP_westerngulf_leafperbundle, ae
   ylab(expression(paste("Mean no. of leaves per bundle", sep = ""))) +
   ggtitle("a) Western Gulf") +
   geom_smooth(method=lm, colour = 1, linetype = 3, se=TRUE, fullrange=TRUE)+
-  theme_bw() + graphics+
-  theme(plot.title = element_text(size = 25))
-
+  theme_bw() + graphics
 SBMP_westerngulf_leafperbundle_plot
 
 attach(SBMP_westerngulf_leafperbundle)
@@ -489,9 +427,7 @@ SBMP_peron_leafperbundle_plot <- ggplot(SBMP_peron_leafperbundle, aes(x=Year, y=
   ylab(expression(paste("Mean no. of leaves per bundle", sep = ""))) +
   ggtitle("b) Peron") +
   geom_smooth(method=lm, colour = 1, linetype = 3, se=TRUE, fullrange=TRUE)+
-  theme_bw() + graphics+
-  theme(plot.title = element_text(size = 25))
-
+  theme_bw() + graphics
 SBMP_peron_leafperbundle_plot
 
 attach(SBMP_peron_leafperbundle)
@@ -516,10 +452,8 @@ SBMP_monkeymia_leafperbundle_plot <- ggplot(SBMP_monkeymia_leafperbundle, aes(x=
   xlab("Year") +
   ylab(expression(paste("Mean no. of leaves per bundle", sep = ""))) +
   ggtitle("c) Monkey Mia") +
-  # geom_smooth(method=lm, colour = 1, linetype = 3, se=TRUE, fullrange=TRUE)+
-  theme_bw() + graphics+
-  theme(plot.title = element_text(size = 25))
-
+  geom_smooth(method=lm, colour = 1, linetype = 3, se=TRUE, fullrange=TRUE)+
+  theme_bw() + graphics
 SBMP_monkeymia_leafperbundle_plot
 
 attach(SBMP_monkeymia_leafperbundle)
@@ -545,14 +479,46 @@ SBMP_wooramel_leafperbundle_plot <- ggplot(SBMP_wooramel_leafperbundle, aes(x=Ye
   ylab(expression(paste("Mean no. of leaves per bundle", sep = ""))) +
   ggtitle("d) Wooramel") +
   geom_smooth(method=lm, colour = 1, linetype = 3, se=TRUE, fullrange=TRUE)+
-  theme_bw() + graphics+
-  theme(plot.title = element_text(size = 25))
-
+  theme_bw() + graphics
 SBMP_wooramel_leafperbundle_plot
 
 attach(SBMP_wooramel_leafperbundle)
 MannKendall(mean)
 detach(SBMP_wooramel_leafperbundle)
+
+####################################################################################
+#MAXIMUM CANOPY HEIGHT
+####################################################################################
+
+#Overall max height
+SBMP_maxheight <- plyr::ddply(SBMP, .(Year), summarise,
+                              N    = length(!is.na(Maximum_height_mm)),
+                              mean = mean(Maximum_height_mm, na.rm=TRUE),
+                              sd   = sd(Maximum_height_mm, na.rm=TRUE),
+                              se   = sd(Maximum_height_mm, na.rm=TRUE) / sqrt(length(!is.na(Maximum_height_mm)) ))
+SBMP_maxheight
+
+SBMP_maxheight_plot <- ggplot(SBMP_maxheight, aes(x=Year, y=mean)) +
+  geom_errorbar(aes(ymin=mean-se, ymax=mean+se), width=.02, colour="black", position=pd) +
+  #geom_line(position=pd) +
+  geom_point(position=pd, size=3, fill="black") + # 21 is filled circle
+  scale_x_continuous(limits=c(min(SBMP_maxheight$Year-0.125), max(SBMP_maxheight$Year+0.125)), breaks=min(SBMP_maxheight$Year):max(SBMP_maxheight$Year)) +
+  scale_y_continuous(limits=c(min(0), max(600)))+
+  xlab("Year") +
+  ylab(expression(paste("Mean maximum canopy height (mm)", sep = ""))) +
+  # geom_smooth(method=lm, colour = 1, linetype=3, se=TRUE, fullrange=TRUE)+
+  theme_bw() + graphics+
+  theme(axis.text.x=element_text(angle=45, size = 10, hjust=0.9), #rotates the x axis tick labels an angle of 45 degrees
+        axis.title.x=element_text( size = 15), #removes x axis title
+        axis.title.y=element_text(size = 15), #removes y axis title
+        axis.text.y=element_text(size = 10))
+
+SBMP_maxheight_plot
+
+attach(SBMP_maxheight)
+MannKendall(mean)
+detach(SBMP_maxheight)
+
 
 #####################################################################################
 #Create figures (will be saved to current workdir)
@@ -570,12 +536,6 @@ dev.off()
 
 png(png_SBMP_amphib_density_fn, width=1000, height=800)
 grid.arrange(SBMP_amphib_westerngulf_density_plot, SBMP_amphib_peron_density_plot, SBMP_amphib_monkeymia_density_plot,ncol=2)
-dev.off()
-
-#Amphibolis max height
-
-png(png_SBMP_amphib_height_fn, width=500, height=300)
-grid.arrange(SBMP_maxheight_plot)
 dev.off()
 
 #Leaf bundles per stem
@@ -626,5 +586,5 @@ ckanr::resource_update(txt_rid, "Amphib_bundles_code.R")
 
 #####################################################################################
 #set workdir to main report location
-setwd("~/projects")
+setwd("~/projects/mpa-reporting/reports")
 ######################################################################################
