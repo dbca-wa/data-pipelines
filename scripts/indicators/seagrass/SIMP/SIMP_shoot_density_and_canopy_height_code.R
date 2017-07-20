@@ -60,22 +60,20 @@ graphics = theme(axis.text.x=element_text(angle=45, hjust=0.9), #rotates the x a
                  legend.title = element_text(),
                  legend.key = element_blank())
 
-names(d)
 ################################################################################
 #Create subsets for each 'sector (south, centre, north) for SIMP
 ################################################################################
 SIMP <- d %>% filter(Park == "SIMP")
-SIMP_south = d %>% filter(Site %in% c("Becher Point", "Becher Point SZ", "Port Kennedy"))
-SIMP_warnbro = d %>% filter(Site %in% c(
+SIMP_south <- SIMP %>% filter(Site %in% c("Becher Point", "Becher Point SZ", "Port Kennedy"))
+SIMP_warnbro <- SIMP %>% filter(Site %in% c(
   "Warnbro Sound 2.5m" , "Warnbro Sound 3.2m", "Warnbro Sound 5.2m" ,
   "Warnbro Sound 7.0m", "Warnbro Sound 2.0m" , "Mersey Point"))
-SIMP_shoalwater = d %>% filter(Site %in% c("Penguin Island" , "Seal Island", "Bird Island"))
-SIMP_north = d %>% filter(Site %in% c("Causeway"))
+SIMP_shoalwater <- SIMP %>% filter(Site %in% c("Penguin Island" , "Seal Island", "Bird Island"))
+SIMP_north <- SIMP %>% filter(Site %in% c("Causeway"))
 
 ################################################################################
 #SHOOT DENSITY
 ################################################################################
-names(SIMP)
 #OverallShoot density
 SIMP_shootdensity <- plyr::ddply(
   SIMP, .(Year), summarise,
