@@ -183,7 +183,7 @@ make_col <- . %>% names %>% stringr::str_to_title(.)
 #' @importFrom dplyr matches mutate_at
 #' @importFrom magrittr set_colnames
 #' @importFrom tibble as_tibble
-load_ckan_csv <- function(res_id){
+load_ckan_csv <- function(res_id, ...){
   ckan <- ckanr::src_ckan(Sys.getenv("CKAN_URL"))
   dplyr::tbl(src = ckan$con, from = res_id) %>%
     tibble::as_tibble(.) %>%
