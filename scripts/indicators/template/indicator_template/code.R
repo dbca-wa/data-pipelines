@@ -17,14 +17,14 @@ txt_fn <- "code.R"
 #------------------------------------------------------------------------------#
 # Analysis - your code
 # add date_colnames you wish to read as POSIXct date, remove to keep as factor
-d <- load_ckan_csv(csv_rid, date_colnames=c("date", "year"))
+d <- load_ckan_csv(csv_rid)
 
 pd <- position_dodge(0.1)
 et10 <- element_text(size=10, angle=0)
 
 out <- ggplot(d, aes(x=Year, y=Mean1)) +
-  geom_point(aes(x=Year, y=Mean1, group=Site, shape=Site, col=Site), position=pd, size=2) +
-  geom_line(aes(x=Year, y=Mean1, group=Site, shape=Site, col=Site), position=pd) +
+  geom_point(aes(x=Year, y=Mean1, group=Site, col=Site), position=pd, size=2) +
+  geom_line(aes(x=Year, y=Mean1, group=Site, col=Site), position=pd) +
   labs(title='Y axis metric name', x='Time', y='') +
   scale_x_datetime(
     labels=scales::date_format('%Y-%m'),
