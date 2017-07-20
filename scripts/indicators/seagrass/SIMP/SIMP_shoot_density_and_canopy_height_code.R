@@ -108,10 +108,10 @@ names(SIMP)
 #OverallShoot density
 SIMP_shootdensity <- plyr::ddply(
   SIMP, .(Year), summarise,
-  N    = length(!is.na(Pos_total)),
-  mean = mean(Pos_total, na.rm=TRUE),
-  sd   = sd(Pos_total, na.rm=TRUE),
-  se   = sd(Pos_total, na.rm=TRUE) / sqrt(length(!is.na(Pos_total)) ))
+  N    = length(!is.na(Posidonia_sinuosa)),
+  mean = mean(Posidonia_sinuosa, na.rm=TRUE),
+  sd   = sd(Posidonia_sinuosa, na.rm=TRUE),
+  se   = sd(Posidonia_sinuosa, na.rm=TRUE) / sqrt(length(!is.na(Posidonia_sinuosa)) ))
 >>>>>>> 29d81bdcaa4e6fde94754150fada610192ec5ff3
 
 SIMP_shootdensity_plot <- ggplot(SIMP_shootdensity, aes(x=Year, y=mean)) +
