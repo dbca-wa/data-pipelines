@@ -1,11 +1,9 @@
 setwd("~/projects/data-pipelines/scripts/indicators/seagrass/JBMP")
 source("~/projects/data-pipelines/setup/ckan.R")
 
-library(ggplot2)
 #install.packages("gridExtra")
 library(gridExtra)
 library(plyr)
-library(dplyr)
 # install.packages("Kendall")
 library (Kendall)
 
