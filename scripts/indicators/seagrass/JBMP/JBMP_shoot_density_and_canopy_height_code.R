@@ -1,13 +1,7 @@
 setwd("~/projects/data-pipelines/scripts/indicators/seagrass/JBMP")
 source("~/projects/data-pipelines/setup/ckan.R")
 
-library(ggplot2)
-#install.packages("gridExtra")
-library(gridExtra)
-library(plyr)
-library(dplyr)
-# install.packages("Kendall")
-library (Kendall)
+library(Kendall)
 
 
 ######################################################################################################
@@ -45,11 +39,8 @@ png_JBMP_mean_height_fn = "JBMP overall mean height.png"#Name of final figure
 ###################################################################################################
 #Load data
 ###################################################################################################
-d<-seagrass_data
-# d <- load_ckan_csv(csv_rid, date_colnames = c('date', 'Date'))
-names(d)[names(d) == 'Park_name'] <- 'Park'###Changes column name
-names(d)[names(d) == 'Site_name'] <- 'Site'###Changes column name
-
+# d <- seagrass_data
+d <- load_ckan_csv(csv_rid) %>% mutate(Site = Site_name)
 
 ####################################################################################################
 #Define graphic properties
@@ -74,11 +65,14 @@ graphics = theme(axis.text.x=element_text(angle=45, hjust=0.9), #rotates the x a
 #Create subsets for each 'sector (south, centre, north) for JBMP
 ##################################################################################
 
-JBMP = subset(d, Park %in% c("JBMP"))
-JBMP_south = subset(d, Site %in% c("Kangaroo Point", "Cervantes Island", "Green Island"))
-JBMP_centre = subset(d, Site %in% c("Jurien Impact Site 2.5" , "Boullanger Island 2.5", "Boullanger Island 3.5" , "Boullanger Island 5.5"))
-JBMP_north = subset(d, Site %in% c("Fishermans Island 2.5","Fishermans Island 3.5", "Fishermans Island 5.5"))
+JBMP <- d %>% filter(Park == "JBMP")
+# JBMP_south = subset(d, Site %in% c("Kangaroo Point", "Cervantes Island", "Green Island"))
+# JBMP_centre = subset(d, Site %in% c("Jurien Impact Site 2.5" , "Boullanger Island 2.5", "Boullanger Island 3.5" , "Boullanger Island 5.5"))
+# JBMP_north = subset(d, Site %in% c("Fishermans Island 2.5","Fishermans Island 3.5", "Fishermans Island 5.5"))
 
+JBMP_south <- JBMP %>% filter(Site %in% c("Kangaroo Point", "Cervantes Island", "Green Island"))
+JBMP_centre = JBMP %>% filter(Site %in% c("Jurien Impact Site 2.5" , "Boullanger Island 2.5", "Boullanger Island 3.5" , "Boullanger Island 5.5"))
+JBMP_north = JBMP %>% filter(Site %in% c("Fishermans Island 2.5","Fishermans Island 3.5", "Fishermans Island 5.5"))
 
 ####################################################################################
 #SHOOT DENSITY
