@@ -10,8 +10,10 @@ if (!require("pacman")) install.packages("pacman")
 pacman::p_load(bitops,
                caTools,
                colorspace,
+               plyr,
                dplyr,
                ggplot2,
+               gridExtra,
                Hmisc,
                knitr,
                lubridate,
@@ -23,7 +25,7 @@ pacman::p_load(bitops,
                scales,
                shiny,
                stringr,
-               update=F)
+               update = FALSE)
 
 
 # Set CKAN_URL to DPaW data catalogue
@@ -31,7 +33,7 @@ Sys.setenv(CKAN_URL="https://data.dpaw.wa.gov.au")
 
 # Setup ckanr
 ckanr::ckanr_setup(url=Sys.getenv("CKAN_URL"), key=Sys.getenv("CKAN_API_KEY"))
-ckan <- ckanr::src_ckan("https://data.dpaw.wa.gov.au/")
+ckan <- ckanr::src_ckan(Sys.getenv("CKAN_URL"))
 
 # Set default resource ID
 default_resource_id <- "ccc68eb7-8105-4cc8-8112-57bf1558e82f"
@@ -174,7 +176,7 @@ mpa <- function(url,
 #' @param timezone The timezone, default: 'Australia/Perth'
 #' @return A data.frame of the CSV, with parsed dates and strings as factors
 load_ckan_csv <- function(res_id,
-                          parse_dates = T,
+                          parse_dates = TRUE,
                           date_colnames = c('date', 'Date',
                                             'date.start', 'date.end',
                                             'start.date','end.date',

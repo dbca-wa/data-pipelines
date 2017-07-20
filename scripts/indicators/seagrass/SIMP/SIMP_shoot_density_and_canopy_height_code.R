@@ -1,12 +1,7 @@
 setwd("~/projects/data-pipelines/scripts/indicators/seagrass/SIMP")
-source("~/projects/data-pipelines/scripts/ckan.R")
-source("~/projects/data-pipelines/scripts/ckan_secret.R")
+source("~/projects/data-pipelines/setup/ckan.R")
 
-library(ggplot2)
-#install.packages("gridExtra")
-library(gridExtra)
-library(plyr)
-library (Kendall)
+library(Kendall)
 
 
 ######################################################################################################
@@ -41,18 +36,15 @@ png_SIMP_mean_height_rid <- "6f94e423-87ee-4224-964e-fa97b7e6a016"#CKAN resource
 png_SIMP_mean_height_fn = "SIMP overall mean height.png"#Name of final figure
 
 
-###################################################################################################
+################################################################################
 #Load data
-###################################################################################################
+################################################################################
 
-d <- load_ckan_csv(csv_rid, date_colnames = c('date', 'Date'))
-names(d)[names(d) == 'Park_name'] <- 'Park'###Changes column name
-names(d)[names(d) == 'Sites'] <- 'Site'###Changes column name
+d <- load_ckan_csv(csv_rid) %>% mutate(Site = Site_name)
 
-
-####################################################################################################
+################################################################################
 #Define graphic properties
-#####################################################################################################
+################################################################################
 
 pd <- position_dodge(0.1)
 graphics = theme(axis.text.x=element_text(angle=45, hjust=0.9), #rotates the x axis tick labels an angle of 45 degrees
@@ -68,33 +60,37 @@ graphics = theme(axis.text.x=element_text(angle=45, hjust=0.9), #rotates the x a
                  legend.title = element_text(),
                  legend.key = element_blank())
 
-
-##################################################################################
+names(d)
+################################################################################
 #Create subsets for each 'sector (south, centre, north) for SIMP
-##################################################################################
+################################################################################
+SIMP <- d %>% filter(Park == "SIMP")
+SIMP_south = d %>% filter(Site %in% c("Becher Point", "Becher Point SZ", "Port Kennedy"))
+SIMP_warnbro = d %>% filter(Site %in% c(
+  "Warnbro Sound 2.5m" , "Warnbro Sound 3.2m", "Warnbro Sound 5.2m" ,
+  "Warnbro Sound 7.0m", "Warnbro Sound 2.0m" , "Mersey Point"))
+SIMP_shoalwater = d %>% filter(Site %in% c("Penguin Island" , "Seal Island", "Bird Island"))
+SIMP_north = d %>% filter(Site %in% c("Causeway"))
 
-SIMP = subset(d, Park %in% c("SIMP"))
-SIMP_south = subset(d, Site %in% c("Becher Point", "Becher Point SZ", "Port Kennedy"))
-SIMP_warnbro = subset(d, Site %in% c("Warnbro Sound 2.5m" , "Warnbro Sound 3.2m", "Warnbro Sound 5.2m" , "Warnbro Sound 7.0m", "Warnbro Sound 2.0m" , "Mersey Point"))
-SIMP_shoalwater = subset(d, Site %in% c("Penguin Island" , "Seal Island", "Bird Island"))
-SIMP_north = subset(d, Site %in% c("Causeway"))
-
-####################################################################################
+################################################################################
 #SHOOT DENSITY
-####################################################################################
-
+################################################################################
+names(SIMP)
 #OverallShoot density
-SIMP_shootdensity <- plyr::ddply(SIMP, .(Year), summarise,
-                                 N    = length(!is.na(Pos_total)),
-                                 mean = mean(Pos_total, na.rm=TRUE),
-                                 sd   = sd(Pos_total, na.rm=TRUE),
-                                 se   = sd(Pos_total, na.rm=TRUE) / sqrt(length(!is.na(Pos_total)) ))
+SIMP_shootdensity <- plyr::ddply(
+  SIMP, .(Year), summarise,
+  N    = length(!is.na(Pos_total)),
+  mean = mean(Pos_total, na.rm=TRUE),
+  sd   = sd(Pos_total, na.rm=TRUE),
+  se   = sd(Pos_total, na.rm=TRUE) / sqrt(length(!is.na(Pos_total)) ))
 
 SIMP_shootdensity_plot <- ggplot(SIMP_shootdensity, aes(x=Year, y=mean)) +
   geom_errorbar(aes(ymin=mean-se, ymax=mean+se), width=.02, colour="black", position=pd) +
   #geom_line(position=pd) +
   geom_point(position=pd, size=3, fill="black") + # 21 is filled circle
-  scale_x_continuous(limits=c(min(SIMP_shootdensity$Year-0.125), max(SIMP_shootdensity$Year+0.125)), breaks=min(SIMP_shootdensity$Year):max(SIMP_shootdensity$Year)) +
+  scale_x_continuous(limits=c(min(SIMP_shootdensity$Year-0.125),
+                              max(SIMP_shootdensity$Year+0.125)),
+                     breaks=min(SIMP_shootdensity$Year):max(SIMP_shootdensity$Year)) +
   scale_y_continuous(limits=c(min(0), max(50)))+
   xlab("Year") +
   ylab(expression(paste("Mean density (","0.04m"^-2,")", sep = ""))) +
