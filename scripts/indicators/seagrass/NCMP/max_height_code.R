@@ -1,7 +1,5 @@
 setwd("~/projects/data-pipelines/scripts/indicators/seagrass/NCMP")
-source("~/projects/data-pipelines/scripts/ckan.R")
-source("~/projects/data-pipelines/scripts/ckan_secret.R")
-library(ggplot2)
+source("~/projects/data-pipelines/setup/ckan.R")
 #install.packages("gridExtra")
 library(gridExtra)
 library(plyr)
