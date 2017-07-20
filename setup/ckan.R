@@ -1,5 +1,5 @@
 #' R functions to retrieve content from CKAN
-#' @author Florian.Mayer@dpaw.wa.gov.au
+#' @author Florian.Mayer@dbca.wa.gov.au
 #'
 
 # install.packages("devtools")
@@ -36,7 +36,7 @@ ckanr::ckanr_setup(url=Sys.getenv("CKAN_URL"), key=Sys.getenv("CKAN_API_KEY"))
 ckan <- ckanr::src_ckan(Sys.getenv("CKAN_URL"))
 
 # Set default resource ID
-default_resource_id <- "ccc68eb7-8105-4cc8-8112-57bf1558e82f"
+# default_resource_id <- "ccc68eb7-8105-4cc8-8112-57bf1558e82f"
 
 
 #' Get CPR data from intermediary CSV by park and asset slug
@@ -50,12 +50,12 @@ default_resource_id <- "ccc68eb7-8105-4cc8-8112-57bf1558e82f"
 #' @return a data.frame with one row of factors park, asset, and the six CPR
 #' indicator flags.
 #' @export
-getCPR <- function(prk, ast, url = "../reports/cpr.csv"
-                   #url = ckan_res("ece209a7-5974-4e04-9711-ee6457bc4a59")$url
-){
-  cpr = read.table(url, header=TRUE, skip=0, sep=",")
-  subset(cpr, park == prk & asset == ast)
-}
+# getCPR <- function(prk, ast, url = "../reports/cpr.csv"
+#                    #url = ckan_res("ece209a7-5974-4e04-9711-ee6457bc4a59")$url
+# ){
+#   cpr = read.table(url, header=TRUE, skip=0, sep=",")
+#   subset(cpr, park == prk & asset == ast)
+# }
 
 #' Texify a string of text
 #'
@@ -68,46 +68,46 @@ getCPR <- function(prk, ast, url = "../reports/cpr.csv"
 #' @export
 #' @usage
 #' texify("Testing % ~ $ & _ m2 sqm mL-1 L-1 < > ≥ ≤ ±")
-texify <- function(text){
-  text = gsub("%", "\\\\%", text)
-  text = gsub("~", "\\\\~", text)
-  #text = gsub("$", "\\\\$", text)
-  text = gsub("&", "\\\\&", text)
-  text = gsub("_", " ", text)
-  text = gsub("R2", "$R^2$", text)
-  text = gsub("m2", "$m^2$", text)
-  text = gsub("m-2", "$m^-2$", text)
-  text = gsub("sqm ", "$m^2$ ", text)
-  text = gsub(" mL-1 ", " $mL^{-1}$ ", text)
-  text = gsub(" L-1 ", " $L^{-1}$ ", text)
-  text = gsub("<", "$<$", text)
-  text = gsub(">", "$>$", text)
-  text = gsub("≥", "$\\\\geq$", text)
-  text = gsub("≤", "$\\\\leq$", text)
-  text = gsub("±", "$\\\\pm$", text)
-  text = gsub("+/-", "$\\\\pm$", text)
-  text = gsub("=", "$=$", text)
-  text = gsub("°", "$\\\\textdegree$", text)
-
-
-  # add more substitutions as required
-  return(Hmisc::escapeBS(text))
-}
+# texify <- function(text){
+#   text = gsub("%", "\\\\%", text)
+#   text = gsub("~", "\\\\~", text)
+#   #text = gsub("$", "\\\\$", text)
+#   text = gsub("&", "\\\\&", text)
+#   text = gsub("_", " ", text)
+#   text = gsub("R2", "$R^2$", text)
+#   text = gsub("m2", "$m^2$", text)
+#   text = gsub("m-2", "$m^-2$", text)
+#   text = gsub("sqm ", "$m^2$ ", text)
+#   text = gsub(" mL-1 ", " $mL^{-1}$ ", text)
+#   text = gsub(" L-1 ", " $L^{-1}$ ", text)
+#   text = gsub("<", "$<$", text)
+#   text = gsub(">", "$>$", text)
+#   text = gsub("≥", "$\\\\geq$", text)
+#   text = gsub("≤", "$\\\\leq$", text)
+#   text = gsub("±", "$\\\\pm$", text)
+#   text = gsub("+/-", "$\\\\pm$", text)
+#   text = gsub("=", "$=$", text)
+#   text = gsub("°", "$\\\\textdegree$", text)
+#
+#
+#   # add more substitutions as required
+#   return(Hmisc::escapeBS(text))
+# }
 
 #' Return the value of a key in a dictionary or display a "missing" message
 #'
 #' @param dict A dictionary, as returned by ckanr::package_show
 #' @param key A key as quoted string
 #' @param texify Whether to convert the value from markdown to latex (default: F)
-get_key <- function(dict, key, texify=F){
-  val = dict[[key]]
-  if (is.null(val)) {
-    val = "not available"
-    print(paste("Missing key:", key, "at", dict$url))
-  }
-  if (texify==T){ val <- texify(val)}
-  val
-}
+# get_key <- function(dict, key, texify=F){
+#   val = dict[[key]]
+#   if (is.null(val)) {
+#     val = "not available"
+#     print(paste("Missing key:", key, "at", dict$url))
+#   }
+#   if (texify==T){ val <- texify(val)}
+#   val
+# }
 
 #' Return a named list of metadata of a CKAN resource and its dataset
 #'
@@ -132,22 +132,22 @@ get_key <- function(dict, key, texify=F){
 #'    luo <- the dataset's "last updated on"
 #'    lub <- the dataset's maintainer (last updated by)
 #'
-ckan_res <- function(resource_id,
-                     url=get_default_url()){
-  if (resource_id == "") resource_id <- default_resource_id
-  r <- ckanr::resource_show(resource_id, url = url)
-  d <- ckanr::package_show(r$package_id, url = url)
-  r$d <- d
-  r$ind <- texify(d$title)
-  r$syn <- ""#texify(d$notes) # a hack to exclude the unused synopsis
-  r$pth <- strsplit(r$url, "//")[[1]][2]
-  r$cap <- texify(r$description)
-  r$ori <- paste0(url, "dataset/", d$id)
-  r$src <- texify(d$citation) #get_key(d, "citation", texify=T)
-  r$luo <- d$last_updated_on #get_key(d, "last_updated_on")
-  r$lub <- d$maintainer
-  r
-}
+# ckan_res <- function(resource_id,
+#                      url=get_default_url()){
+#   if (resource_id == "") resource_id <- default_resource_id
+#   r <- ckanr::resource_show(resource_id, url = url)
+#   d <- ckanr::package_show(r$package_id, url = url)
+#   r$d <- d
+#   r$ind <- texify(d$title)
+#   r$syn <- ""#texify(d$notes) # a hack to exclude the unused synopsis
+#   r$pth <- strsplit(r$url, "//")[[1]][2]
+#   r$cap <- texify(r$description)
+#   r$ori <- paste0(url, "dataset/", d$id)
+#   r$src <- texify(d$citation) #get_key(d, "citation", texify=T)
+#   r$luo <- d$last_updated_on #get_key(d, "last_updated_on")
+#   r$lub <- d$maintainer
+#   r
+# }
 
 #' Return an R data.frame with content from CKAN as required for MPA Figures
 #'
@@ -156,49 +156,37 @@ ckan_res <- function(resource_id,
 #'  backwards compatibility
 #' @param debug Debug noise
 #' @param url The CKAN base url, optional, default: `ckanr::get_default_url()`
-mpa <- function(url,
-                type = 'Condition', debug = FALSE, ckanurl=get_default_url()){
-  r <- ckan_res(strsplit(url, '/')[[1]][7])
-  r
-}
+# mpa <- function(url,
+#                 type = 'Condition', debug = FALSE, ckanurl=get_default_url()){
+#   r <- ckan_res(strsplit(url, '/')[[1]][7])
+#   r
+# }
+
+make_date <- . %>% lubridate::parse_date_time(
+  ., orders = c('YmdHMSz', 'YmdHMS','Ymd','dmY', 'Y'), tz = 'Australia/Perth')
+
+make_col <- . %>% names %>% stringr::str_to_title(.)
+#%>% stringr::str_replace_all(., "_", " ")
+
 
 #' Load CSV from CKAN's datastore given a resource id
 #'
+#' A dplyr datasource is created from the (required) env variable "CKAN_URL",
+#' the table named after the resource ID is read (in its entirety),
+#' the result is converted into a tibble,
+#' all columns containing "date" are parsed as GMT+08 datetimes,
+#' all column names are title cased.
+#'
 #' @param res_id The resource id of a CKAN CSV resource
-#' @param ckan An optional ckanr::src_ckan, default: NULL
-#'    (create new src_ckan from Sys.getenv("CKAN"))
-#' @param parse_dates Whether to parse date_colnames as dates of format
-#'    date_formats into PosixCt
-#' @param date_colnames The column names of date columns,
-#'    default: 'date', 'Date', 'date.start', 'date.end', 'year', 'Year'
-#' @param date_formats The date formats to expect,
-#'    default: 'YmdHMSz', 'YmdHMS','Ymd','dmY', 'Y'
-#' @param timezone The timezone, default: 'Australia/Perth'
-#' @return A data.frame of the CSV, with parsed dates and strings as factors
-load_ckan_csv <- function(res_id,
-                          parse_dates = TRUE,
-                          date_colnames = c('date', 'Date',
-                                            'date.start', 'date.end',
-                                            'start.date','end.date',
-                                            'year', 'Year'),
-                          date_formats = c('YmdHMSz', 'YmdHMS','Ymd','dmY', 'Y'),
-                          timezone = 'Australia/Perth',
-                          ckan = NULL){
-  # Set CKAN as dplyr data source
-  if (is.null(ckan)) ckan = ckanr::src_ckan(Sys.getenv("CKAN_URL"))
-
-  # Read resource from datastore (db table) through API using only resource ID
-  df <- dplyr::tbl(src = ckan$con, from = res_id) %>% as_tibble(.)
-
-  # Parse dates, sanitize column names
-  cn <- names(df)
-  df[cn %in% date_colnames] <- lapply(
-    df[cn %in% date_colnames],
-    function(x){
-      x <- lubridate::parse_date_time(x, orders = date_formats, tz = timezone)
-    }
-  )
-  names(df) <- Hmisc::capitalize(names(df))
-
-  df
+#' @return A tibble of the CKAN CSV with parsed dates and title cased colnames.
+#' @importFrom ckanr src_ckan
+#' @importFrom dplyr matches mutate_at
+#' @importFrom magrittr set_colnames
+#' @importFrom tibble as_tibble
+load_ckan_csv <- function(res_id){
+  ckan <- ckanr::src_ckan(Sys.getenv("CKAN_URL"))
+  dplyr::tbl(src = ckan$con, from = res_id) %>%
+    tibble::as_tibble(.) %>%
+    dplyr::mutate_at(dplyr::vars(dplyr::matches("date")), make_date) %>%
+    magrittr::set_colnames(., make_col(.))
 }
