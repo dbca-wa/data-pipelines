@@ -12,24 +12,18 @@ csv_rid <- "d1e0cd1d-9fc0-4069-9781-eb4946d929c8"#CKAN resource ID for data
 txt_rid <- "ef76d134-cc13-4c54-8864-0c441a36a127"#CKAN resource ID for r-script
 
 #Shoot density plots
-pdf_shoot_density_rid <- "485457c3-a66f-4a6b-aa60-909736986ff8"#CKAN resource ID for final figure (pdf)
-pdf_shoot_density_fn = "JBMP shoot density.pdf"#Name of final figure
 png_shoot_density_rid <- "af4bc41b-6477-4571-9038-1f5784502bdf"#CKAN resource ID for final figure (png)
 png_shoot_density_fn = "JBMP shoot density.png"#Name of final figure
 png_JBMP_shoot_density_rid <- "186519a9-72aa-4d78-afd6-bce672f476f0"#CKAN resource ID for final figure (png)
 png_JBMP_shoot_density_fn = "JBMP overall shoot density.png"#Name of final figure
 
 #Maximum canopy height plots
-pdf_max_height_rid <- "4d9fde3a-2b45-4f09-bfff-25fc1a2cac73"#CKAN resource ID for final figure (pdf)
-pdf_max_height_fn = "JBMP max height.pdf"#Name of final figure
 png_max_height_rid <- "8f406852-0b15-46cb-b972-c960c4f3bfc8"#CKAN resource ID for final figure (png)
 png_max_height_fn = "JBMP max height.png"#Name of final figure
 png_JBMP_max_height_rid <- "a440fa20-596a-474a-a91f-b1108c99f633"#CKAN resource ID for final figure (png)
 png_JBMP_max_height_fn = "JBMP overall max height.png"#Name of final figure
 
 #Mean canopy height plots
-pdf_mean_height_rid <- "ce18973e-3336-466e-834b-e08abfeec5be"#CKAN resource ID for final figure (pdf)
-pdf_mean_height_fn = "JBMP mean height.pdf"#Name of final figure
 png_mean_height_rid <- "964b26d5-e008-42a9-9d5c-7269fdf58b6c"#CKAN resource ID for final figure (png)
 png_mean_height_fn = "JBMP mean height.png"#Name of final figure
 png_JBMP_mean_height_rid <- "6f94e423-87ee-4224-964e-fa97b7e6a016"#CKAN resource ID for final figure (png)
@@ -415,10 +409,6 @@ png(png_JBMP_shoot_density_fn, width=500, height=300)
 grid.arrange(JBMP_shootdensity_plot)
 dev.off()
 
-# pdf(pdf_shoot_density_fn, width=8, height=7)
-# grid.arrange(JBMP_south_shootdensity_plot, JBMP_centre_shootdensity_plot, JBMP_north_shootdensity_plot,ncol=1)
-# dev.off()
-
 png(png_shoot_density_fn, width=600, height=800)
 grid.arrange(JBMP_north_shootdensity_plot, JBMP_centre_shootdensity_plot, JBMP_south_shootdensity_plot, ncol=1)
 dev.off()
@@ -427,10 +417,6 @@ dev.off()
 png(png_JBMP_max_height_fn, width=500, height=300)
 grid.arrange(JBMP_maxheight_plot)
 dev.off()
-
-# pdf(pdf_max_height_fn, width=8, height=7)
-# grid.arrange(JBMP_south_maxheight_plot, JBMP_centre_maxheight_plot, JBMP_north_maxheight_plot, ncol=1)
-# dev.off()
 
 png(png_max_height_fn, width=600, height=800)
 grid.arrange(JBMP_north_maxheight_plot, JBMP_centre_maxheight_plot, JBMP_south_maxheight_plot, ncol=1)
@@ -441,14 +427,9 @@ png(png_JBMP_mean_height_fn, width=500, height=300)
 grid.arrange(JBMP_meanheight_plot)
 dev.off()
 
-# pdf(pdf_mean_height_fn, width=8, height=7)
-# grid.arrange(JBMP_south_meanheight_plot, JBMP_centre_meanheight_plot, JBMP_north_meanheight_plot, ncol=1)
-# dev.off()
-
 png(png_mean_height_fn, width=600, height=800)
 grid.arrange(JBMP_north_meanheight_plot, JBMP_centre_meanheight_plot, JBMP_south_meanheight_plot, ncol=1)
 dev.off()
-
 
 #####################################################################################
 #Upload figures and script back to CKAN

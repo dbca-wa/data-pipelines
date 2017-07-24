@@ -1,6 +1,5 @@
 setwd("~/projects/data-pipelines/scripts/indicators/seagrass/MMP")
-source("~/projects/data-pipelines/scripts/ckan.R")
-source("~/projects/data-pipelines/scripts/ckan_secret.R")
+source("~/projects/data-pipelines/setup/ckan.R")
 
 library(ggplot2)
 #install.packages("gridExtra")
@@ -16,16 +15,12 @@ csv_rid <- "d1e0cd1d-9fc0-4069-9781-eb4946d929c8"#CKAN resource ID for data
 txt_rid <- "b6b3ded6-40e1-4449-be54-6745800ad4d7"#CKAN resource ID for r-script
 
 #Shoot density plots
-pdf_shoot_density_rid <- "a1d76618-0108-4f99-8fc6-304cef3eeaad"#CKAN resource ID for final figure (pdf)
-pdf_shoot_density_fn = "MMP shoot density.pdf"#Name of final figure
 png_shoot_density_rid <- "4d6b35db-b49a-4804-a293-314bfc123dd0"#CKAN resource ID for final figure (png)
 png_shoot_density_fn = "MMP shoot density.png"#Name of final figure
 png_MMP_shoot_density_rid <- "7b595274-5ca6-412a-a691-c910b60e87a2"#CKAN resource ID for final figure (png)
 png_MMP_shoot_density_fn = "MMP overall shoot density.png"#Name of final figure
 
 #Maximum canopy height plots
-pdf_max_height_rid <- "53ce3a42-8f59-49a1-a0f6-c713bdd8ff5a"#CKAN resource ID for final figure (pdf)
-pdf_max_height_fn = "MMP max height.pdf"#Name of final figure
 png_max_height_rid <- "7582fa4d-5982-4f1f-9e2c-6701f4da8da7"#CKAN resource ID for final figure (png)
 png_max_height_fn = "MMP max height.png"#Name of final figure
 png_MMP_max_height_rid <- "e316d75c-48e9-4ae5-8cb8-2201ff9cb74e"#CKAN resource ID for final figure (png)
@@ -33,8 +28,6 @@ png_MMP_max_height_fn = "MMP overall max height.png"#Name of final figure
 
 
 #Mean canopy height plots
-pdf_mean_height_rid <- "1cfb1c06-5f4b-4342-89e8-e480569efb17"#CKAN resource ID for final figure (pdf)
-pdf_mean_height_fn = "MMP mean height.pdf"#Name of final figure
 png_mean_height_rid <- "38ef1e0c-d8cf-40fc-9e34-4f1cb63c404f"#CKAN resource ID for final figure (png)
 png_mean_height_fn = "MMP mean height.png"#Name of final figure
 png_MMP_mean_height_rid <- "aad40596-a864-4d66-84f1-fa9f875aea3c"#CKAN resource ID for final figure (png)
@@ -349,10 +342,6 @@ png(png_MMP_shoot_density_fn, width=500, height=300)
 grid.arrange(MMP_shootdensity_plot)
 dev.off()
 
-pdf(pdf_shoot_density_fn, width=8, height=7)
-grid.arrange(MMP_south_shootdensity_plot, MMP_centre_shootdensity_plot, MMP_north_shootdensity_plot, ncol=2)
-dev.off()
-
 png(png_shoot_density_fn, width=1000, height=800)
 grid.arrange(MMP_south_shootdensity_plot, MMP_centre_shootdensity_plot, MMP_north_shootdensity_plot, ncol=2)
 dev.off()
@@ -362,10 +351,6 @@ png(png_MMP_max_height_fn, width=500, height=300)
 grid.arrange(MMP_maxheight_plot)
 dev.off()
 
-pdf(pdf_max_height_fn, width=8, height=7)
-grid.arrange(MMP_south_maxheight_plot, MMP_centre_maxheight_plot, MMP_north_maxheight_plot, ncol=2)
-dev.off()
-
 png(png_max_height_fn, width=1000, height=800)
 grid.arrange(MMP_south_maxheight_plot, MMP_centre_maxheight_plot, MMP_north_maxheight_plot, ncol=2)
 dev.off()
@@ -373,10 +358,6 @@ dev.off()
 #Mean canopy height
 png(png_MMP_mean_height_fn, width=500, height=300)
 grid.arrange(MMP_meanheight_plot)
-dev.off()
-
-pdf(pdf_mean_height_fn, width=8, height=7)
-grid.arrange(MMP_south_meanheight_plot, MMP_centre_meanheight_plot, MMP_north_meanheight_plot, ncol=2)
 dev.off()
 
 png(png_mean_height_fn, width=1000, height=800)

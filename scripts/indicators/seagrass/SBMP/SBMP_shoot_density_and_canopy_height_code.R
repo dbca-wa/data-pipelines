@@ -1,6 +1,5 @@
 setwd("~/projects/data-pipelines/scripts/indicators/seagrass/SBMP")
-source("~/projects/mpa-reporting/scripts/ckan.R")
-
+source("~/projects/data-pipelines/setup/ckan.R")
 
 library(ggplot2)
 #install.packages("gridExtra")
@@ -17,16 +16,12 @@ csv_rid <- "d1e0cd1d-9fc0-4069-9781-eb4946d929c8"#CKAN resource ID for data
 txt_rid <- "38fd849b-0ae9-4289-b8a2-4279bd220e6c"#CKAN resource ID for r-script
 
 #Shoot density plots
-pdf_SBMP_shoot_density_rid <- "263166f5-fbcc-4ce1-9b8e-5b64a47b69ae"#CKAN resource ID for final figure (pdf)
-pdf_SBMP_shoot_density_fn = "SBMP shoot density.pdf"#Name of final figure
 png_SBMP_shoot_density_rid <- "adcea303-211a-4f54-a993-32ba228e5aae"#CKAN resource ID for final figure (png)
 png_SBMP_shoot_density_fn = "SBMP shoot density.png"#Name of final figure
 png_SBMP_overall_shoot_density_rid <- "2d0e900e-4b3a-419d-b8df-e8ed655b667a"#CKAN resource ID for final figure (png)
 png_SBMP_overall_shoot_density_fn = "SBMP overall shoot density.png"#Name of final figure
 
 #Maximum canopy height plots
-pdf_SBMP_max_height_rid <- "9e15d1c0-3a52-4f9a-9ce6-5619d3665d1e"#CKAN resource ID for final figure (pdf)
-pdf_SBMP_max_height_fn = "SBMP max height.pdf"#Name of final figure
 png_SBMP_max_height_rid <- "ab48be40-8830-402b-9618-30740c50e822"#CKAN resource ID for final figure (png)
 png_SBMP_max_height_fn = "SBMP max height.png"#Name of final figure
 png_SBMP_overall_max_height_rid <- "a5630713-39f5-4228-955c-7b3c34e8fa64"#CKAN resource ID for final figure (png)
@@ -34,8 +29,6 @@ png_SBMP_overall_max_height_fn = "SBMP overall max height.png"#Name of final fig
 
 
 #Mean canopy height plots
-pdf_SBMP_mean_height_rid <- "18837c8a-ff45-4646-9189-ce27451bf653"#CKAN resource ID for final figure (pdf)
-pdf_SBMP_mean_height_fn = "SBMP mean height.pdf"#Name of final figure
 png_SBMP_mean_height_rid <- "720e61e6-7d37-4456-a49c-48998e3ffe49"#CKAN resource ID for final figure (png)
 png_SBMP_mean_height_fn = "SBMP mean height.png"#Name of final figure
 png_SBMP_overall_mean_height_rid <- "ebe43d88-6cef-4589-bf50-a0cdc04508fb"#CKAN resource ID for final figure (png)
@@ -525,10 +518,6 @@ png(png_SBMP_overall_shoot_density_fn, width=500, height=300)
 grid.arrange(SBMP_shootdensity_plot)
 dev.off()
 
-pdf(pdf_SBMP_shoot_density_fn, width=8, height=7)
-grid.arrange(SBMP_westerngulf_shootdensity_plot, SBMP_peron_shootdensity_plot, SBMP_monkeymia_shootdensity_plot, SBMP_wooramel_shootdensity_plot,ncol=2)
-dev.off()
-
 png(png_SBMP_shoot_density_fn, width=1000, height=800)
 grid.arrange(SBMP_westerngulf_shootdensity_plot, SBMP_peron_shootdensity_plot, SBMP_monkeymia_shootdensity_plot, SBMP_wooramel_shootdensity_plot,ncol=2)
 dev.off()
@@ -538,10 +527,6 @@ png(png_SBMP_overall_max_height_fn, width=500, height=300)
 grid.arrange(SBMP_maxheight_plot)
 dev.off()
 
-pdf(pdf_SBMP_max_height_fn, width=8, height=7)
-grid.arrange(SBMP_westerngulf_maxheight_plot, SBMP_peron_maxheight_plot, SBMP_monkeymia_maxheight_plot, SBMP_wooramel_maxheight_plot,ncol=2)
-dev.off()
-
 png(png_SBMP_max_height_fn, width=1000, height=800)
 grid.arrange(SBMP_westerngulf_maxheight_plot, SBMP_peron_maxheight_plot, SBMP_monkeymia_maxheight_plot, SBMP_wooramel_maxheight_plot,ncol=2)
 dev.off()
@@ -549,10 +534,6 @@ dev.off()
 #Mean canopy height
 png(png_SBMP_overall_mean_height_fn, width=500, height=300)
 grid.arrange(SBMP_meanheight_plot)
-dev.off()
-
-pdf(pdf_SBMP_mean_height_fn, width=8, height=7)
-grid.arrange(SBMP_westerngulf_meanheight_plot, SBMP_peron_meanheight_plot, SBMP_monkeymia_meanheight_plot, SBMP_wooramel_meanheight_plot,ncol=2)
 dev.off()
 
 png(png_SBMP_mean_height_fn, width=1000, height=800)
@@ -566,16 +547,12 @@ dev.off()
 
 ckanr::resource_update(png_SBMP_overall_shoot_density_rid,png_SBMP_overall_shoot_density_fn)
 ckanr::resource_update(png_SBMP_shoot_density_rid, png_SBMP_shoot_density_fn)
-ckanr::resource_update(pdf_SBMP_shoot_density_rid, pdf_SBMP_shoot_density_fn)
 
 ckanr::resource_update(png_SBMP_overall_max_height_rid, png_SBMP_overall_max_height_fn)
 ckanr::resource_update(png_SBMP_max_height_rid, png_SBMP_max_height_fn)
-ckanr::resource_update(pdf_SBMP_max_height_rid, pdf_SBMP_max_height_fn)
-
 
 ckanr::resource_update(png_SBMP_overall_mean_height_rid, png_SBMP_overall_mean_height_fn)
 ckanr::resource_update(png_SBMP_mean_height_rid, png_SBMP_mean_height_fn)
-ckanr::resource_update(pdf_SBMP_mean_height_rid, pdf_SBMP_mean_height_fn)
 
 ckanr::resource_update(txt_rid, "SBMP_shoot_density_and_canopy_height_code.R")
 

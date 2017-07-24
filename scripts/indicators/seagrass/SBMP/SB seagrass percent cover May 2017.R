@@ -19,12 +19,8 @@ csv_rid <- "619d13a7-5df5-46e3-8391-50a2390e8df2"#CKAN resource ID for data
 txt_rid <- "0bba4f55-e3af-490e-88bb-738660ef16e2"#CKAN resource ID for r-script
 
 #Percent cover
-pdf_SBMP_amphib_percentcover_rid <- "a3748180-746a-4897-b135-02e9068a1ce1"#CKAN resource ID for final figure (pdf)
-pdf_SBMP_amphib_percentcover_fn = "SBMP percent cover Amphibolis.pdf"#Name of final figure
 png_SBMP_amphib_percentcover_rid <- "22c9123f-80be-4f24-ab9b-caeb6df8fa13"#CKAN resource ID for final figure (pdf)
 png_SBMP_amphib_percentcover_fn = "SBMP percent cover Amphibolis.png"#Name of final figure
-pdf_SBMP_pos_percentcover_rid <- "ad4b61b9-f9e7-4f53-a8f3-90ee3628aa5d"#CKAN resource ID for final figure (pdf)
-pdf_SBMP_pos_percentcover_fn = "SBMP percent cover Posidonia.pdf"#Name of final figure
 png_SBMP_pos_percentcover_rid <- "96d9a4f5-4041-4070-9ba5-6bb518341321"#CKAN resource ID for final figure (pdf)
 png_SBMP_pos_percentcover_fn = "SBMP percent cover Posidonia.png"#Name of final figure
 png_SBMP_overall_percentcover_rid <- "f8508298-dc4c-4099-8c02-ce9ced6c5142"#CKAN resource ID for final figure (png)
@@ -265,20 +261,11 @@ png(png_SBMP_overall_percentcover_fn, width=500, height=900)
 grid.arrange(SBMP_percentcover_plot, SBMP_amphibolis_percentcover_plot, SBMP_posidonia_percentcover_plot, ncol=1)
 dev.off()
 
-
 png(png_SBMP_amphib_percentcover_fn, width=600, height=800)
 grid.arrange(SBMP_amphib_percentcover_plot)
 dev.off()
 
-pdf(pdf_SBMP_amphib_percentcover_fn, width=8, height=7)
-grid.arrange(SBMP_amphib_percentcover_plot)
-dev.off()
-
 png(png_SBMP_pos_percentcover_fn, width=600, height=800)
-grid.arrange(SBMP_pos_percentcover_plot)
-dev.off()
-
-pdf(pdf_SBMP_pos_percentcover_fn, width=8, height=7)
 grid.arrange(SBMP_pos_percentcover_plot)
 dev.off()
 
@@ -288,10 +275,8 @@ dev.off()
 
 ckanr::resource_update(png_SBMP_overall_percentcover_rid, png_SBMP_overall_percentcover_fn)
 
-ckanr::resource_update(pdf_SBMP_amphib_percentcover_rid, pdf_SBMP_amphib_percentcover_fn)
 ckanr::resource_update(png_SBMP_amphib_percentcover_rid, png_SBMP_amphib_percentcover_fn)
 
-ckanr::resource_update(pdf_SBMP_pos_percentcover_rid, pdf_SBMP_pos_percentcover_fn)
 ckanr::resource_update(png_SBMP_pos_percentcover_rid, png_SBMP_pos_percentcover_fn)
 
 ckanr::resource_update(txt_rid, "SBMP_percent_cover_code.R")

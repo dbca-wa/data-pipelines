@@ -1,6 +1,5 @@
 setwd("~/projects/data-pipelines/scripts/indicators/seagrass/MMP")
-source("~/projects/data-pipelines/scripts/ckan.R")
-source("~/projects/data-pipelines/scripts/ckan_secret.R")
+source("~/projects/data-pipelines/setup/ckan.R")
 
 library(ggplot2)
 #install.packages("gridExtra")
@@ -8,9 +7,7 @@ library(gridExtra)
 library(plyr)
 
 csv_rid <- "b0b546ed-ab74-4592-8429-7175cd637de4"
-pdf_rid <- "bf1ab0a9-95b4-4725-8fc2-a95c85461cf2"
 txt_rid <- "2bb67f9b-c6d7-4328-83d2-efd49afee876"
-pdf_fn = "final.pdf"
 
 d <- load_ckan_csv(csv_rid, date_colnames = c('date', 'Date'))
 
@@ -118,13 +115,9 @@ MMP_n_plot
 
 # Step 4: Create PDF (will be saved to current workdir)
 
-pdf(pdf_fn, width=8, height=7)
-grid.arrange(MMP_s_plot, MMP_c_plot, MMP_n_plot, ncol=2)
-dev.off()
 
 
 ## Step 5: Upload to CKAN
-ckanr::resource_update(pdf_rid, pdf_fn)
 ckanr::resource_update(txt_rid, "percent_cover_code.R")
 
 # Step 6: set workdir to main report location

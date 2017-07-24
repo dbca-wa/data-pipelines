@@ -1,6 +1,6 @@
 setwd("~/projects/data-pipelines/scripts/indicators/seagrass/SIMP")
-source("~/projects/data-pipelines/scripts/ckan.R")
-source("~/projects/data-pipelines/scripts/ckan_secret.R")
+source("~/projects/data-pipelines/setup/ckan.R")
+
 
 library(ggplot2)
 #install.packages("gridExtra")
@@ -16,8 +16,6 @@ csv_rid <- "2eadb2a8-2b7a-4d96-9822-4a2c5389d16a"
 txt_rid <- "1c0627b7-72d0-40a4-b11b-3f6a7a41c0a7"
 
 #percent cover plots
-pdf_SIMP_overallpercentcover_rid <- "95c93dc8-2eba-4bd7-9f79-14d474085300"
-pdf_SIMP_overallpercentcover_fn <- "SIMP_overallpercentcover.pdf"
 png_SIMP_overallpercentcover_rid <- "f98ef2b7-2c97-4d7b-a0d7-10d3001a6dfb"
 png_SIMP_overallpercentcover_fn <-"SIMP_overallpercentcover.png"
 png_SIMP_percentcover_rid <-"70afbaf6-33d5-4e4c-9b9b-933eca251d36"
@@ -213,10 +211,6 @@ detach(SIMP_north_percentcover)
 #Create figures (will be saved to current workdir)
 #####################################################################################
 
-pdf(pdf_SIMP_overallpercentcover_fn, width=8, height=7)
-grid.arrange(SIMP_percentcover_plot)
-dev.off()
-
 png(png_SIMP_overallpercentcover_fn, width=500, height=300)
 grid.arrange(SIMP_percentcover_plot)
 dev.off()
@@ -229,7 +223,6 @@ dev.off()
 #Upload figures and script back to CKAN
 #####################################################################################
 
-ckanr::resource_update(pdf_SIMP_overallpercentcover_rid, pdf_SIMP_overallpercentcover_fn)
 ckanr::resource_update(png_SIMP_overallpercentcover_rid, png_SIMP_overallpercentcover_fn)
 ckanr::resource_update(png_SIMP_percentcover_rid, png_SIMP_percentcover_fn)
 ckanr::resource_update(txt_rid, "percent_cover_code.R")

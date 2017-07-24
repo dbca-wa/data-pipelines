@@ -1,6 +1,5 @@
 setwd("~/projects/data-pipelines/scripts/indicators/seagrass/NCMP")
-source("~/projects/data-pipelines/scripts/ckan.R")
-source("~/projects/data-pipelines/scripts/ckan_secret.R")
+source("~/projects/data-pipelines/setup/ckan.R")
 
 library(ggplot2)
 #install.packages("gridExtra")
@@ -8,9 +7,7 @@ library(gridExtra)
 library(plyr)
 
 csv_rid <- "26781d5a-5792-429b-93a7-9e0f5d5ac290"
-pdf_rid <- "85a589f5-13d5-40fa-b231-8f9298d3a4f6"
 txt_rid <- "89ad20bc-6430-43d5-904b-891485894fdf"
-pdf_fn = "final.pdf"
 
 d <- load_ckan_csv(csv_rid, date_colnames = c('date', 'Date'))
 
@@ -140,10 +137,6 @@ NCMP_w_plot
 #####################################################################################
 
 # Step 4: Create PDF (will be saved to current workdir)
-
-pdf(pdf_fn, width=8, height=7)
-grid.arrange(NCMP_in_plot, NCMP_m_plot, NCMP_o_plot, NCMP_w_plot, ncol=2)
-dev.off()
 
 
 ## Step 5: Upload to CKAN

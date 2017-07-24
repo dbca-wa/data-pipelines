@@ -1,6 +1,5 @@
-setwd("~/projects/mpa-reporting/scripts/indicators/seagrass/SBMP")
-source("~/projects/mpa-reporting/scripts/ckan.R")
-source("~/projects/mpa-reporting/scripts/ckan_secret.R")
+setwd("~/projects/data-pipelines/scripts/indicators/seagrass/SBMP")
+source("~/projects/data-pipelines/setup/ckan.R")
 
 library(ggplot2)
 #install.packages("gridExtra")
@@ -17,29 +16,22 @@ csv_rid <- "d1e0cd1d-9fc0-4069-9781-eb4946d929c8"#CKAN resource ID for data
 txt_rid <- "51ffebf0-1d50-4fe3-8638-78727da3f214"#CKAN resource ID for r-script
 
 #Amphibolis density
-pdf_SBMP_amphib_density_rid <- "07645057-8b72-472b-9ce7-16e7c033614e"#CKAN resource ID for final figure (pdf)
-pdf_SBMP_amphib_density_fn = "SBMP leaf bundles.pdf"#Name of final figure
 png_SBMP_amphib_density_rid <- "46ed6691-e6bf-4280-a718-e33d58170da4"#CKAN resource ID for final figure (pdf)
 png_SBMP_amphib_density_fn = "SBMP leaf bundles.png"#Name of final figure
 png_SBMP_overall_amphib_density_rid <- "fa41c293-46d8-4aec-9d8f-6637166d2e7a"#CKAN resource ID for final figure (png)
 png_SBMP_overall_amphib_density_fn = "SBMP overall leaf bundles.png"#Name of final figure
 
 #Leaf bundle plots
-pdf_SBMP_leaf_bundles_rid <- "24a36936-1905-46c1-8bde-a438a7e376a7"#CKAN resource ID for final figure (pdf)
-pdf_SBMP_leaf_bundles_fn = "SBMP leaf bundles.pdf"#Name of final figure
 png_SBMP_leaf_bundles_rid <- "2ca887ab-e3f7-4fc0-8176-65d33902c9c6"#CKAN resource ID for final figure (pdf)
 png_SBMP_leaf_bundles_fn = "SBMP leaf bundles.png"#Name of final figure
 png_SBMP_overall_leaf_bundles_rid <- "f6b664ad-932b-4311-a785-a617309e7a24"#CKAN resource ID for final figure (png)
 png_SBMP_overall_leaf_bundles_fn = "SBMP overall leaf bundles.png"#Name of final figure
 
 #leaves per bundle plots
-pdf_SBMP_leaf_per_bundle_rid <- "ab603a02-5dc0-4d17-9592-23e9804942b8"#CKAN resource ID for final figure (pdf)
-pdf_SBMP_leaf_per_bundle_fn = "SBMP leaves per bundle.pdf"#Name of final figure
 png_SBMP_leaf_per_bundle_rid <- "19cc4504-6af9-49b2-bb21-c8dc68d2daf8"#CKAN resource ID for final figure (pdf)
 png_SBMP_leaf_per_bundle_fn = "SBMP leaves per bundle.png"#Name of final figure
 png_SBMP_overall_leaf_per_bundle_rid <- "7939e8bb-4843-4c75-a840-b17ef281b592"#CKAN resource ID for final figure (png)
 png_SBMP_overall_leaf_per_bundle_fn = "SBMP overall leaves per bundle.png"#Name of final figure
-
 
 ###################################################################################################
 #Load data
@@ -47,7 +39,7 @@ png_SBMP_overall_leaf_per_bundle_fn = "SBMP overall leaves per bundle.png"#Name 
 
 d <- load_ckan_csv(csv_rid, date_colnames = c('date', 'Date'))
 names(d)[names(d) == 'Park_name'] <- 'Park'###Changes column name
-names(d)[names(d) == 'Site_name'] <- 'Site'###Changes column name 
+names(d)[names(d) == 'Site_name'] <- 'Site'###Changes column name
 
 ####################################################################################################
 #Define graphic properties
@@ -57,7 +49,7 @@ pd <- position_dodge(0.1)
 graphics = theme(axis.text.x=element_text(angle=45, hjust=0.9), #rotates the x axis tick labels an angle of 45 degrees
                  axis.title.x=element_text(), #removes x axis title
                  axis.title.y=element_text(), #removes y axis title
-                 axis.line=element_line(colour="black"), #sets axis lines 
+                 axis.line=element_line(colour="black"), #sets axis lines
                  plot.title =element_text(hjust = 0.05),
                  panel.grid.minor = element_blank(), #removes minor grid lines
                  panel.grid.major = element_blank(), #removes major grid lines
@@ -68,7 +60,7 @@ graphics = theme(axis.text.x=element_text(angle=45, hjust=0.9), #rotates the x a
                  legend.key = element_blank())
 
 #################################################################################
-#Create subsets for each 'sector (Wooramel, Monkey Mia, Peron and Western Gulf) for SBMP 
+#Create subsets for each 'sector (Wooramel, Monkey Mia, Peron and Western Gulf) for SBMP
 ##################################################################################
 
 SBMP_amphib = subset (d, Method=="Amphibolis density" & Park %in% c("SBMP"))
@@ -105,7 +97,7 @@ SBMP_amphibdensity_plot <- ggplot(SBMP_amphibdensity, aes(x=Year, y=mean)) +
   ylab(expression(Mean~density~of~italic(Amphibolis)~("0.04m"^2))) +
   geom_smooth(method=lm, colour = 1, linetype = 3, se=TRUE, fullrange=TRUE)+
   theme_bw() + graphics
-  
+
 SBMP_amphibdensity_plot
 
 attach(SBMP_amphibdensity)
@@ -530,10 +522,6 @@ png(png_SBMP_overall_amphib_density_fn, width=500, height=300)
 grid.arrange(SBMP_amphibdensity_plot)
 dev.off()
 
-pdf(pdf_SBMP_amphib_density_fn, width=8, height=7)
-grid.arrange(SBMP_amphib_westerngulf_density_plot, SBMP_amphib_peron_density_plot, SBMP_amphib_monkeymia_density_plot,ncol=2)
-dev.off()
-
 png(png_SBMP_amphib_density_fn, width=1000, height=800)
 grid.arrange(SBMP_amphib_westerngulf_density_plot, SBMP_amphib_peron_density_plot, SBMP_amphib_monkeymia_density_plot,ncol=2)
 dev.off()
@@ -542,10 +530,6 @@ dev.off()
 
 png(png_SBMP_overall_leaf_bundles_fn, width=500, height=300)
 grid.arrange(SBMP_leafperbundle_plot)
-dev.off()
-
-pdf(pdf_SBMP_leaf_bundles_fn, width=8, height=7)
-grid.arrange(SBMP_westerngulf_bundles_plot, SBMP_peron_bundles_plot, SBMP_monkeymia_bundles_plot, SBMP_wooramel_bundles_plot,ncol=2)
 dev.off()
 
 png(png_SBMP_leaf_bundles_fn, width=1000, height=800)
@@ -558,10 +542,6 @@ png(png_SBMP_overall_leaf_per_bundle_fn, width=500, height=300)
 grid.arrange(SBMP_leafperbundle_plot)
 dev.off()
 
-pdf(pdf_SBMP_leaf_per_bundle_fn, width=8, height=7)
-grid.arrange(SBMP_westerngulf_leafperbundle_plot, SBMP_peron_leafperbundle_plot, SBMP_monkeymia_leafperbundle_plot, SBMP_wooramel_leafperbundle_plot,ncol=2)
-dev.off()
-
 png(png_SBMP_leaf_per_bundle_fn, width=1000, height=800)
 grid.arrange(SBMP_westerngulf_leafperbundle_plot, SBMP_peron_leafperbundle_plot, SBMP_monkeymia_leafperbundle_plot, SBMP_wooramel_leafperbundle_plot, ncol=2)
 dev.off()
@@ -571,16 +551,13 @@ dev.off()
 #####################################################################################
 
 ckanr::resource_update(png_SBMP_overall_amphib_density_rid,png_SBMP_overall_amphib_density_fn)
-ckanr::resource_update(pdf_SBMP_amphib_density_rid, pdf_SBMP_amphib_density_fn)
 ckanr::resource_update(png_SBMP_amphib_density_rid, png_SBMP_amphib_density_fn)
 
 ckanr::resource_update(png_SBMP_overall_leaf_bundles_rid, png_SBMP_overall_leaf_bundles_fn)
 ckanr::resource_update(png_SBMP_leaf_bundles_rid, png_SBMP_leaf_bundles_fn)
-ckanr::resource_update(pdf_SBMP_leaf_bundles_rid, pdf_SBMP_leaf_bundles_fn)
 
 ckanr::resource_update(png_SBMP_overall_leaf_per_bundle_rid, png_SBMP_overall_leaf_per_bundle_fn)
 ckanr::resource_update(png_SBMP_leaf_per_bundle_rid, png_SBMP_leaf_per_bundle_fn)
-ckanr::resource_update(pdf_SBMP_leaf_per_bundle_rid, pdf_SBMP_leaf_per_bundle_fn)
 
 ckanr::resource_update(txt_rid, "Amphib_bundles_code.R")
 
