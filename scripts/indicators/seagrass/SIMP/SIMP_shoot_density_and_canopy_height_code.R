@@ -65,8 +65,7 @@ graphics = theme(axis.text.x=element_text(angle=45, hjust=0.9), #rotates the x a
 ################################################################################
 SIMP <- d %>% filter(Park == "SIMP")
 SIMP_south <- SIMP %>% filter(Site %in% c("Becher Point", "Becher Point SZ", "Port Kennedy"))
-SIMP_warnbro <- SIMP %>% filter(Site %in% c(
-  "Warnbro Sound 2.5m" , "Warnbro Sound 3.2m", "Warnbro Sound 5.2m" ,
+SIMP_warnbro <- SIMP %>% filter(Site %in% c("Warnbro Sound 2.5m" , "Warnbro Sound 3.2m", "Warnbro Sound 5.2m" ,
   "Warnbro Sound 7.0m", "Warnbro Sound 2.0m" , "Mersey Point"))
 SIMP_shoalwater <- SIMP %>% filter(Site %in% c("Penguin Island" , "Seal Island", "Bird Island"))
 SIMP_north <- SIMP %>% filter(Site %in% c("Causeway"))
@@ -75,12 +74,11 @@ SIMP_north <- SIMP %>% filter(Site %in% c("Causeway"))
 #SHOOT DENSITY
 ################################################################################
 #OverallShoot density
-SIMP_shootdensity <- plyr::ddply(
-  SIMP, .(Year), summarise,
-  N    = length(!is.na(Pos_total)),
-  mean = mean(Pos_total, na.rm=TRUE),
-  sd   = sd(Pos_total, na.rm=TRUE),
-  se   = sd(Pos_total, na.rm=TRUE) / sqrt(length(!is.na(Pos_total)) ))
+SIMP_shootdensity <- plyr::ddply(SIMP, .(Year), summarise,
+  N    = length(!is.na(Posidonia_sinuosa)),
+  mean = mean(Posidonia_sinuosa, na.rm=TRUE),
+  sd   = sd(Posidonia_sinuosa, na.rm=TRUE),
+  se   = sd(Posidonia_sinuosa, na.rm=TRUE) / sqrt(length(!is.na(Posidonia_sinuosa)) ))
 
 SIMP_shootdensity_plot <- ggplot(SIMP_shootdensity, aes(x=Year, y=mean)) +
   geom_errorbar(aes(ymin=mean-se, ymax=mean+se), width=.02, colour="black", position=pd) +
@@ -102,10 +100,10 @@ detach(SIMP_shootdensity)
 
 #SIMP_south Shoot density
 SIMP_south_shootdensity <- plyr::ddply(SIMP_south, .(Year), summarise,
-                     N    = length(!is.na(Pos_total)),
-                     mean = mean(Pos_total, na.rm=TRUE),
-                     sd   = sd(Pos_total, na.rm=TRUE),
-                     se   = sd(Pos_total, na.rm=TRUE) / sqrt(length(!is.na(Pos_total)) ))
+                     N    = length(!is.na(Posidonia_sinuosa)),
+                     mean = mean(Posidonia_sinuosa, na.rm=TRUE),
+                     sd   = sd(Posidonia_sinuosa, na.rm=TRUE),
+                     se   = sd(Posidonia_sinuosa, na.rm=TRUE) / sqrt(length(!is.na(Posidonia_sinuosa)) ))
 
 SIMP_south_shootdensity_plot <- ggplot(SIMP_south_shootdensity, aes(x=Year, y=mean)) +
   geom_errorbar(aes(ymin=mean-se, ymax=mean+se), width=.02, colour="black", position=pd) +
@@ -130,10 +128,10 @@ detach(SIMP_south_shootdensity)
 #Warnbro Sound shoot density
 
 SIMP_warnbro_shootdensity <- ddply(SIMP_warnbro, .(Year), summarise,
-                     N    = length(!is.na(Pos_total)),
-                     mean = mean(Pos_total, na.rm=TRUE),
-                     sd   = sd(Pos_total, na.rm=TRUE),
-                     se   = sd(Pos_total, na.rm=TRUE) / sqrt(length(!is.na(Pos_total)) ))
+                     N    = length(!is.na(Posidonia_sinuosa)),
+                     mean = mean(Posidonia_sinuosa, na.rm=TRUE),
+                     sd   = sd(Posidonia_sinuosa, na.rm=TRUE),
+                     se   = sd(Posidonia_sinuosa, na.rm=TRUE) / sqrt(length(!is.na(Posidonia_sinuosa)) ))
 
 SIMP_warnbro_shootdensity_plot<-ggplot(SIMP_warnbro_shootdensity, aes(x=Year, y=mean)) +
   geom_errorbar(aes(ymin=mean-se, ymax=mean+se), width=.02, colour="black", position=pd) +
@@ -157,10 +155,10 @@ detach(SIMP_warnbro_shootdensity)
 #SIMP_shoalwater Bay shoot density
 
 SIMP_shoalwater_shootdensity <- ddply(SIMP_shoalwater, .(Year), summarise,
-                     N    = length(!is.na(Pos_total)),
-                     mean = mean(Pos_total, na.rm=TRUE),
-                     sd   = sd(Pos_total, na.rm=TRUE),
-                     se   = sd(Pos_total, na.rm=TRUE) / sqrt(length(!is.na(Pos_total)) ))
+                     N    = length(!is.na(Posidonia_sinuosa)),
+                     mean = mean(Posidonia_sinuosa, na.rm=TRUE),
+                     sd   = sd(Posidonia_sinuosa, na.rm=TRUE),
+                     se   = sd(Posidonia_sinuosa, na.rm=TRUE) / sqrt(length(!is.na(Posidonia_sinuosa)) ))
 
 SIMP_shoalwater_shootdensity_plot <- ggplot(SIMP_shoalwater_shootdensity, aes(x=Year, y=mean)) +
   geom_errorbar(aes(ymin=mean-se, ymax=mean+se), width=.02, colour="black", position=pd) +
@@ -184,10 +182,10 @@ detach(SIMP_shoalwater_shootdensity)
 #SIMP_north shoot density
 
 SIMP_north_shootdensity <- ddply(SIMP_north, .(Year), summarise,
-                     N    = length(!is.na(Pos_total)),
-                     mean = mean(Pos_total, na.rm=TRUE),
-                     sd   = sd(Pos_total, na.rm=TRUE),
-                     se   = sd(Pos_total, na.rm=TRUE) / sqrt(length(!is.na(Pos_total)) ))
+                     N    = length(!is.na(Posidonia_sinuosa)),
+                     mean = mean(Posidonia_sinuosa, na.rm=TRUE),
+                     sd   = sd(Posidonia_sinuosa, na.rm=TRUE),
+                     se   = sd(Posidonia_sinuosa, na.rm=TRUE) / sqrt(length(!is.na(Posidonia_sinuosa)) ))
 
 SIMP_north_shootdensity_plot<-ggplot(SIMP_north_shootdensity, aes(x=Year, y=mean)) +
   geom_errorbar(aes(ymin=mean-se, ymax=mean+se), width=.02, colour="black", position=pd) +
