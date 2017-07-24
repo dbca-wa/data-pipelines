@@ -30,6 +30,7 @@ png_SIMP_max_height_fn = "SIMP overall max height.png"#Name of final figure
 ################################################################################
 
 d <- load_ckan_csv(csv_rid) %>% mutate(Site = Site_name)
+
 d<- All_SG_data
 names(d)[names(d) == 'Site_name'] <- 'Site'###Changes column name
 
@@ -104,7 +105,7 @@ SIMP_south_shootdensity_plot <- ggplot(SIMP_south_shootdensity, aes(x=Year, y=me
   scale_y_continuous(limits=c(min(0), max(50)))+
   xlab("Year") +
   ylab(expression(paste("Mean density (","0.04m"^-2,")", sep = ""))) +
-  ggtitle("a) Becher Point") +
+  ggtitle("d) Becher Point") +
   # geom_smooth(method=lm, colour = 1, linetype = 3, se=FALSE, fullrange=TRUE)+
   theme_bw() + graphics
 
@@ -131,7 +132,7 @@ SIMP_warnbro_shootdensity_plot<-ggplot(SIMP_warnbro_shootdensity, aes(x=Year, y=
   scale_y_continuous(limits=c(min(0), max(50)))+
   xlab("Year") +
   ylab(expression(paste("Mean density (","0.04m"^-2,")", sep = ""))) +
-  ggtitle("b) Warnbro Sound")+
+  ggtitle("c) Warnbro Sound")+
   geom_smooth(method=lm, colour = 1, linetype =1, se=TRUE,fullrange=TRUE)+
   theme_bw() + graphics
 
@@ -158,7 +159,7 @@ SIMP_shoalwater_shootdensity_plot <- ggplot(SIMP_shoalwater_shootdensity, aes(x=
   scale_y_continuous(limits=c(min(0), max(50)))+
   xlab("Year") +
   ylab(expression(paste("Mean density (","0.04m"^-2,")", sep = ""))) +
-  ggtitle("c) Shoalwater Bay")+
+  ggtitle("b) Shoalwater Bay")+
   # geom_smooth(method=lm, colour = 1, linetype = 3, se = FALSE, fullrange=TRUE) +
   theme_bw() + graphics
 
@@ -185,7 +186,7 @@ SIMP_north_shootdensity_plot<-ggplot(SIMP_north_shootdensity, aes(x=Year, y=mean
   scale_y_continuous(limits=c(min(0), max(50)))+
   xlab("Year") +
   ylab(expression(paste("Mean density (","0.04m"^-2,")", sep = ""))) +
-  ggtitle("d) Point Peron")+
+  ggtitle("a) Point Peron")+
   # geom_smooth(method=lm, colour = 1, linetype = 3, se = FALSE, fullrange=TRUE) +
   theme_bw() + graphics
 
@@ -196,138 +197,191 @@ MannKendall(mean)
 detach(SIMP_north_shootdensity)
 
 ####################################################################################
-#MAXIMUM CANOPY HEIGHT
+#MAXIMUM/MEAN CANOPY HEIGHT
 ####################################################################################
-
 #Overall maximum canopy height density
-SIMP_maxheight <- plyr::ddply(SIMP, .(Year), summarise,
-                             N    = length(!is.na(Maximum_height_mm)),
-                             mean = mean(Maximum_height_mm, na.rm=TRUE),
-                             sd   = sd(Maximum_height_mm, na.rm=TRUE),
-                             se   = sd(Maximum_height_mm, na.rm=TRUE) / sqrt(length(!is.na(Maximum_height_mm)) ))
 
-SIMP_maxheight_plot <- ggplot(SIMP_maxheight, aes(x=Year, y=mean)) +
+SIMP_height <- ddply(SIMP, .(Year),summarise,
+                     N    = length(!is.na(Maximum_height_mm)),
+                     mean = mean(Maximum_height_mm, na.rm=TRUE),
+                     sd   = sd(Maximum_height_mm, na.rm=TRUE),
+                     se   = sd(Maximum_height_mm, na.rm=TRUE) / sqrt(length(!is.na(Maximum_height_mm))))
+
+SIMP_height1 <- ddply(SIMP, .(Year),summarise,
+                     N    = length(!is.na(Mean_height_mm)),
+                     mean = mean(Mean_height_mm, na.rm=TRUE),
+                     sd   = sd(Mean_height_mm, na.rm=TRUE),
+                     se   = sd(Mean_height_mm, na.rm=TRUE) / sqrt(length(!is.na(Mean_height_mm))))
+
+SIMP_height$Factor<-as.factor ("maxmean")
+SIMP_height1$Factor<-as.factor ("mean")
+SIMP_height<-rbind (SIMP_height,SIMP_height1)
+
+
+SIMP_height_plot <- ggplot(SIMP_height, aes(x=Year, y=mean, Group = Factor, linetype=Factor, shape=Factor)) +
   geom_errorbar(aes(ymin=mean-se, ymax=mean+se), width=.02, colour="black", position=pd) +
-  # geom_line(position=pd) +
   geom_point(position=pd, size=3, fill="black") + # 21 is filled circle
-  scale_x_continuous(limits=c(min(2009), max(SIMP_maxheight$Year+0.125)), breaks=min(SIMP_maxheight$Year):max(SIMP_maxheight$Year)) +
+  scale_x_continuous(limits=c(min(2009), max(SIMP_height$Year+0.125)), breaks=min(SIMP_height$Year):max(SIMP_height$Year)) +
   scale_y_continuous(limits=c(min(0), max(1000)))+
   xlab("Year") +
   ylab(expression(paste("Mean max height (mm)", sep = ""))) +
-  # geom_smooth(method=lm, colour = 1, linetype = 3, se=FALSE, fullrange=FALSE)+
-  theme_bw() + graphics
+  geom_smooth(method=lm, colour = 1, linetype = 3, se=FALSE, fullrange=FALSE)+
+  theme(strip.text = element_text(size=12)) + graphics
 
-SIMP_maxheight_plot
+SIMP_height_plot
 
-attach(SIMP_maxheight)
+
+attach(SIMP_height)
 MannKendall(mean)
-detach(SIMP_maxheight)
+detach(SIMP_height)
 
 #SIMP_south max canopy height
-SIMP_south_maxheight <- plyr::ddply(SIMP_south, .(Year), summarise,
+SIMP_south_height <- ddply(SIMP_south, .(Year), summarise,
                                        N    = length(!is.na(Maximum_height_mm)),
                                        mean = mean(Maximum_height_mm, na.rm=TRUE),
                                        sd   = sd(Maximum_height_mm, na.rm=TRUE),
                                        se   = sd(Maximum_height_mm, na.rm=TRUE) / sqrt(length(!is.na(Maximum_height_mm)) ))
 
-SIMP_south_maxheight_plot <- ggplot(SIMP_south_maxheight, aes(x=Year, y=mean)) +
+SIMP_south_height1 <- ddply(SIMP_south, .(Year),summarise,
+                      N    = length(!is.na(Mean_height_mm)),
+                      mean = mean(Mean_height_mm, na.rm=TRUE),
+                      sd   = sd(Mean_height_mm, na.rm=TRUE),
+                      se   = sd(Mean_height_mm, na.rm=TRUE) / sqrt(length(!is.na(Mean_height_mm))))
+
+SIMP_south_height$Factor<-as.factor ("maxmean")
+SIMP_south_height1$Factor<-as.factor ("mean")
+SIMP_south_height<-rbind (SIMP_south_height,SIMP_south_height1)
+
+SIMP_south_height_plot <- ggplot(SIMP_south_height, aes(x=Year, y=mean, Group = Factor, linetype=Factor, shape=Factor)) +
   geom_errorbar(aes(ymin=mean-se, ymax=mean+se), width=.02, colour="black", position=pd) +
   # geom_line(position=pd) +
   geom_point(position=pd, size=3, fill="black") + # 21 is filled circle
-  scale_x_continuous(limits=c(min(SIMP_south_maxheight$Year-0.125), max(SIMP_south_maxheight$Year+0.125)), breaks=min(SIMP_south_maxheight$Year):max(SIMP_south_maxheight$Year)) +
+  scale_x_continuous(limits=c(min(SIMP_south_height$Year-0.125), max(SIMP_south_height$Year+0.125)), breaks=min(SIMP_south_height$Year):max(SIMP_south_height$Year)) +
   scale_y_continuous(limits=c(min(0), max(1000)))+
   xlab("Year") +
   ylab(expression(paste("Mean max height (mm)", sep = ""))) +
-  ggtitle("a) Becher Point") +
-  # geom_smooth(method=lm, colour = 1, linetype = 3, se=FALSE, fullrange=TRUE)+
-    theme_bw() + graphics
+  ggtitle("d) Becher Point") +
+  geom_smooth(method=lm, colour = 1, linetype = 3, se=FALSE, fullrange=TRUE)+
+  theme_bw() + graphics
 
-SIMP_south_maxheight_plot
+SIMP_south_height_plot
 
-attach(SIMP_south_maxheight)
+attach(SIMP_south_height)
 MannKendall(mean)
-detach(SIMP_south_maxheight)
+detach(SIMP_south_height)
 
 #############################################################
 #Warnbro Sound max canopy height
 
-SIMP_warnbro_maxheight <- ddply(SIMP_warnbro, .(Year), summarise,
+SIMP_warnbro_height <- ddply(SIMP_warnbro, .(Year), summarise,
                                    N    = length(!is.na(Maximum_height_mm)),
                                    mean = mean(Maximum_height_mm, na.rm=TRUE),
                                    sd   = sd(Maximum_height_mm, na.rm=TRUE),
                                    se   = sd(Maximum_height_mm, na.rm=TRUE) / sqrt(length(!is.na(Maximum_height_mm)) ))
 
-SIMP_warnbro_maxheight_plot<-ggplot(SIMP_warnbro_maxheight, aes(x=Year, y=mean)) +
+SIMP_warnbro_height1 <- ddply(SIMP_warnbro, .(Year),summarise,
+                            N    = length(!is.na(Mean_height_mm)),
+                            mean = mean(Mean_height_mm, na.rm=TRUE),
+                            sd   = sd(Mean_height_mm, na.rm=TRUE),
+                            se   = sd(Mean_height_mm, na.rm=TRUE) / sqrt(length(!is.na(Mean_height_mm))))
+
+SIMP_warnbro_height$Factor<-as.factor ("maxmean")
+SIMP_warnbro_height1$Factor<-as.factor ("mean")
+SIMP_warnbro_height<-rbind (SIMP_warnbro_height,SIMP_warnbro_height1)
+
+
+SIMP_warnbro_height_plot<-ggplot(SIMP_warnbro_height, aes(x=Year, y=mean,Group = Factor, linetype=Factor, shape=Factor)) +
   geom_errorbar(aes(ymin=mean-se, ymax=mean+se), width=.02, colour="black", position=pd) +
   # geom_line(position=pd) +
   geom_point(position=pd, size=3, fill="black") + # 21 is filled circle
-  scale_x_continuous(limits=c(min(2009), max(SIMP_warnbro_maxheight$Year+0.125)), breaks=min(SIMP_warnbro_maxheight$Year):max(SIMP_warnbro_maxheight$Year)) +
+  scale_x_continuous(limits=c(min(SIMP_warnbro_height$Year-0.125), max(SIMP_warnbro_height$Year+0.125)), breaks=min(SIMP_warnbro_height$Year):max(SIMP_warnbro_maxheight$Year)) +
   scale_y_continuous(limits=c(min(0), max(1000)))+
   xlab("Year") +
   ylab(expression(paste("Mean max height (mm)", sep = ""))) +
-  ggtitle("b) Warnbro Sound")+
-  # geom_smooth(method=lm, colour = 1, linetype = 3, se=FALSE, fullrange=FALSE)+
-    theme_bw() + graphics
+  ggtitle("C) Warnbro Sound")+
+  geom_smooth(method=lm, colour = 1, linetype = 3, se=FALSE, fullrange=FALSE)+
+  theme_bw() + graphics
 
-SIMP_warnbro_maxheight_plot
+SIMP_warnbro_height_plot
 
-attach(SIMP_warnbro_maxheight)
+attach(SIMP_warnbro_height)
 MannKendall(mean)
-detach(SIMP_warnbro_maxheight)
+detach(SIMP_warnbro_height)
 
 #################################################################
 #SIMP_shoalwater maxy canopy height
 
-SIMP_shoalwater_maxheight <- ddply(SIMP_shoalwater, .(Year), summarise,
+SIMP_shoalwater_height <- ddply(SIMP_shoalwater, .(Year), summarise,
                                       N    = length(!is.na(Maximum_height_mm)),
                                       mean = mean(Maximum_height_mm, na.rm=TRUE),
                                       sd   = sd(Maximum_height_mm, na.rm=TRUE),
                                       se   = sd(Maximum_height_mm, na.rm=TRUE) / sqrt(length(!is.na(Maximum_height_mm)) ))
 
-SIMP_shoalwater_maxheight_plot <- ggplot(SIMP_shoalwater_maxheight, aes(x=Year, y=mean)) +
+SIMP_shoalwater_height1 <- ddply(SIMP_shoalwater, .(Year),summarise,
+                              N    = length(!is.na(Mean_height_mm)),
+                              mean = mean(Mean_height_mm, na.rm=TRUE),
+                              sd   = sd(Mean_height_mm, na.rm=TRUE),
+                              se   = sd(Mean_height_mm, na.rm=TRUE) / sqrt(length(!is.na(Mean_height_mm))))
+
+SIMP_shoalwater_height$Factor<-as.factor ("maxmean")
+SIMP_shoalwater_height1$Factor<-as.factor ("mean")
+SIMP_shoalwater_height<-rbind (SIMP_shoalwater_height,SIMP_shoalwater_height1)
+
+
+SIMP_shoalwater_height_plot <- ggplot(SIMP_shoalwater_height, aes(x=Year, y=mean, Group = Factor, linetype=Factor, shape=Factor)) +
   geom_errorbar(aes(ymin=mean-se, ymax=mean+se), width=.02, colour="black", position=pd) +
   # geom_line(position=pd) +
   geom_point(position=pd, size=3, fill="black") + # 21 is filled circle
-  scale_x_continuous(limits=c(min(2009), max(SIMP_shoalwater_maxheight$Year+0.125)), breaks=min(SIMP_shoalwater_maxheight$Year):max(SIMP_shoalwater_maxheight$Year)) +
+  scale_x_continuous(limits=c(min(SIMP_shoalwater_height$Year-0.125), max(SIMP_shoalwater_height$Year+0.125)), breaks=min(SIMP_shoalwater_height$Year):max(SIMP_shoalwater_height$Year)) +
   scale_y_continuous(limits=c(min(0), max(1000)))+
   xlab("Year") +
   ylab(expression(paste("Mean max height (mm)", sep = ""))) +
-  ggtitle("c) Shoalwater Bay")+
-  # geom_smooth(method=lm, colour = 1, linetype = 3, se=FALSE, fullrange=FALSE)+
+  ggtitle("b) Shoalwater Bay")+
+  geom_smooth(method=lm, colour = 1, linetype = 3,  se=FALSE, fullrange=FALSE)+
   theme_bw() + graphics
 
-SIMP_shoalwater_maxheight_plot
+SIMP_shoalwater_height_plot
 
-attach(SIMP_shoalwater_maxheight)
+attach(SIMP_shoalwater_height)
 MannKendall(mean)
-detach(SIMP_shoalwater_maxheight)
+detach(SIMP_shoalwater_height)
 
 ###########################################################################
 #SIMP_north max canopy height
 
-SIMP_north_maxheight <- ddply(SIMP_north, .(Year), summarise,
+SIMP_north_height <- ddply(SIMP_north, .(Year), summarise,
                                  N    = length(!is.na(Maximum_height_mm)),
                                  mean = mean(Maximum_height_mm, na.rm=TRUE),
                                  sd   = sd(Maximum_height_mm, na.rm=TRUE),
                                  se   = sd(Maximum_height_mm, na.rm=TRUE) / sqrt(length(!is.na(Maximum_height_mm)) ))
 
-SIMP_north_maxheight_plot<-ggplot(SIMP_north_maxheight, aes(x=Year, y=mean)) +
+SIMP_north_height1 <- ddply(SIMP_north, .(Year),summarise,
+                                 N    = length(!is.na(Mean_height_mm)),
+                                 mean = mean(Mean_height_mm, na.rm=TRUE),
+                                 sd   = sd(Mean_height_mm, na.rm=TRUE),
+                                 se   = sd(Mean_height_mm, na.rm=TRUE) / sqrt(length(!is.na(Mean_height_mm))))
+
+SIMP_north_height$Factor<-as.factor ("maxmean")
+SIMP_north_height1$Factor<-as.factor ("mean")
+SIMP_north_height<-rbind (SIMP_north_height,SIMP_north_height1)
+
+SIMP_north_height_plot<-ggplot(SIMP_north_height, aes(x=Year, y=mean, Group = Factor, linetype=Factor, shape=Factor)) +
   geom_errorbar(aes(ymin=mean-se, ymax=mean+se), width=.02, colour="black", position=pd) +
   # geom_line(position=pd) +
   geom_point(position=pd, size=3, fill="black") + # 21 is filled circle
-  scale_x_continuous(limits=c(min(SIMP_north_maxheight$Year-0.125), max(SIMP_north_maxheight$Year+0.125)), breaks=min(SIMP_north_maxheight$Year):max(SIMP_north_maxheight$Year)) +
+  scale_x_continuous(limits=c(min(SIMP_north_height$Year-0.125), max(SIMP_north_height$Year+0.125)), breaks=min(SIMP_north_height$Year):max(SIMP_north_height$Year)) +
   scale_y_continuous(limits=c(min(0), max(1000)))+
   xlab("Year") +
   ylab(expression(paste("Mean max height (mm)", sep = ""))) +
-  ggtitle("d) Point Peron")+
-  # geom_smooth(method=lm, colour = 1, linetype = 3, se=FALSE, fullrange=TRUE)+
+  ggtitle("a) Point Peron")+
+  geom_smooth(method=lm, colour = 1, linetype = 3, se=FALSE, fullrange=TRUE)+
   theme_bw() + graphics
 
-SIMP_north_maxheight_plot
+SIMP_north_height_plot
 
-attach(SIMP_north_maxheight)
+attach(SIMP_north_height)
 MannKendall(mean)
-detach(SIMP_north_maxheight)
+detach(SIMP_north_height)
 
 
 #####################################################################################
@@ -341,16 +395,16 @@ grid.arrange(SIMP_shootdensity_plot)
 dev.off()
 
 png(png_shoot_density_fn, width=1000, height=800)
-grid.arrange(SIMP_south_shootdensity_plot, SIMP_warnbro_shootdensity_plot, SIMP_shoalwater_shootdensity_plot, SIMP_north_shootdensity_plot, ncol=2)
+grid.arrange(SIMP_north_shootdensity_plot, SIMP_shoalwater_shootdensity_plot, SIMP_warnbro_shootdensity_plot, SIMP_south_shootdensity_plot, ncol=2)
 dev.off()
 
 #Maximum canopy height
 png(png_SIMP_max_height_fn, width=500, height=300)
-grid.arrange(SIMP_maxheight_plot)
+grid.arrange(SIMP_height_plot)
 dev.off()
 
 png(png_max_height_fn, width=1000, height=800)
-grid.arrange(SIMP_south_maxheight_plot, SIMP_warnbro_maxheight_plot, SIMP_shoalwater_maxheight_plot, SIMP_north_maxheight_plot, ncol=2)
+grid.arrange(SIMP_north_height_plot, SIMP_shoalwater_height_plot, SIMP_warnbro_height_plot, SIMP_south_height_plot, ncol=2)
 dev.off()
 
 #####################################################################################
@@ -369,3 +423,35 @@ ckanr::resource_update(txt_rid, "SIMP_shoot_density_and_canopy_height_code.R")
 #set workdir to main report location
 setwd("~/projects")
 ######################################################################################
+
+#
+# # METHOD 1
+# #Overall maximum canopy height density
+# SIMP_height <- ddply(SIMP, .(Year),summarise,
+#                      MaxN    = length(!is.na(Maximum_height_mm)),
+#                      Maxmean = mean(Maximum_height_mm, na.rm=TRUE),
+#                      Maxsd   = sd(Maximum_height_mm, na.rm=TRUE),
+#                      Maxse   = sd(Maximum_height_mm, na.rm=TRUE) / sqrt(length(!is.na(Maximum_height_mm))),
+#                      mean = mean(Mean_height_mm, na.rm=TRUE),
+#                      sd   = sd(Mean_height_mm, na.rm=TRUE),
+#                      se   = sd(Mean_height_mm, na.rm=TRUE) / sqrt(length(!is.na(Mean_height_mm))))
+#
+# SIMP_height_plot <- ggplot(SIMP_height, aes(x=Year, y=Maxmean)) +
+#   geom_errorbar(aes(ymin=Maxmean-Maxse, ymax=Maxmean+Maxse), width=.02, colour="black", position=pd) +
+#   geom_point(position=pd, size=3, fill="black") + # 21 is filled circle
+#   scale_x_continuous(limits=c(min(2009), max(SIMP_maxheight$Year+0.125)), breaks=min(SIMP_maxheight$Year):max(SIMP_maxheight$Year)) +
+#   scale_y_continuous(limits=c(min(0), max(1000)))+
+#   xlab("Year") +
+#   ylab(expression(paste("Mean max height (mm)", sep = ""))) +
+#   geom_smooth(method=lm, colour = 1, linetype = 3, se=FALSE, fullrange=FALSE)+
+#   theme_bw() + graphics
+#
+# SIMP_height_plot
+#
+# SIMP_height_plot + geom_errorbar(aes(ymin=mean-se, ymax=mean+se), width=.02, colour="black", position=pd) +
+#   geom_point(aes(x=Year, y=mean), size=3, fill="#999999", colour="grey")+
+#   geom_smooth(method=lm, colour = 1, linetype = 3, se=FALSE, fullrange=FALSE)
+#
+# attach(SIMP_height)
+# MannKendall(Maxmean)
+# detach(SIMP_height)
