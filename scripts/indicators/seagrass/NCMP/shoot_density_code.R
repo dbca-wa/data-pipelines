@@ -7,7 +7,7 @@ library(gridExtra)
 library(plyr)
 
 csv_rid <- "d1e0cd1d-9fc0-4069-9781-eb4946d929c8"
-txt_rid <- "8d503cf2-3aa2-4072-ae77-50b02a4f6c4e"
+txt_rid <- "6b003575-fa64-4a48-8ae6-7f6988daa263"
 
 d <- load_ckan_csv(csv_rid, date_colnames = c('date', 'Date'))
 

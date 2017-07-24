@@ -13,7 +13,7 @@ library (Kendall)
 ######################################################################################################
 
 csv_rid <- "d1e0cd1d-9fc0-4069-9781-eb4946d929c8"#CKAN resource ID for data
-txt_rid <- "38fd849b-0ae9-4289-b8a2-4279bd220e6c"#CKAN resource ID for r-script
+txt_rid <- "6b003575-fa64-4a48-8ae6-7f6988daa263"#CKAN resource ID for r-script
 
 #Shoot density plots
 png_SBMP_shoot_density_rid <- "adcea303-211a-4f54-a993-32ba228e5aae"#CKAN resource ID for final figure (png)

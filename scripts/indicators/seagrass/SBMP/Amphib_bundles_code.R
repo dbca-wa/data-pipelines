@@ -13,7 +13,7 @@ library (Kendall)
 ######################################################################################################
 
 csv_rid <- "d1e0cd1d-9fc0-4069-9781-eb4946d929c8"#CKAN resource ID for data
-txt_rid <- "51ffebf0-1d50-4fe3-8638-78727da3f214"#CKAN resource ID for r-script
+txt_rid <- "6b003575-fa64-4a48-8ae6-7f6988daa263"#CKAN resource ID for r-script
 
 #Amphibolis density
 png_SBMP_amphib_density_rid <- "46ed6691-e6bf-4280-a718-e33d58170da4"#CKAN resource ID for final figure (pdf)
