@@ -18,22 +18,22 @@ png_JBMP_shoot_density_rid <- "186519a9-72aa-4d78-afd6-bce672f476f0"#CKAN resour
 png_JBMP_shoot_density_fn = "JBMP overall shoot density.png"#Name of final figure
 
 #Maximum canopy height plots
-png_max_height_rid <- "8f406852-0b15-46cb-b972-c960c4f3bfc8"#CKAN resource ID for final figure (png)
-png_max_height_fn = "JBMP max height.png"#Name of final figure
-png_JBMP_max_height_rid <- "a440fa20-596a-474a-a91f-b1108c99f633"#CKAN resource ID for final figure (png)
-png_JBMP_max_height_fn = "JBMP overall max height.png"#Name of final figure
-
-#Mean canopy height plots
-png_mean_height_rid <- "964b26d5-e008-42a9-9d5c-7269fdf58b6c"#CKAN resource ID for final figure (png)
-png_mean_height_fn = "JBMP mean height.png"#Name of final figure
-png_JBMP_mean_height_rid <- "6f94e423-87ee-4224-964e-fa97b7e6a016"#CKAN resource ID for final figure (png)
-png_JBMP_mean_height_fn = "JBMP overall mean height.png"#Name of final figure
+png_height_rid <- "8f406852-0b15-46cb-b972-c960c4f3bfc8"#CKAN resource ID for final figure (png)
+png_height_fn = "JBMP height.png"#Name of final figure
+png_JBMP_height_rid <- "a440fa20-596a-474a-a91f-b1108c99f633"#CKAN resource ID for final figure (png)
+png_JBMP_height_fn = "JBMP overall height.png"#Name of final figure
+#
+# #Mean canopy height plots
+# png_mean_height_rid <- "964b26d5-e008-42a9-9d5c-7269fdf58b6c"#CKAN resource ID for final figure (png)
+# png_mean_height_fn = "JBMP mean height.png"#Name of final figure
+# png_JBMP_mean_height_rid <- "6f94e423-87ee-4224-964e-fa97b7e6a016"#CKAN resource ID for final figure (png)
+# png_JBMP_mean_height_fn = "JBMP overall mean height.png"#Name of final figure
 
 
 ###################################################################################################
 #Load data
 ###################################################################################################
-# d <- seagrass_data
+d <- All_SG_data
 d <- load_ckan_csv(csv_rid) %>% mutate(Site = Site_name)
 
 ####################################################################################################
@@ -64,9 +64,9 @@ JBMP <- d %>% filter(Park == "JBMP")
 # JBMP_centre = subset(d, Site %in% c("Jurien Impact Site 2.5" , "Boullanger Island 2.5", "Boullanger Island 3.5" , "Boullanger Island 5.5"))
 # JBMP_north = subset(d, Site %in% c("Fishermans Island 2.5","Fishermans Island 3.5", "Fishermans Island 5.5"))
 
-JBMP_south <- JBMP %>% filter(Site %in% c("Kangaroo Point", "Cervantes Island", "Green Island"))
-JBMP_centre = JBMP %>% filter(Site %in% c("Jurien Impact Site 2.5" , "Boullanger Island 2.5", "Boullanger Island 3.5" , "Boullanger Island 5.5"))
-JBMP_north = JBMP %>% filter(Site %in% c("Fishermans Island 2.5","Fishermans Island 3.5", "Fishermans Island 5.5"))
+JBMP_south <- JBMP %>% filter(Site_name %in% c("Kangaroo Point", "Cervantes Island", "Green Island"))
+JBMP_centre = JBMP %>% filter(Site_name %in% c("Jurien Impact Site 2.5" , "Boullanger Island 2.5", "Boullanger Island 3.5" , "Boullanger Island 5.5"))
+JBMP_north = JBMP %>% filter(Site_name %in% c("Fishermans Island 2.5","Fishermans Island 3.5", "Fishermans Island 5.5"))
 
 ####################################################################################
 #SHOOT DENSITY
@@ -414,21 +414,12 @@ grid.arrange(JBMP_north_shootdensity_plot, JBMP_centre_shootdensity_plot, JBMP_s
 dev.off()
 
 #Maximum canopy height
-png(png_JBMP_max_height_fn, width=500, height=300)
-grid.arrange(JBMP_maxheight_plot)
+png(png_JBMP_height_fn, width=800, height=300)
+grid.arrange(JBMP_maxheight_plot, JBMP_meanheight_plot, ncol= 2)
 dev.off()
 
-png(png_max_height_fn, width=600, height=800)
-grid.arrange(JBMP_north_maxheight_plot, JBMP_centre_maxheight_plot, JBMP_south_maxheight_plot, ncol=1)
-dev.off()
-
-#Mean canopy height
-png(png_JBMP_mean_height_fn, width=500, height=300)
-grid.arrange(JBMP_meanheight_plot)
-dev.off()
-
-png(png_mean_height_fn, width=600, height=800)
-grid.arrange(JBMP_north_meanheight_plot, JBMP_centre_meanheight_plot, JBMP_south_meanheight_plot, ncol=1)
+png(png_max_height_fn, width=800, height=900)
+grid.arrange(JBMP_north_maxheight_plot, JBMP_north_meanheight_plot,JBMP_centre_maxheight_plot, JBMP_centre_meanheight_plot,JBMP_south_maxheight_plot, JBMP_south_meanheight_plot,ncol=2)
 dev.off()
 
 #####################################################################################
@@ -437,9 +428,7 @@ dev.off()
 
 ckanr::resource_update(png_JBMP_shoot_density_rid, png_JBMP_shoot_density_fn)
 ckanr::resource_update(png_shoot_density_rid, png_shoot_density_fn)
-ckanr::resource_update(png_JBMP_max_height_rid, png_JBMP_max_height_fn)
-ckanr::resource_update(png_max_height_rid, png_max_height_fn)
-ckanr::resource_update(png_JBMP_mean_height_rid, png_JBMP_mean_height_fn)
-ckanr::resource_update(png_mean_height_rid, png_mean_height_fn)
+ckanr::resource_update(png_JBMP_height_rid, png_JBMP_height_fn)
+ckanr::resource_update(png_height_rid, png_height_fn)
 ckanr::resource_update(txt_rid, "JBMP_shoot_density_and_canopy_height_code.R")
 
