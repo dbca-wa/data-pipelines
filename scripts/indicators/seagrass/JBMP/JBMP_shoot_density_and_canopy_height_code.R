@@ -43,7 +43,7 @@ d <- load_ckan_csv(csv_rid) %>% mutate(Site = Site_name)
 pd <- position_dodge(0.1)
 graphics = theme(axis.text.x=element_text(angle=45, hjust=0.9), #rotates the x axis tick labels an angle of 45 degrees
                  axis.title.x=element_text(), #removes x axis title
-                 axis.title.y=element_text(), #removes y axis title
+                 # axis.title.y=element_text(), #removes y axis title
                  axis.line=element_line(colour="black"), #sets axis lines
                  plot.title =element_text(hjust = 0.05),
                  panel.grid.minor = element_blank(), #removes minor grid lines
@@ -330,7 +330,8 @@ JBMP_south_meanheight_plot <- ggplot(JBMP_south_meanheight, aes(x=Year, y=mean))
   geom_errorbar(aes(ymin=mean-se, ymax=mean+se), width=.02, colour="black", position=pd) +
   # geom_line(position=pd) +
   geom_point(position=pd, size=3, fill="black") + # 21 is filled circle
-  scale_x_continuous(limits=c(min(2013), max(JBMP_south_meanheight$Year+0.125)), breaks=min(JBMP_south_meanheight$Year):max(JBMP_south_meanheight$Year)) +
+  # scale_x_continuous(limits=c(min(2013), max(JBMP_south_meanheight$Year+0.125)), breaks=min(JBMP_south_meanheight$Year):max(JBMP_south_meanheight$Year)) +
+  scale_x_continuous(breaks = seq(2003,2017,1), limits=c(min(2003),(max(2017))))+
   scale_y_continuous(limits=c(min(0), max(1000)))+
   xlab("Year") +
   ylab(expression(paste("Mean height (mm)", sep = ""))) +
@@ -405,11 +406,11 @@ detach(JBMP_north_meanheight)
 
 #Shoot density
 
-png(png_JBMP_shoot_density_fn, width=500, height=300)
+png(png_shoot_density_fn, width=500, height=300)
 grid.arrange(JBMP_shootdensity_plot)
 dev.off()
 
-png(png_shoot_density_fn, width=600, height=800)
+png(png_JBMP_shoot_density_fn, width=600, height=800)
 grid.arrange(JBMP_north_shootdensity_plot, JBMP_centre_shootdensity_plot, JBMP_south_shootdensity_plot, ncol=1)
 dev.off()
 
@@ -418,7 +419,7 @@ png(png_JBMP_height_fn, width=800, height=300)
 grid.arrange(JBMP_maxheight_plot, JBMP_meanheight_plot, ncol= 2)
 dev.off()
 
-png(png_max_height_fn, width=800, height=900)
+png(png_height_fn, width=800, height=900)
 grid.arrange(JBMP_north_maxheight_plot, JBMP_north_meanheight_plot,JBMP_centre_maxheight_plot, JBMP_centre_meanheight_plot,JBMP_south_maxheight_plot, JBMP_south_meanheight_plot,ncol=2)
 dev.off()
 
