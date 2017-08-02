@@ -31,6 +31,7 @@ png_SBMP_overall_percentcover_fn = "SBMP overall percent cover.png"#Name of fina
 ###################################################################################################
 
 d <- load_ckan_csv(csv_rid, date_colnames = c('date', 'Date'))
+d<-Camera_data
 names(d)[names(d) == 'Region'] <- 'Park'###Changes column name
 
 ####################################################################################################
@@ -58,6 +59,8 @@ graphics = theme(axis.text.x=element_text(angle=45, size = 15, hjust=0.9), #rota
 
 # All seagrass pooled
 SBMP = subset (d, Park=="Shark Bay Marine Park")
+SBMP$Location <- as.factor(SBMP$Location)
+
 SGcover=count(SBMP, c("Site", "Zone", "Year", "Location", "Level1Class")) #counts number of observations per site, per year
 SGcover_obs=count(SGcover, c("Site", "Year"), "freq") #counts number of observations made at each site per year
 SBMP_SGpercentcover <- join(SGcover, SGcover_obs, by = c("Site", "Year")) #adds total count of site observations agains the right site/year to allow percentage calculation
