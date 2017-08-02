@@ -26,7 +26,8 @@ png_SIMP_percentcover_fn <-"SIMP_percentcover.png"
 ###################################################################################################
 
 d <- load_ckan_csv(csv_rid, date_colnames = c('date', 'Date'))
-
+d<-Camera_data
+names(d)[names(d) == 'Region'] <- 'Park'###Changes column name
 
 ####################################################################################################
 #Define graphic properties
@@ -50,32 +51,37 @@ graphics = theme(axis.text.x=element_text(angle=45, hjust=0.9), #rotates the x a
 ##################################################################################
 #Percent cover calculations for all data
 ##################################################################################
+# All seagrass pooled
 
-cover=count(d, c("Site", "Year", "Level5Class")) #counts number of observations per site, per year
-cover_obs=count(cover, c("Site", "Year"), "freq") #counts number of observations made at each site per year
-cover_add <- join(cover, cover_obs, by = c("Site", "Year")) #adds total count of site observations agains the right site/year to allow percentage calculation
-pos_cover = subset(cover_add, Level5Class %in% c("Posidonia sinuosa","Posidonia australis")) #Extracts cover information only
-pos_total = count(pos_cover, c("Site", "Year", "freq.1"), "freq")
-names(pos_total)[3] <- "total_count" #Rename column to make more sense
-names(pos_total)[4] <- "pos_count" #Rename column to make more sense
-pos_total$percent = pos_total$pos_count/pos_total$total_count *100 #Calculate percent cover
+SIMP = subset (d, Park=="Shoalwater Islands Marine Park")
 
+SIMP$Location <- as.factor(SIMP$Location)
+
+SGcover=count(SIMP, c("Site", "Zone", "Year", "Location", "Level1Class")) #counts number of observations per site, per year
+SGcover_obs=count(SGcover, c("Site", "Year"), "freq") #counts number of observations made at each site per year
+SIMP_SGpercentcover <- join(SGcover, SGcover_obs, by = c("Site", "Year")) #adds total count of site observations agains the right site/year to allow percentage calculation
+names(SIMP_SGpercentcover)[5] <- "category" #Rename column to make more sense
+names(SIMP_SGpercentcover)[6] <- "category_count" #Rename column to make more sense
+names(SIMP_SGpercentcover) [7] <- "total_count"
+SIMP_SGpercentcover$percent = SIMP_SGpercentcover$category_count/SIMP_SGpercentcover$total_count *100
+
+SG_cover <- subset(SIMP_SGpercentcover, category == c("SEAGRASS"))
 
 ##################################################################################
 #Create subsets for each 'sector (south, centre, north) for SIMP
 ##################################################################################
 
-SIMP_south = subset(pos_total, Site %in% c("Becher Point", "Becher Point SZ", "Port Kennedy"))
-SIMP_warnbro = subset(pos_total, Site %in% c("Warnbro Sound 2.5m" , "Warnbro Sound 3.2m", "Warnbro Sound 5.2m" , "Mersey Point"))
-SIMP_shoalwater = subset(pos_total, Site %in% c("Penguin Island" , "Seal Island", "Bird Island"))
-SIMP_north = subset(pos_total, Site %in% c("Causeway"))
+SIMP_south = subset(SG_cover, Site %in% c("Becher Point", "Becher Point SZ", "Port Kennedy"))
+SIMP_warnbro = subset(SG_cover, Site %in% c("Warnbro Sound 2.5m" , "Warnbro Sound 3.2m", "Warnbro Sound 5.2m" , "Mersey Point"))
+SIMP_shoalwater = subset(SG_cover, Site %in% c("Penguin Island" , "Seal Island", "Bird Island"))
+SIMP_north = subset(SG_cover, Site %in% c("Causeway"))
 
 ####################################################################################
 #PERCENT COVER
 ####################################################################################
 
 #Overall percent cover
-SIMP_percentcover <- plyr::ddply(pos_total, .(Year), summarise,
+SIMP_percentcover <- plyr::ddply(SG_cover, .(Year), summarise,
                      N    = length(!is.na(percent)),
                      mean = mean(percent, na.rm=TRUE),
                      sd   = sd(percent, na.rm=TRUE),
@@ -90,7 +96,7 @@ SIMP_percentcover_plot <- ggplot(SIMP_percentcover, aes(x=Year, y=mean)) +
   xlab("Year") +
   ylab(expression(paste("Mean percent cover", sep = ""))) +
   # ggtitle("a) Vecher Point")+
-  geom_smooth(method=lm, colour = 1, linetype = 3, se=FALSE, fullrange=TRUE)+
+  # geom_smooth(method=lm, colour = 1, linetype = 3, se=FALSE, fullrange=TRUE)+
   theme_bw() + graphics
 
 SIMP_percentcover_plot
@@ -112,12 +118,12 @@ SIMP_south_percentcover_plot <- ggplot(SIMP_south_percentcover, aes(x=Year, y=me
   geom_errorbar(aes(ymin=mean-se, ymax=mean+se), width=.02, colour="black", position=pd) +
   # geom_line(position=pd) +
   geom_point(position=pd, size=3, fill="black") + # 21 is filled circle
-  scale_x_continuous(limits=c(min(SIMP_south_percentcover$Year-0.125), max(SIMP_south_percentcover$Year+0.125)), breaks=min(SIMP_south_percentcover$Year):max(SIMP_south_percentcover$Year)) +
+  scale_x_continuous (breaks = seq(2012,2017,1), limits=c(min(2012), max(SIMP_south_percentcover$Year+0.125))) +
   scale_y_continuous(limits=c(min(0), max(100)))+
   xlab("Year") +
   ylab(expression(paste("Mean percent cover", sep = ""))) +
-  ggtitle("a) Becher Point (n = 3 sites)")+
-  geom_smooth(method=lm, colour = 1, linetype = 3, se=FALSE, fullrange=TRUE)+
+  ggtitle("d) Becher Point")+
+  # geom_smooth(method=lm, colour = 1, linetype = 3, se=FALSE, fullrange=TRUE)+
   theme_bw() + graphics
 
 SIMP_south_percentcover_plot
@@ -139,12 +145,12 @@ SIMP_warnbro_percentcover_plot<-ggplot(SIMP_warnbro_percentcover, aes(x=Year, y=
   geom_errorbar(aes(ymin=mean-se, ymax=mean+se), width=.02, colour="black", position=pd) +
   # geom_line(position=pd) +
   geom_point(position=pd, size=3, fill="black") + # 21 is filled circle
-  scale_x_continuous(limits=c(min(SIMP_warnbro_percentcover$Year-0.125), max(SIMP_warnbro_percentcover$Year+0.125)), breaks=min(SIMP_warnbro_percentcover$Year):max(SIMP_warnbro_percentcover$Year)) +
+  scale_x_continuous (breaks = seq(2012,2017,1), limits=c(min(2012), max(SIMP_warnbro_percentcover$Year+0.125))) +
   scale_y_continuous(limits=c(min(0), max(100)))+
   xlab("Year") +
   ylab(expression(paste("Mean percent cover", sep = ""))) +
-  ggtitle("b) Warnbro Sound (n = 4 site)")+
-  geom_smooth(method=lm, colour = 1, linetype = 3, se=FALSE, fullrange=TRUE)+
+  ggtitle("c) Warnbro Sound")+
+  # geom_smooth(method=lm, colour = 1, linetype = 3, se=FALSE, fullrange=TRUE)+
   theme_bw() + graphics
 
 SIMP_warnbro_percentcover_plot
@@ -166,12 +172,12 @@ SIMP_shoalwater_percentcover_plot <- ggplot(SIMP_shoalwater_percentcover, aes(x=
   geom_errorbar(aes(ymin=mean-se, ymax=mean+se), width=.02, colour="black", position=pd) +
   # geom_line(position=pd) +
   geom_point(position=pd, size=3, fill="black") + # 21 is filled circle
-  scale_x_continuous(limits=c(min(SIMP_shoalwater_percentcover$Year-0.125), max(SIMP_shoalwater_percentcover$Year+0.125)), breaks=min(SIMP_shoalwater_percentcover$Year):max(SIMP_shoalwater_percentcover$Year)) +
+  scale_x_continuous (breaks = seq(2012,2017,1), limits=c(min(2012), max(SIMP_shoalwater_percentcover$Year+0.125))) +
   scale_y_continuous(limits=c(min(0), max(100)))+
   xlab("Year") +
   ylab(expression(paste("Mean percent cover", sep = ""))) +
-  geom_smooth(method=lm, colour = 1, linetype = 3, se=FALSE, fullrange=TRUE)+
-  ggtitle("c) Shoalwater Bay (n = 3 sites)")+
+  # geom_smooth(method=lm, colour = 1, linetype = 3, se=FALSE, fullrange=TRUE)+
+  ggtitle("b) Shoalwater Bay")+
   theme_bw() + graphics
 
 SIMP_shoalwater_percentcover_plot
@@ -193,12 +199,12 @@ SIMP_north_percentcover_plot<-ggplot(SIMP_north_percentcover, aes(x=Year, y=mean
   geom_errorbar(aes(ymin=mean-se, ymax=mean+se), width=.02, colour="black", position=pd) +
   # geom_line(position=pd) +
   geom_point(position=pd, size=3, fill="black") + # 21 is filled circle
-  scale_x_continuous(limits=c(min(SIMP_north_percentcover$Year-0.125), max(SIMP_north_percentcover$Year+0.125)), breaks=min(SIMP_north_percentcover$Year):max(SIMP_north_percentcover$Year)) +
+  scale_x_continuous (breaks = seq(2012,2017,1), limits=c(min(2012), max(SIMP_north_percentcover$Year+0.125))) +
   scale_y_continuous(limits=c(min(0), max(100)))+
   xlab("Year") +
-  ylab(expression(paste("Mean density (","0.04m", ")", sep = ""))) +
-  ggtitle("d) Point Peron (n = 1 site)")+
-  geom_smooth(method=lm, colour = 1, linetype = 3, se=FALSE, fullrange=TRUE)+
+  ylab(expression(paste("Mean percent cover", sep = ""))) +
+  ggtitle("a) Point Peron")+
+  # geom_smooth(method=lm, colour = 1, linetype = 3, se=FALSE, fullrange=TRUE)+
   theme_bw() + graphics
 
 SIMP_north_percentcover_plot
@@ -215,8 +221,8 @@ png(png_SIMP_overallpercentcover_fn, width=500, height=300)
 grid.arrange(SIMP_percentcover_plot)
 dev.off()
 
-png(png_SIMP_percentcover_fn, width=500, height=300)
-grid.arrange(SIMP_south_percentcover_plot, SIMP_warnbro_percentcover_plot, SIMP_shoalwater_percentcover_plot, SIMP_north_percentcover_plot, ncol=2)
+png(png_SIMP_percentcover_fn, width=800, height=550)
+grid.arrange(SIMP_north_percentcover_plot, SIMP_shoalwater_percentcover_plot, SIMP_warnbro_percentcover_plot, SIMP_south_percentcover_plot, ncol=2)
 dev.off()
 
 #####################################################################################
