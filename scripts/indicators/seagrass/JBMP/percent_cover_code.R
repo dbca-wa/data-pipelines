@@ -53,6 +53,16 @@ graphics = theme(axis.text.x=element_text(angle=45, hjust=0.9), #rotates the x a
 
 # All seagrass pooled
 JBMP = subset (d, Park=="Jurien Bay Marine Park")
+
+JBMP$Location <- as.factor(JBMP$Location)
+
+JBMP = within(JBMP, levels(Location)[levels(Location) == "Fishermans Island"] <- "North")
+JBMP = within(JBMP, levels(Location)[levels(Location) == "Boullanger Island"] <- "Centre")
+JBMP = within(JBMP, levels(Location)[levels(Location) == "Jurien Town"] <- "Centre")
+JBMP = within(JBMP, levels(Location)[levels(Location) == "South Cervantes"] <- "South")
+JBMP = within(JBMP, levels(Location)[levels(Location) == "Green Island"] <- "South")
+JBMP = within(JBMP, levels(Location)[levels(Location) == "Kangaroo Point"] <- "South")
+
 SGcover=count(JBMP, c("Site", "Zone", "Year", "Location", "Level1Class")) #counts number of observations per site, per year
 SGcover_obs=count(SGcover, c("Site", "Year"), "freq") #counts number of observations made at each site per year
 JBMP_SGpercentcover <- join(SGcover, SGcover_obs, by = c("Site", "Year")) #adds total count of site observations agains the right site/year to allow percentage calculation
@@ -66,17 +76,9 @@ SG_cover <- subset(JBMP_SGpercentcover, category == c("SEAGRASS"))
 
 # Region subsets
 JBMP<-SG_cover
-JBMP_south = subset(SG_cover, Site %in% c("Cervantes Island",  "Green Island", "Kangaroo Point"))
-JBMP_centre = subset(SG_cover, Site %in% c("Boullanger Island 2.5",  "Boullanger Island 3.5",  "Boullanger Island 5.5","Jurien Impact Site 2.5"))
-JBMP_north = subset(SG_cover, Site %in% c( "Fishermans Island 2.5",  "Fishermans Island 3.5",  "Fishermans Island 5.5"))
-
-JBMP_south$Location <- as.factor(JBMP_south$Location)
-
-JBMP_south = within(JBMP_south, levels(Location)[levels(Location) == "South Cervantes"] <- "South")
-JBMP_south = within(JBMP_south, levels(Location)[levels(Location) == "Green Island"] <- "South")
-JBMP_south = within(JBMP_south, levels(Location)[levels(Location) == "Kangaroo Point"] <- "South")
-
-
+JBMP_south = subset(SG_cover, Location %in% c("South"))
+JBMP_centre = subset(SG_cover, Location %in% c("Centre"))
+JBMP_north = subset(SG_cover, Location %in% c( "North"))
 
 #################################################################
 #PERCENT COVER
@@ -158,7 +160,6 @@ JBMP_centre_plot
 attach(JBMP_centre_cover)
 MannKendall(mean)
 detach(JBMP_centre_cover)
-
 
 ################################################################
 #JBMP_north percent cover
