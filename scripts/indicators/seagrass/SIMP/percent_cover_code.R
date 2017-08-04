@@ -74,13 +74,13 @@ SG_cover <- subset(SIMP_SGpercentcover, category == c("SEAGRASS"))
 SIMP_south = subset(SG_cover, Site %in% c("Becher Point", "Becher Point SZ", "Port Kennedy"))
 SIMP_warnbro = subset(SG_cover, Site %in% c("Warnbro Sound 2.5m" , "Warnbro Sound 3.2m", "Warnbro Sound 5.2m" , "Mersey Point"))
 SIMP_shoalwater = subset(SG_cover, Site %in% c("Penguin Island" , "Seal Island", "Bird Island"))
-SIMP_north = subset(SG_cover, Site %in% c("Causeway"))
+SIMP_north = subset(d, Site %in% c("Causeway"))
 
 ####################################################################################
 #PERCENT COVER
 ####################################################################################
-
-#Overall percent cover
+unique(SIMP_north$Site)
+unique(SIMP_north, Site)#Overall percent cover
 SIMP_percentcover <- plyr::ddply(SG_cover, .(Year), summarise,
                      N    = length(!is.na(percent)),
                      mean = mean(percent, na.rm=TRUE),

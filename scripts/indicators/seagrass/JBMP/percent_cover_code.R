@@ -34,8 +34,8 @@ names(d)[names(d) == 'Region'] <- 'Park'###Changes column name
 
 pd <- position_dodge(0.1)
 graphics = theme(axis.text.x=element_text(angle=45, hjust=0.9), #rotates the x axis tick labels an angle of 45 degrees
-                 axis.title.x=element_blank(), #removes x axis title
-                 # axis.title.y=element_blank(), #removes y axis title
+                 axis.title.x=element_text(size=12,face="bold"),
+                 axis.title.y=element_text(size=14,face="bold"), #removes y axis title
                  axis.text.y=element_text(),
                  axis.line=element_line(colour="black"), #sets axis lines
                  plot.title =element_text(hjust = 0.05),
@@ -53,8 +53,8 @@ graphics = theme(axis.text.x=element_text(angle=45, hjust=0.9), #rotates the x a
 
 # All seagrass pooled
 JBMP = subset (d, Park=="Jurien Bay Marine Park")
-
 JBMP$Location <- as.factor(JBMP$Location)
+
 
 JBMP = within(JBMP, levels(Location)[levels(Location) == "Fishermans Island"] <- "North")
 JBMP = within(JBMP, levels(Location)[levels(Location) == "Boullanger Island"] <- "Centre")
@@ -63,15 +63,17 @@ JBMP = within(JBMP, levels(Location)[levels(Location) == "South Cervantes"] <- "
 JBMP = within(JBMP, levels(Location)[levels(Location) == "Green Island"] <- "South")
 JBMP = within(JBMP, levels(Location)[levels(Location) == "Kangaroo Point"] <- "South")
 
+str(JBMP)
+
 SGcover=count(JBMP, c("Site", "Zone", "Year", "Location", "Level1Class")) #counts number of observations per site, per year
 SGcover_obs=count(SGcover, c("Site", "Year"), "freq") #counts number of observations made at each site per year
-JBMP_SGpercentcover <- join(SGcover, SGcover_obs, by = c("Site", "Year")) #adds total count of site observations agains the right site/year to allow percentage calculation
-names(JBMP_SGpercentcover)[5] <- "category" #Rename column to make more sense
-names(JBMP_SGpercentcover)[6] <- "category_count" #Rename column to make more sense
-names(JBMP_SGpercentcover) [7] <- "total_count"
-JBMP_SGpercentcover$percent = JBMP_SGpercentcover$category_count/JBMP_SGpercentcover$total_count *100
+SBMP_SGpercentcover <- join(SGcover, SGcover_obs, by = c("Site", "Year")) #adds total count of site observations agains the right site/year to allow percentage calculation
+names(SBMP_SGpercentcover)[5] <- "category" #Rename column to make more sense
+names(SBMP_SGpercentcover)[6] <- "category_count" #Rename column to make more sense
+names(SBMP_SGpercentcover) [7] <- "total_count"
+SBMP_SGpercentcover$percent = SBMP_SGpercentcover$category_count/SBMP_SGpercentcover$total_count *100
 
-SG_cover <- subset(JBMP_SGpercentcover, category == c("SEAGRASS"))
+SG_cover <- subset(SBMP_SGpercentcover, category == c("SEAGRASS"))
 
 
 # Region subsets
@@ -98,7 +100,7 @@ JBMP_percentcover_plot <- ggplot(JBMP_cover, aes(x=Year, y=mean))+#, colour = Ca
   geom_point(position=pd, size=3) + # 21 is filled circle
   scale_x_continuous(limits=c(min(JBMP_cover$Year-0.125), max(JBMP_cover$Year+0.125)), breaks=min(JBMP_cover$Year):max(JBMP_cover$Year)) +
   scale_y_continuous(limits=c(min(0), max(100)))+
-  xlab("Year") +
+  xlab("Year")+
   ylab(expression(paste("Mean percent cover"))) +
   # ggtitle("a)")+
   #  facet_wrap(~ Category, nrow = 2)+
@@ -128,7 +130,7 @@ JBMP_south_plot <- ggplot(JBMP_south_cover, aes(x=Year, y=mean))+#, colour = Cat
   xlab("Year") +
   ylab(expression(paste(" "))) +
   ggtitle("c) South")+
-  theme_bw() +graphics#removes y axis title) graphics
+  theme_bw() +graphics
 
 JBMP_south_plot
 
@@ -153,7 +155,8 @@ JBMP_centre_plot <- ggplot(JBMP_centre_cover, aes(x=Year, y=mean))+#, colour = C
   xlab("Year") +
   ylab(expression(paste("Mean percent cover")))+
   ggtitle("b) Centre")+
-  theme_bw()+ graphics
+  theme_bw()+ graphics+
+  theme(axis.title.x=element_blank())
 
 JBMP_centre_plot
 
@@ -179,13 +182,38 @@ JBMP_north_plot <- ggplot(JBMP_north_cover, aes(x=Year, y=mean))+#, colour = Cat
   xlab("Year") +
   ylab(expression(paste(" "))) +
   ggtitle("a) North")+
-  theme_bw()+ graphics
+  theme_bw()+ graphics+
+  theme(axis.title.x=element_blank())
 
 JBMP_north_plot
 
 attach(JBMP_north_cover)
 MannKendall(mean)
 detach(JBMP_north_cover)
+
+
+JBMP_facet_cover <- plyr::ddply(JBMP, .(Year, Location), summarise,
+                                N    = length(!is.na(percent)),
+                                mean = mean(percent, na.rm=TRUE),
+                                sd   = sd(percent, na.rm=TRUE),
+                                se   = sd(percent, na.rm=TRUE) / sqrt(length(!is.na(percent)) ))
+
+JBMP_facet_plot <- ggplot(JBMP_facet_cover, aes(x=Year, y=mean))+#, colour = Category, group=Category, linetype=Category, shape=Category)) +
+  geom_errorbar(aes(ymin=mean-se, ymax=mean+se), width=.02, colour="black", linetype = 1, position=pd) +
+  geom_point(position=pd, size=3) + # 21 is filled circle
+  scale_x_continuous(breaks = seq(2010,2016,1), limits=c(min(2010),(max(2016))))+
+  scale_y_continuous(limits=c(min(0), max(100)))+
+  xlab("Year") +
+  ylab(expression(paste(" "))) +
+  ggtitle("c) South")+
+  facet_wrap(Location)+
+  theme_bw() +graphics
+
+JBMP_facet_plot
+
+attach(JBMP_south_cover)
+MannKendall(mean)
+detach(JBMP_south_cover)
 
 
 #####################################################################################
