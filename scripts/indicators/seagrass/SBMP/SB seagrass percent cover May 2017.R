@@ -106,7 +106,6 @@ pos_cover = within(pos_cover, levels(Location)[levels(Location) == "Peron East"]
 pos_cover = within(pos_cover, levels(Location)[levels(Location) == "Eastern Gulf"] <- "Eastern Gulf")
 pos_cover = within(pos_cover, levels(Location)[levels(Location) == "Gladstone"] <- "Eastern Gulf")
 
-
 amphib_cover$Location <- factor(amphib_cover$Location, levels= c("Western Gulf", "Peron", "Monkey Mia", "Eastern Gulf"))
 amphib_cover<-amphib_cover[order(amphib_cover$Location), ]
 
@@ -188,7 +187,7 @@ SBMP_posidonia_percentcover_plot <- ggplot(SBMP_posidonia_cover, aes(x=Year, y=m
   xlab("Year") +
   ylab(expression(paste("Mean canopy height (mm)"))) +
   # ggtitle("c)" italic("Posidonia"))+
-  # ggtitle("c)")+
+  ggtitle("c)")+
   #  facet_wrap(~ Category, nrow = 2)+
   #  geom_smooth(method=lm, colour = 1, linetype = 3, se=FALSE, fullrange=TRUE)+
   theme_bw ()+ graphics
