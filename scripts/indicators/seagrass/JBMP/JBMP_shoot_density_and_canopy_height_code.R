@@ -27,9 +27,8 @@ png_JBMP_height_fn = "JBMP overall height.png"#Name of final figure
 ###################################################################################################
 #Load data
 ###################################################################################################
-d <- All_SG_data
-d <- load_ckan_csv(csv_rid) %>% mutate(Site = Site_name)
-
+d <- In_water_data
+names(d)[names(d) == 'Site_name'] <- 'Site'###Changes column name
 ####################################################################################################
 #Define graphic properties
 #####################################################################################################
@@ -48,19 +47,14 @@ graphics = theme(axis.text.x=element_text(angle=45, hjust=0.9), #rotates the x a
                  legend.title = element_text(),
                  legend.key = element_blank())
 
-
 ##################################################################################
 #Create subsets for each 'sector (south, centre, north) for JBMP
 ##################################################################################
 
-JBMP <- d %>% filter(Park == "JBMP")
-# JBMP_south = subset(d, Site %in% c("Kangaroo Point", "Cervantes Island", "Green Island"))
-# JBMP_centre = subset(d, Site %in% c("Jurien Impact Site 2.5" , "Boullanger Island 2.5", "Boullanger Island 3.5" , "Boullanger Island 5.5"))
-# JBMP_north = subset(d, Site %in% c("Fishermans Island 2.5","Fishermans Island 3.5", "Fishermans Island 5.5"))
-
-JBMP_south <- JBMP %>% filter(Site_name %in% c("Kangaroo Point", "Cervantes Island", "Green Island"))
-JBMP_centre = JBMP %>% filter(Site_name %in% c("Jurien Impact Site 2.5" , "Boullanger Island 2.5", "Boullanger Island 3.5" , "Boullanger Island 5.5"))
-JBMP_north = JBMP %>% filter(Site_name %in% c("Fishermans Island 2.5","Fishermans Island 3.5", "Fishermans Island 5.5"))
+JBMP = subset(d, Park %in% c("JBMP"))
+JBMP_south = subset(d, Site %in% c("Kangaroo Point", "Cervantes Island", "Green Island"))
+JBMP_centre = subset(d, Site %in% c("Jurien Impact Site 2.5" , "Boullanger Island 2.5", "Boullanger Island 3.5" , "Boullanger Island 5.5"))
+JBMP_north = subset(d, Site %in% c("Fishermans Island 2.5","Fishermans Island 3.5", "Fishermans Island 5.5"))
 
 ####################################################################################
 #SHOOT DENSITY
