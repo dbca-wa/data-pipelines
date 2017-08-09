@@ -63,7 +63,7 @@ JBMP = within(JBMP, levels(Location)[levels(Location) == "South Cervantes"] <- "
 JBMP = within(JBMP, levels(Location)[levels(Location) == "Green Island"] <- "South")
 JBMP = within(JBMP, levels(Location)[levels(Location) == "Kangaroo Point"] <- "South")
 
-str(JBMP)
+unique(JBMP$Location)
 
 SGcover=count(JBMP, c("Site", "Zone", "Year", "Location", "Level1Class")) #counts number of observations per site, per year
 SGcover_obs=count(SGcover, c("Site", "Year"), "freq") #counts number of observations made at each site per year
@@ -190,30 +190,6 @@ JBMP_north_plot
 attach(JBMP_north_cover)
 MannKendall(mean)
 detach(JBMP_north_cover)
-
-
-JBMP_facet_cover <- plyr::ddply(JBMP, .(Year, Location), summarise,
-                                N    = length(!is.na(percent)),
-                                mean = mean(percent, na.rm=TRUE),
-                                sd   = sd(percent, na.rm=TRUE),
-                                se   = sd(percent, na.rm=TRUE) / sqrt(length(!is.na(percent)) ))
-
-JBMP_facet_plot <- ggplot(JBMP_facet_cover, aes(x=Year, y=mean))+#, colour = Category, group=Category, linetype=Category, shape=Category)) +
-  geom_errorbar(aes(ymin=mean-se, ymax=mean+se), width=.02, colour="black", linetype = 1, position=pd) +
-  geom_point(position=pd, size=3) + # 21 is filled circle
-  scale_x_continuous(breaks = seq(2010,2016,1), limits=c(min(2010),(max(2016))))+
-  scale_y_continuous(limits=c(min(0), max(100)))+
-  xlab("Year") +
-  ylab(expression(paste(" "))) +
-  ggtitle("c) South")+
-  facet_wrap(Location)+
-  theme_bw() +graphics
-
-JBMP_facet_plot
-
-attach(JBMP_south_cover)
-MannKendall(mean)
-detach(JBMP_south_cover)
 
 
 #####################################################################################
