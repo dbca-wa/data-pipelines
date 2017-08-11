@@ -83,6 +83,7 @@ attach(JBMP_shootdensity)
 MannKendall(mean)
 detach(JBMP_shootdensity)
 
+
 ##############################################################################################
 #JBMP_south Shoot density
 
@@ -180,6 +181,7 @@ JBMP_maxheight_plot <- ggplot(JBMP_maxheight, aes(x=Year, y=mean)) +
   scale_y_continuous(limits=c(min(0), max(1000)))+
   xlab("Year") +
   ylab(expression(paste("Mean max height (mm)", sep = ""))) +
+  ggtitle("a) Maximum canopy height")+
   # geom_smooth(method=lm, colour = 1, se=FALSE, fullrange=FALSE)+
   theme_bw() + graphics
 
@@ -285,6 +287,7 @@ JBMP_meanheight_plot <- ggplot(JBMP_meanheight, aes(x=Year, y=mean)) +
   scale_y_continuous(limits=c(min(0), max(1000)))+
   xlab("Year") +
   ylab(expression(paste("Mean 80th percentile height (mm)", sep = ""))) +
+  ggtitle("b) 80th percentile canopy height")+
   geom_smooth(method=lm, colour = 1, se=TRUE, fullrange=FALSE)+
   theme_bw() + graphics
 
@@ -383,13 +386,13 @@ png(png_shoot_density_fn, width=500, height=300)
 grid.arrange(JBMP_shootdensity_plot)
 dev.off()
 
-png(png_JBMP_shoot_density_fn, width=600, height=800)
+png(png_JBMP_shoot_density_fn, width=400, height=800)
 grid.arrange(JBMP_north_shootdensity_plot, JBMP_centre_shootdensity_plot, JBMP_south_shootdensity_plot, ncol=1)
 dev.off()
 
 #Maximum canopy height
-png(png_JBMP_height_fn, width=800, height=300)
-grid.arrange(JBMP_maxheight_plot, JBMP_meanheight_plot, ncol= 2)
+png(png_JBMP_height_fn, width=400, height=500)
+grid.arrange(JBMP_maxheight_plot, JBMP_meanheight_plot, ncol= 1)
 dev.off()
 
 png(png_height_fn, width=800, height=800)
