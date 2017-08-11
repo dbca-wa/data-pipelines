@@ -162,16 +162,17 @@ ckan <- ckanr::src_ckan("https://data.dpaw.wa.gov.au/")
 
 #' Load CSV from CKAN's datastore given a resource id
 #'
+#' The resource must be in the datastore (green API button visible).
+#' Column names will not be sanitised.
+#'
 #' @param res_id The resource id of a CKAN CSV resource
 #' @return A tibble of the CKAN CSV with parsed dates and title cased colnames.
 #' @importFrom ckanr src_ckan
 #' @importFrom dplyr matches mutate_at
-#' @importFrom magrittr set_colnames
 #' @importFrom tibble as_tibble
 load_ckan_csv <- function(res_id, ...){
   ckan <- ckanr::src_ckan(Sys.getenv("CKAN_URL"))
   dplyr::tbl(src = ckan$con, from = res_id) %>%
     tibble::as_tibble(.) %>%
-    dplyr::mutate_at(dplyr::vars(dplyr::matches("date")), make_date) %>%
-    magrittr::set_colnames(., make_col(.))
+    dplyr::mutate_at(dplyr::vars(dplyr::matches("date")), lubridate::make_date)
 }
