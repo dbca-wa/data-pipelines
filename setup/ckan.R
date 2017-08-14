@@ -169,6 +169,7 @@ ckan <- ckanr::src_ckan("https://data.dpaw.wa.gov.au/")
 #' @return A tibble of the CKAN CSV with parsed dates and title cased colnames.
 #' @importFrom ckanr src_ckan
 #' @importFrom dplyr matches mutate_at
+#' @importFrom lubridate make_date
 #' @importFrom tibble as_tibble
 load_ckan_csv <- function(res_id, ...){
   ckan <- ckanr::src_ckan(Sys.getenv("CKAN_URL"))
