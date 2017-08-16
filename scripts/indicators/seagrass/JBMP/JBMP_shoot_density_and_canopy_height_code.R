@@ -65,15 +65,6 @@ JBMP_north = d %>% dplyr::filter(Site %in% c(
 #SHOOT DENSITY
 ################################################################################
 
-#OverallShoot density
-# JBMP_shootdensity <- plyr::ddply(
-#   JBMP, .(Year), summarise,
-#   N    = length(!is.na(Posidonia_sinuosa)),
-#   mean = mean(Posidonia_sinuosa, na.rm=TRUE),
-#   sd   = sd(Posidonia_sinuosa, na.rm=TRUE),
-#   se   = sd(Posidonia_sinuosa, na.rm=TRUE) / sqrt(length(!is.na(Posidonia_sinuosa)))
-#   )
-
 make_shootdensity <- function(df){
   df %>%
     group_by(Year) %>%
@@ -133,11 +124,15 @@ detach(JBMP_south_shootdensity)
 
 JBMP_centre_shootdensity <- make_shootdensity(JBMP_centre)
 
-JBMP_centre_shootdensity_plot<-ggplot(JBMP_centre_shootdensity, aes(x=Year, y=mean)) +
-  geom_errorbar(aes(ymin=mean-se, ymax=mean+se), width=.02, colour="black", position=pd) +
+JBMP_centre_shootdensity_plot <- ggplot(
+  JBMP_centre_shootdensity, aes(x=Year, y=mean)) +
+  geom_errorbar(aes(ymin=mean-se, ymax=mean+se),
+                width=.02, colour="black", position=pd) +
   geom_point(position=pd, size=3, fill="black") + # 21 is filled circle
   scale_x_continuous(
-    limits=c(min(JBMP_centre_shootdensity$Year-0.125), max(JBMP_centre_shootdensity$Year+0.125)),
+    limits=c(
+      min(JBMP_centre_shootdensity$Year-0.125),
+      max(JBMP_centre_shootdensity$Year+0.125)),
     breaks=min(JBMP_centre_shootdensity$Year):max(JBMP_centre_shootdensity$Year)) +
   scale_y_continuous(limits=c(min(0), max(60)))+
   xlab("Year") +
@@ -181,13 +176,6 @@ detach(JBMP_north_shootdensity)
 #MAXIMUM CANOPY HEIGHT
 ################################################################################
 #Overall maximum canopy height density
-
-# JBMP_maxheight <- plyr::ddply(JBMP, .(Year), summarise,
-#                              N    = length(!is.na(Maximum_height_mm)),
-#                              mean = mean(Maximum_height_mm, na.rm=TRUE),
-#                              sd   = sd(Maximum_height_mm, na.rm=TRUE),
-#                              se   = sd(Maximum_height_mm, na.rm=TRUE) / sqrt(length(!is.na(Maximum_height_mm)) ))
-
 make_maxheight <- function(df){
   df %>%
     group_by(Year) %>%
@@ -436,7 +424,7 @@ dev.off()
 
 ckanr::resource_update(png_JBMP_shoot_density_rid, png_JBMP_shoot_density_fn)
 ckanr::resource_update(png_shoot_density_rid, png_shoot_density_fn)
-ckanr::resource_update(png_JBMP_height_rid, png_JBMP_height_fn)
-ckanr::resource_update(png_height_rid, png_height_fn)
+# ckanr::resource_update(png_JBMP_height_rid, png_JBMP_height_fn)
+# ckanr::resource_update(png_height_rid, png_height_fn)
 ckanr::resource_update(txt_rid, "JBMP_shoot_density_and_canopy_height_code.R")
 

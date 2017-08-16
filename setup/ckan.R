@@ -169,10 +169,34 @@ ckan <- ckanr::src_ckan("https://data.dpaw.wa.gov.au/")
 #' @return A tibble of the CKAN CSV with parsed dates and title cased colnames.
 #' @importFrom ckanr src_ckan
 #' @importFrom dplyr matches mutate_at
+#' @importFrom lubridate make_date
 #' @importFrom tibble as_tibble
-load_ckan_csv <- function(res_id, ...){
+load_ckan_dst <- function(res_id, ...){
   ckan <- ckanr::src_ckan(Sys.getenv("CKAN_URL"))
   dplyr::tbl(src = ckan$con, from = res_id) %>%
     tibble::as_tibble(.) %>%
-    dplyr::mutate_at(dplyr::vars(dplyr::matches("date")), lubridate::make_date)
+    dplyr::mutate_at(
+      dplyr::vars(dplyr::matches("date")),
+      lubridate::make_date)
+}
+
+#' Load CSV from CKAN's resource URL given a resource id
+#'
+#' The resource should be in the datastore (green API button visible).
+#' Column names will not be sanitised.
+#'
+#' @param res_id The resource id of a CKAN CSV resource
+#' @return A tibble of the CKAN CSV with parsed dates and title cased colnames.
+#' @importFrom ckanr resoruce_show
+#' @importFrom dplyr matches mutate_at
+#' @importFrom lubridate make_date
+#' @importFrom readr read_csv
+#' @importFrom tibble as_tibble
+load_ckan_csv <- function(res_id, ...){
+  r <- ckanr::resource_show(res_id)
+  d <- readr::read_csv(r$url) %>%
+    tibble::as_tibble(.) %>%
+    dplyr::mutate_at(
+      dplyr::vars(dplyr::matches("date")),
+      lubridate::make_date)
 }
