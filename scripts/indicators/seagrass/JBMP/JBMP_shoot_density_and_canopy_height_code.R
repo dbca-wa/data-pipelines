@@ -27,7 +27,7 @@ png_JBMP_height_fn = "JBMP overall height.png"#Name of final figure
 ################################################################################
 #Load data
 ################################################################################
-d <- load_ckan_csv(csv_rid) %>% rename(Site = Site_name)
+d <- load_ckan_csv(csv_rid)
 # d <- In_water_data
 # names(d)[names(d) == 'Site_name'] <- 'Site'###Changes column name
 ################################################################################
@@ -59,7 +59,7 @@ JBMP_centre = d %>% dplyr::filter(Site %in% c(
   "Jurien Impact Site 2.5" , "Boullanger Island 2.5", "Boullanger Island 3.5" ,
   "Boullanger Island 5.5"))
 JBMP_north = d %>% dplyr::filter(Site %in% c(
-  "Fishermans Island 2.5","Fishermans Island 3.5", "Fishermans Island 5.5"))
+  "Fishermans Island 2.5","Fishermans Island 2.5", "Fishermans Island 2.5"))
 
 ################################################################################
 #SHOOT DENSITY
@@ -75,6 +75,7 @@ make_shootdensity <- function(df){
       se   = sd(Posidonia_sinuosa, na.rm = TRUE) / sqrt(N)
     )
 }
+
 
 JBMP_shootdensity <- make_shootdensity(JBMP)
 
@@ -396,10 +397,10 @@ png(png_shoot_density_fn, width=500, height=300)
 grid.arrange(JBMP_shootdensity_plot)
 dev.off()
 
-png(png_JBMP_shoot_density_fn, width=400, height=800)
-grid.arrange(JBMP_north_shootdensity_plot,
-             JBMP_centre_shootdensity_plot,
-             JBMP_south_shootdensity_plot,
+png(png_JBMP_shoot_density_fn, width=500, height=800)
+grid.arrange(JBMP_2.5_plot,
+             JBMP_3.5_plot,
+             JBMP_5.5_plot,
              ncol=1)
 dev.off()
 
