@@ -29,10 +29,7 @@ png_SIMP_height_fn = "SIMP overall height.png"#Name of final figure
 #Load data
 ################################################################################
 
-d <- load_ckan_csv(csv_rid) %>% mutate(Site = Site_name)
-
-d<- Camera_data %>% mutate(Site = Site_name)
-names(d)[names(d) == 'Site_name'] <- 'Site'###Changes column name
+d <- load_ckan_csv(csv_rid)
 
 ################################################################################
 #Define graphic properties
@@ -261,7 +258,7 @@ SIMP_warnbro_height_plot<-ggplot(SIMP_warnbro_height, aes(x=Year, y=mean)) +
   xlab("Year") +
   ylab(expression(paste("Mean max height (mm)", sep = ""))) +
   ggtitle("C) Warnbro Sound")+
-  geom_smooth(method = "lm", colour = 1, formula = y ~ splines::bs(x, 2), se = TRUE, fullrange=TRUE)+
+  # geom_smooth(method = "lm", colour = 1, formula = y ~ splines::bs(x, 2), se = TRUE, fullrange=TRUE)+
   # geom_smooth(method=auto, colour = 1, linetype = 1, se=TRUE, fullrange=TRUE)+
   theme_bw() + graphics
 
@@ -491,35 +488,3 @@ ckanr::resource_update(txt_rid, "SIMP_shoot_density_and_canopy_height_code.R")
 #set workdir to main report location
 setwd("~/projects")
 ######################################################################################
-
-#
-# # METHOD 1
-# #Overall maximum canopy height density
-# SIMP_height <- ddply(SIMP, .(Year),summarise,
-#                      MaxN    = length(!is.na(Maximum_height_mm)),
-#                      Maxmean = mean(Maximum_height_mm, na.rm=TRUE),
-#                      Maxsd   = sd(Maximum_height_mm, na.rm=TRUE),
-#                      Maxse   = sd(Maximum_height_mm, na.rm=TRUE) / sqrt(length(!is.na(Maximum_height_mm))),
-#                      mean = mean(Mean_height_mm, na.rm=TRUE),
-#                      sd   = sd(Mean_height_mm, na.rm=TRUE),
-#                      se   = sd(Mean_height_mm, na.rm=TRUE) / sqrt(length(!is.na(Mean_height_mm))))
-#
-# SIMP_height_plot <- ggplot(SIMP_height, aes(x=Year, y=Maxmean)) +
-#   geom_errorbar(aes(ymin=Maxmean-Maxse, ymax=Maxmean+Maxse), width=.02, colour="black", position=pd) +
-#   geom_point(position=pd, size=3, fill="black") + # 21 is filled circle
-#   scale_x_continuous(limits=c(min(2009), max(SIMP_maxheight$Year+0.125)), breaks=min(SIMP_maxheight$Year):max(SIMP_maxheight$Year)) +
-#   scale_y_continuous(limits=c(min(0), max(1000)))+
-#   xlab("Year") +
-#   ylab(expression(paste("Mean max height (mm)", sep = ""))) +
-#   geom_smooth(method=lm, colour = 1, linetype = 3, se=FALSE, fullrange=FALSE)+
-#   theme_bw() + graphics
-#
-# SIMP_height_plot
-#
-# SIMP_height_plot + geom_errorbar(aes(ymin=mean-se, ymax=mean+se), width=.02, colour="black", position=pd) +
-#   geom_point(aes(x=Year, y=mean), size=3, fill="#999999", colour="grey")+
-#   geom_smooth(method=lm, colour = 1, linetype = 3, se=FALSE, fullrange=FALSE)
-#
-# attach(SIMP_height)
-# MannKendall(Maxmean)
-# detach(SIMP_height)
