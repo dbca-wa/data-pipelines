@@ -12,15 +12,15 @@ csv_rid <- "d1e0cd1d-9fc0-4069-9781-eb4946d929c8"#CKAN resource ID for data
 txt_rid <- "7e057671-9272-46b6-bf6c-cee176758b0f"#CKAN resource ID for r-script
 
 #Shoot density plots
-png_shoot_density_rid <- "af4bc41b-6477-4571-9038-1f5784502bdf"#CKAN resource ID for final figure (png)
+png_shoot_density_rid <- "2f11c0cc-42d5-4fe7-af9e-ee85cc513317"#CKAN resource ID for final figure (png)
 png_shoot_density_fn = "JBMP overall shoot density.png"#Name of final figure
-png_JBMP_shoot_density_rid <- "186519a9-72aa-4d78-afd6-bce672f476f0"#CKAN resource ID for final figure (png)
+png_JBMP_shoot_density_rid <- "b04dff61-535d-49f7-a615-55459eea29bd"#CKAN resource ID for final figure (png)
 png_JBMP_shoot_density_fn = "JBMP shoot density.png"#Name of final figure
 
 #Maximum canopy height plots
-png_height_rid <- "8f406852-0b15-46cb-b972-c960c4f3bfc8"#CKAN resource ID for final figure (png)
+png_height_rid <- "b06655eb-2fcc-4566-bf69-c68b2ce31df4"#CKAN resource ID for final figure (png)
 png_height_fn = "JBMP height.png"#Name of final figure
-png_JBMP_height_rid <- "a440fa20-596a-474a-a91f-b1108c99f633"#CKAN resource ID for final figure (png)
+png_JBMP_height_rid <- "c2e25af3-e010-4d91-baff-4c6a385ce9c0"#CKAN resource ID for final figure (png)
 png_JBMP_height_fn = "JBMP overall height.png"#Name of final figure
 
 
@@ -29,7 +29,6 @@ png_JBMP_height_fn = "JBMP overall height.png"#Name of final figure
 ################################################################################
 d <- load_ckan_csv(csv_rid)
 # d <- In_water_data
-# names(d)[names(d) == 'Site_name'] <- 'Site'###Changes column name
 ################################################################################
 #Define graphic properties
 ################################################################################
@@ -398,9 +397,9 @@ grid.arrange(JBMP_shootdensity_plot)
 dev.off()
 
 png(png_JBMP_shoot_density_fn, width=500, height=800)
-grid.arrange(JBMP_2.5_plot,
-             JBMP_3.5_plot,
-             JBMP_5.5_plot,
+grid.arrange(JBMP_north_shootdensity_plot,
+             JBMP_centre_shootdensity_plot,
+             JBMP_south_shootdensity_plot,
              ncol=1)
 dev.off()
 
@@ -425,7 +424,6 @@ dev.off()
 
 ckanr::resource_update(png_JBMP_shoot_density_rid, png_JBMP_shoot_density_fn)
 ckanr::resource_update(png_shoot_density_rid, png_shoot_density_fn)
-# ckanr::resource_update(png_JBMP_height_rid, png_JBMP_height_fn)
-# ckanr::resource_update(png_height_rid, png_height_fn)
+ckanr::resource_update(png_JBMP_height_rid, png_JBMP_height_fn)
+ckanr::resource_update(png_height_rid, png_height_fn)
 ckanr::resource_update(txt_rid, "JBMP_shoot_density_and_canopy_height_code.R")
-
