@@ -191,7 +191,7 @@ SBMP_wooramel_shootdensity_plot<-ggplot(SBMP_wooramel_shootdensity, aes(x=Year, 
   geom_errorbar(aes(ymin=mean-se, ymax=mean+se), width=.02, colour="black", position=pd) +
   #geom_line(position=pd) +
   geom_point(position=pd, size=3, fill="black") + # 21 is filled circle
-  scale_x_continuous(breaks = seq(2010,2017,1), limits=c(min(2010), max(SBMP_wooramel_shootdensity$Year+0.125))) +
+  scale_x_continuous(breaks = seq(2010,2017,1), limits=c(min(2010), max(2016))) +
   scale_y_continuous(limits=c(min(0), max(25)))+
   xlab("Year") +
   ylab(expression(paste("Mean (±SE) density (","0.04m"^-2,")", sep = ""))) +
