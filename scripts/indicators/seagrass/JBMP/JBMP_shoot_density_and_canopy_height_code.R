@@ -35,8 +35,9 @@ d <- load_ckan_csv(csv_rid)
 
 pd <- position_dodge(0.1)
 graphics = theme(axis.text.x=element_text(angle=45, hjust=0.9),
-                 axis.title.x=element_text(), #removes x axis title
-                 axis.title.y=element_text(), #removes y axis title
+                 axis.title.x=element_text(size = 18), #removes x axis title
+                 axis.title.y=element_text(size = 18), #removes y axis title
+                 axis.text.y=element_text(size = 18),
                  axis.line=element_line(colour="black"), #sets axis lines
                  plot.title =element_text(hjust = 0.05),
                  panel.grid.minor = element_blank(), #removes minor grid lines
