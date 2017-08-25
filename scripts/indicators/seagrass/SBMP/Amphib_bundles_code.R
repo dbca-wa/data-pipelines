@@ -12,7 +12,7 @@ library (Kendall)
 #Define all CKAN resource IDs
 ######################################################################################################
 
-csv_rid <- "040b12ff-d6bb-48b4-ab3d-d17ccf4d6c22"#CKAN resource ID for data
+csv_rid <- "d1e0cd1d-9fc0-4069-9781-eb4946d929c8"#CKAN resource ID for data
 txt_rid <- "51ffebf0-1d50-4fe3-8638-78727da3f214"#CKAN resource ID for r-script
 
 #Amphibolis density
@@ -33,6 +33,9 @@ png_SBMP_leaf_per_bundle_fn = "SBMP leaves per bundle.png"#Name of final figure
 png_SBMP_overall_leaf_per_bundle_rid <- "7939e8bb-4843-4c75-a840-b17ef281b592"#CKAN resource ID for final figure (png)
 png_SBMP_overall_leaf_per_bundle_fn = "SBMP overall leaves per bundle.png"#Name of final figure
 
+#Canopy height
+png_SBMP_overall_amphib_height_rid <- "19cc4504-6af9-49b2-bb21-c8dc68d2daf8"#CKAN resource ID for final figure (pdf)
+png_SBMP_overall_amphib_height_fn = "SBMP overall amphib height.png"#Name of final figure
 ###################################################################################################
 #Load data
 ###################################################################################################
@@ -214,20 +217,19 @@ SBMP_wooramel = subset(SBMP, Site %in% c("Gladstone Site 2_Amphibolis", "Gladsto
 #Leaf bundles per stem
 ####################################################################################
 
-make_bundles <- function(df){
+make_bundle <- function(df){
   df %>%
     group_by(Year) %>%
     dplyr::summarise(
-      N    = length(!is.na(Amphib_clusters_per_stem)),
-      mean = mean(Amphib_clusters_per_stem, na.rm = TRUE),
-      sd   = sd(Amphib_clusters_per_stem, na.rm = TRUE),
-      se   = sd(Amphib_clusters_per_stem, na.rm = TRUE) / sqrt(N)
+      N    = length(!is.na(Mean_leaves_per_cluster)),
+      mean = mean(Mean_leaves_per_cluster, na.rm=TRUE),
+      sd   = sd(Mean_leaves_per_cluster, na.rm=TRUE),
+      se   = sd(Mean_leaves_per_cluster, na.rm=TRUE) / sqrt(N)
     )
 }
 
-SBMP_bundles <- make_bundles(SBMP)
+SBMP_peron_bundles <- make_bundles(SBMP_peron)
 
-SBMP_bundles
 #Overall bundles per stem
 
 SBMP_bundles_plot <- ggplot(SBMP_bundles, aes(x=Year, y=mean)) +
@@ -237,7 +239,7 @@ SBMP_bundles_plot <- ggplot(SBMP_bundles, aes(x=Year, y=mean)) +
   scale_x_continuous(limits=c(min(2014), max(SBMP_bundles$Year+0.125)), breaks=min(SBMP_bundles$Year):max(SBMP_bundles$Year)) +
   scale_y_continuous(limits=c(min(0), max(15)))+
   xlab("Year") +
-  ylab(expression(paste("Mean no. of leaf bundles per stem", sep = ""))) +
+  ylab(expression(paste("Mean (±SE) leaf bundles per stem", sep = ""))) +
   geom_smooth(method=lm, colour = 1, linetype = 3, se=TRUE, fullrange=TRUE)+
   theme_bw() + graphics
 
@@ -263,7 +265,7 @@ SBMP_westerngulf_bundles_plot <- ggplot(SBMP_westerngulf_bundles, aes(x=Year, y=
   scale_x_continuous(limits=c(min(2014), max(SBMP_westerngulf_bundles$Year+0.125)), breaks=min(SBMP_westerngulf_bundles$Year):max(SBMP_westerngulf_bundles$Year)) +
   scale_y_continuous(limits=c(min(0), max(15)))+
   xlab("Year") +
-  ylab(expression(paste("Mean no. of leaf bundles per stem", sep = ""))) +
+  ylab(expression(paste("Mean (±SE) leaf bundles per stem", sep = ""))) +
   ggtitle("a) Western Gulf") +
   geom_smooth(method=lm, colour = 1, linetype = 3, se=TRUE, fullrange=TRUE)+
   theme_bw() + graphics
@@ -289,7 +291,7 @@ SBMP_peron_bundles_plot <- ggplot(SBMP_peron_bundles, aes(x=Year, y=mean)) +
   scale_x_continuous(limits=c(min(2014), max(SBMP_peron_bundles$Year+0.125)), breaks=min(SBMP_peron_bundles$Year):max(SBMP_peron_bundles$Year)) +
   scale_y_continuous(limits=c(min(0), max(15)))+
   xlab("Year") +
-  ylab(expression(paste("Mean no. of leaf bundles per stem", sep = ""))) +
+  ylab(expression(paste("Mean (±SE) leaf bundles per stem", sep = ""))) +
   ggtitle("b) Peron") +
   geom_smooth(method=lm, colour = 1, linetype = 3, se=TRUE, fullrange=TRUE)+
   theme_bw() + graphics
@@ -315,7 +317,7 @@ SBMP_monkeymia_bundles_plot <- ggplot(SBMP_monkeymia_bundles, aes(x=Year, y=mean
   scale_x_continuous(limits=c(min(2009), max(SBMP_monkeymia_bundles$Year+0.125)), breaks=min(SBMP_monkeymia_bundles$Year):max(SBMP_monkeymia_bundles$Year)) +
   scale_y_continuous(limits=c(min(0), max(30)))+
   xlab("Year") +
-  ylab(expression(paste("Mean no. of leaf bundles per stem", sep = ""))) +
+  ylab(expression(paste("Mean (±SE) leaf bundles per stem", sep = ""))) +
   ggtitle("c) Monkey Mia") +
   geom_smooth(method=lm, colour = 1, linetype = 3, se=TRUE, fullrange=TRUE)+
   theme_bw() + graphics
@@ -341,7 +343,7 @@ SBMP_wooramel_bundles_plot <- ggplot(SBMP_wooramel_bundles, aes(x=Year, y=mean))
   scale_x_continuous(limits=c(min(2014), max(SBMP_wooramel_bundles$Year+0.125)), breaks=min(SBMP_wooramel_bundles$Year):max(SBMP_wooramel_bundles$Year)) +
   scale_y_continuous(limits=c(min(0), max(30)))+
   xlab("Year") +
-  ylab(expression(paste("Mean no. of leaf bundles per stem", sep = ""))) +
+  ylab(expression(paste("Mean (±SE) leaf bundles per stem", sep = ""))) +
   ggtitle("d) Wooramel") +
   geom_smooth(method=lm, colour = 1, linetype = 3, se=TRUE, fullrange=TRUE)+
   theme_bw() + graphics
@@ -371,7 +373,7 @@ SBMP_leafperbundle_plot <- ggplot(SBMP_leafperbundle, aes(x=Year, y=mean)) +
   scale_x_continuous(limits=c(min(2014), max(SBMP_leafperbundle$Year+0.125)), breaks=min(SBMP_leafperbundle$Year):max(SBMP_leafperbundle$Year)) +
   scale_y_continuous(limits=c(min(0), max(15)))+
   xlab("Year") +
-  ylab(expression(paste("Mean no. of leaves per bundle", sep = ""))) +
+  ylab(expression(paste("Mean (±SE) leaves per bundle", sep = ""))) +
   geom_smooth(method=lm, colour = 1, linetype = 3, se=TRUE, fullrange=TRUE)+
   theme_bw() + graphics
 SBMP_leafperbundle_plot
@@ -396,7 +398,7 @@ SBMP_westerngulf_leafperbundle_plot <- ggplot(SBMP_westerngulf_leafperbundle, ae
   scale_x_continuous(limits=c(min(2014), max(SBMP_westerngulf_leafperbundle$Year+0.125)), breaks=min(SBMP_westerngulf_leafperbundle$Year):max(SBMP_westerngulf_leafperbundle$Year)) +
   scale_y_continuous(limits=c(min(0), max(15)))+
   xlab("Year") +
-  ylab(expression(paste("Mean no. of leaves per bundle", sep = ""))) +
+  ylab(expression(paste("Mean (±SE) leaves per bundle", sep = ""))) +
   ggtitle("a) Western Gulf") +
   geom_smooth(method=lm, colour = 1, linetype = 3, se=TRUE, fullrange=TRUE)+
   theme_bw() + graphics
@@ -422,7 +424,7 @@ SBMP_peron_leafperbundle_plot <- ggplot(SBMP_peron_leafperbundle, aes(x=Year, y=
   scale_x_continuous(limits=c(min(2014), max(SBMP_peron_leafperbundle$Year+0.125)), breaks=min(SBMP_peron_leafperbundle$Year):max(SBMP_peron_leafperbundle$Year)) +
   scale_y_continuous(limits=c(min(0), max(15)))+
   xlab("Year") +
-  ylab(expression(paste("Mean no. of leaves per bundle", sep = ""))) +
+  ylab(expression(paste("Mean (±SE) leaves per bundle", sep = ""))) +
   ggtitle("b) Peron") +
   geom_smooth(method=lm, colour = 1, linetype = 3, se=TRUE, fullrange=TRUE)+
   theme_bw() + graphics
@@ -448,7 +450,7 @@ SBMP_monkeymia_leafperbundle_plot <- ggplot(SBMP_monkeymia_leafperbundle, aes(x=
   scale_x_continuous(limits=c(min(2014), max(SBMP_monkeymia_leafperbundle$Year+0.125)), breaks=min(SBMP_monkeymia_leafperbundle$Year):max(SBMP_monkeymia_leafperbundle$Year)) +
   scale_y_continuous(limits=c(min(0), max(15)))+
   xlab("Year") +
-  ylab(expression(paste("Mean no. of leaves per bundle", sep = ""))) +
+  ylab(expression(paste("Mean (±SE) leaves per bundle", sep = ""))) +
   ggtitle("c) Monkey Mia") +
   geom_smooth(method=lm, colour = 1, linetype = 3, se=TRUE, fullrange=TRUE)+
   theme_bw() + graphics
@@ -474,7 +476,7 @@ SBMP_wooramel_leafperbundle_plot <- ggplot(SBMP_wooramel_leafperbundle, aes(x=Ye
   scale_x_continuous(limits=c(min(2014), max(SBMP_wooramel_leafperbundle$Year+0.125)), breaks=min(SBMP_wooramel_leafperbundle$Year):max(SBMP_wooramel_leafperbundle$Year)) +
   scale_y_continuous(limits=c(min(0), max(15)))+
   xlab("Year") +
-  ylab(expression(paste("Mean no. of leaves per bundle", sep = ""))) +
+  ylab(expression(paste("Mean (±SE) leaves per bundle", sep = ""))) +
   ggtitle("d) Wooramel") +
   geom_smooth(method=lm, colour = 1, linetype = 3, se=TRUE, fullrange=TRUE)+
   theme_bw() + graphics
@@ -503,7 +505,7 @@ SBMP_maxheight_plot <- ggplot(SBMP_maxheight, aes(x=Year, y=mean)) +
   scale_x_continuous(limits=c(min(SBMP_maxheight$Year-0.125), max(SBMP_maxheight$Year+0.125)), breaks=min(SBMP_maxheight$Year):max(SBMP_maxheight$Year)) +
   scale_y_continuous(limits=c(min(0), max(600)))+
   xlab("Year") +
-  ylab(expression(paste("Mean maximum canopy height (mm)", sep = ""))) +
+  ylab(expression(paste("Mean (±SE) max. canopy height (mm)", sep = ""))) +
   # geom_smooth(method=lm, colour = 1, linetype=3, se=TRUE, fullrange=TRUE)+
   theme_bw() + graphics+
   theme(axis.text.x=element_text(angle=45, size = 10, hjust=0.9), #rotates the x axis tick labels an angle of 45 degrees
@@ -550,6 +552,12 @@ dev.off()
 
 png(png_SBMP_leaf_per_bundle_fn, width=1000, height=800)
 grid.arrange(SBMP_westerngulf_leafperbundle_plot, SBMP_peron_leafperbundle_plot, SBMP_monkeymia_leafperbundle_plot, SBMP_wooramel_leafperbundle_plot, ncol=2)
+dev.off()
+
+#Canopy height
+
+png(png_SBMP_overall_amphib_height_fn, width=500, height=300)
+grid.arrange(SBMP_maxheight_plot)
 dev.off()
 
 #####################################################################################
