@@ -25,7 +25,6 @@ png_JBMP_percentcover_fn = "JBMP percent cover.png"#Name of final figure
 ###################################################################################################
 
 d <- load_ckan_csv(csv_rid, date_colnames = c('date', 'Date'))
-d<-Camera_data
 names(d)[names(d) == 'Region'] <- 'Park'###Changes column name
 
 ####################################################################################################
@@ -33,7 +32,7 @@ names(d)[names(d) == 'Region'] <- 'Park'###Changes column name
 #####################################################################################################
 
 pd <- position_dodge(0.1)
-graphics = theme(axis.text.x=element_text(angle=45, hjust=0.9), #rotates the x axis tick labels an angle of 45 degrees
+graphics = theme(axis.text.x=element_text(size = 12, angle=45, hjust=0.9), #rotates the x axis tick labels an angle of 45 degrees
                  axis.title.x=element_text(size=12,face="bold"),
                  axis.title.y=element_text(size=14,face="bold"), #removes y axis title
                  axis.text.y=element_text(),
@@ -107,7 +106,7 @@ JBMP_percentcover_plot <- ggplot(JBMP_cover, aes(x=Year, y=mean))+#, colour = Ca
   scale_x_continuous(limits=c(min(JBMP_cover$Year-0.125), max(JBMP_cover$Year+0.125)), breaks=min(JBMP_cover$Year):max(JBMP_cover$Year)) +
   scale_y_continuous(limits=c(min(0), max(100)))+
   xlab("Year")+
-  ylab(expression(paste("Mean percent cover"))) +
+  ylab(expression(paste("Mean (±SE) percent cover"))) +
   # ggtitle("a)")+
   #  facet_wrap(~ Category, nrow = 2)+
   #  geom_smooth(method=lm, colour = 1, linetype = 3, se=FALSE, fullrange=TRUE)+
@@ -130,7 +129,7 @@ JBMP_south_plot <- ggplot(JBMP_south_cover, aes(x=Year, y=mean))+#, colour = Cat
   scale_x_continuous(breaks = seq(2011,2016,1), limits=c(min(2011),(max(2016))))+
   scale_y_continuous(limits=c(min(0), max(100)))+
   xlab("Year") +
-  ylab(expression(paste(" "))) +
+  ylab(expression(paste("Mean (±SE) percent cover"))) +
   ggtitle("c) South")+
   theme_bw() +graphics
 
@@ -151,7 +150,7 @@ JBMP_centre_plot <- ggplot(JBMP_centre_cover, aes(x=Year, y=mean))+#, colour = C
   scale_x_continuous(limits=c(min(JBMP_centre_cover$Year-0.125), max(JBMP_centre_cover$Year+0.125)), breaks=min(JBMP_centre_cover$Year):max(JBMP_centre_cover$Year)) +
   scale_y_continuous(limits=c(min(0), max(100)))+
   xlab("Year") +
-  ylab(expression(paste("Mean percent cover")))+
+  ylab(expression(paste("Mean (±SE) percent cover")))+
   ggtitle("b) Centre")+
   theme_bw()+ graphics+
   theme(axis.title.x=element_blank())
@@ -174,7 +173,7 @@ JBMP_north_plot <- ggplot(JBMP_north_cover, aes(x=Year, y=mean))+#, colour = Cat
   scale_x_continuous(limits=c(min(JBMP_north_cover$Year-0.125), max(JBMP_north_cover$Year+0.125)), breaks=min(JBMP_north_cover$Year):max(JBMP_north_cover$Year)) +
   scale_y_continuous(limits=c(min(0), max(100)))+
   xlab("Year") +
-  ylab(expression(paste(" "))) +
+  ylab(expression(paste("Mean (±SE) percent cover"))) +
   ggtitle("a) North")+
   theme_bw()+ graphics+
   theme(axis.title.x=element_blank())
