@@ -10,7 +10,7 @@ library(plyr)
 #Define all CKAN resource IDs
 ######################################################################################################
 
-csv_rid <- "b0b546ed-ab74-4592-8429-7175cd637de4"#CKAN resource ID for data
+csv_rid <- "619d13a7-5df5-46e3-8391-50a2390e8df2"#CKAN resource ID for data
 txt_rid <- "0bba4f55-e3af-490e-88bb-738660ef16e2"#CKAN resource ID for r-script
 
 
@@ -52,6 +52,7 @@ graphics = theme(axis.text.x=element_text(angle=45, hjust=0.9), #rotates the x a
 ##################################################################################
 
 # All seagrass pooled
+
 JBMP = subset (d, Park=="Jurien Bay Marine Park")
 JBMP$Location <- as.factor(JBMP$Location)
 
@@ -63,24 +64,21 @@ JBMP = within(JBMP, levels(Location)[levels(Location) == "South Cervantes"] <- "
 JBMP = within(JBMP, levels(Location)[levels(Location) == "Green Island"] <- "South")
 JBMP = within(JBMP, levels(Location)[levels(Location) == "Kangaroo Point"] <- "South")
 
-unique(JBMP$Location)
+cover <- JBMP %>% add_count(Site, Year)
+cover <- plyr::ddply(cover, .(Year, Location, Site, Level1Class, n), summarise,
+                     add_count    = length(!is.na(Level1Class)))
+JBMP_SG <- subset (cover, Level1Class %in% c("SEAGRASS"))
 
-SGcover=count(JBMP, c("Site", "Zone", "Year", "Location", "Level1Class")) #counts number of observations per site, per year
-SGcover_obs=count(SGcover, c("Site", "Year"), "freq") #counts number of observations made at each site per year
-SBMP_SGpercentcover <- join(SGcover, SGcover_obs, by = c("Site", "Year")) #adds total count of site observations agains the right site/year to allow percentage calculation
-names(SBMP_SGpercentcover)[5] <- "category" #Rename column to make more sense
-names(SBMP_SGpercentcover)[6] <- "category_count" #Rename column to make more sense
-names(SBMP_SGpercentcover) [7] <- "total_count"
-SBMP_SGpercentcover$percent = SBMP_SGpercentcover$category_count/SBMP_SGpercentcover$total_count *100
+names(JBMP_SG)[4] <- "category" #Rename column to make more sense
+names(JBMP_SG) [5] <- "total_count"
+names(JBMP_SG)[6] <- "category_count" #Rename column to make more sense
 
-SG_cover <- subset(SBMP_SGpercentcover, category == c("SEAGRASS"))
-
+JBMP_SG$percent = JBMP_SG$category_count/JBMP_SG$total_count *100
 
 # Region subsets
-JBMP<-SG_cover
-JBMP_south = subset(SG_cover, Location %in% c("South"))
-JBMP_centre = subset(SG_cover, Location %in% c("Centre"))
-JBMP_north = subset(SG_cover, Location %in% c( "North"))
+JBMP_south = subset(JBMP_SG, Location %in% c("South"))
+JBMP_centre = subset(JBMP_SG, Location %in% c("Centre"))
+JBMP_north = subset(JBMP_SG, Location %in% c( "North"))
 
 #################################################################
 #PERCENT COVER
@@ -88,11 +86,19 @@ JBMP_north = subset(SG_cover, Location %in% c( "North"))
 
 #Overall percent cover
 
-JBMP_cover <- plyr::ddply(JBMP, .(Year), summarise,
-                              N    = length(!is.na(percent)),
-                              mean = mean(percent, na.rm=TRUE),
-                              sd   = sd(percent, na.rm=TRUE),
-                              se   = sd(percent, na.rm=TRUE) / sqrt(length(!is.na(percent)) ))
+make_cover <- function(df){
+  df %>%
+    group_by(Year) %>%
+    dplyr::summarise(
+      N    = length(!is.na(percent)),
+      mean = mean(percent, na.rm = TRUE),
+      sd   = sd(percent, na.rm = TRUE),
+      se   = sd(percent, na.rm = TRUE) / sqrt(N)
+    )
+}
+
+
+JBMP_cover <- make_cover(JBMP_SG)
 
 JBMP_percentcover_plot <- ggplot(JBMP_cover, aes(x=Year, y=mean))+#, colour = Category, group=Category, linetype=Category, shape=Category)) +
   geom_errorbar(aes(ymin=mean-se, ymax=mean+se), width=.02, colour="black", linetype = 1, position=pd) +
@@ -116,11 +122,7 @@ detach(JBMP_cover)
 ################################################################
 #JBMP_south percent cover
 
-JBMP_south_cover <- plyr::ddply(JBMP_south, .(Year), summarise,
-                          N    = length(!is.na(percent)),
-                          mean = mean(percent, na.rm=TRUE),
-                          sd   = sd(percent, na.rm=TRUE),
-                          se   = sd(percent, na.rm=TRUE) / sqrt(length(!is.na(percent)) ))
+JBMP_south_cover <- make_cover(JBMP_south)
 
 JBMP_south_plot <- ggplot(JBMP_south_cover, aes(x=Year, y=mean))+#, colour = Category, group=Category, linetype=Category, shape=Category)) +
   geom_errorbar(aes(ymin=mean-se, ymax=mean+se), width=.02, colour="black", linetype = 1, position=pd) +
@@ -141,11 +143,7 @@ detach(JBMP_south_cover)
 ################################################################
 #JBMP_centre percent cover
 
-JBMP_centre_cover <- plyr::ddply(JBMP_centre, .(Year), summarise,
-                                N    = length(!is.na(percent)),
-                                mean = mean(percent, na.rm=TRUE),
-                                sd   = sd(percent, na.rm=TRUE),
-                                se   = sd(percent, na.rm=TRUE) / sqrt(length(!is.na(percent)) ))
+JBMP_centre_cover <- make_cover(JBMP_centre)
 
 JBMP_centre_plot <- ggplot(JBMP_centre_cover, aes(x=Year, y=mean))+#, colour = Category, group=Category, linetype=Category, shape=Category)) +
   geom_errorbar(aes(ymin=mean-se, ymax=mean+se), width=.02, colour="black", linetype = 1, position=pd) +
@@ -167,11 +165,7 @@ detach(JBMP_centre_cover)
 ################################################################
 #JBMP_north percent cover
 
-JBMP_north_cover <- plyr::ddply(JBMP_north, .(Year), summarise,
-                                N    = length(!is.na(percent)),
-                                mean = mean(percent, na.rm=TRUE),
-                                sd   = sd(percent, na.rm=TRUE),
-                                se   = sd(percent, na.rm=TRUE) / sqrt(length(!is.na(percent)) ))
+JBMP_north_cover <- make_cover(JBMP_north)
 
 JBMP_north_plot <- ggplot(JBMP_north_cover, aes(x=Year, y=mean))+#, colour = Category, group=Category, linetype=Category, shape=Category)) +
   geom_errorbar(aes(ymin=mean-se, ymax=mean+se), width=.02, colour="black", linetype = 1, position=pd) +
@@ -206,10 +200,7 @@ png(png_JBMP_percentcover_fn, width=600, height=800)
 grid.arrange(JBMP_north_plot, JBMP_centre_plot, JBMP_south_plot, ncol = 1)
 dev.off()
 
-
 ## Step 5: Upload to CKAN
-ckanr::resource_update(pdf_rid, pdf_fn)
+ckanr::resource_update(png_JBMP_overall_percentcover_rid, png_JBMP_overall_percentcover_fn)
+ckanr::resource_update(png_JBMP_percentcover_rid, png_JBMP_percentcover_fn)
 ckanr::resource_update(txt_rid, "percent_cover_code.R")
-
-# Step 6: set workdir to main report location
-setwd("~/projects")
