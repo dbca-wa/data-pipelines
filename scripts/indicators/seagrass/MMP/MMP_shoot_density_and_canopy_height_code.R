@@ -1,11 +1,10 @@
 setwd("~/projects/data-pipelines/scripts/indicators/seagrass/MMP")
 source("~/projects/data-pipelines/setup/ckan.R")
 
-library(ggplot2)
-#install.packages("gridExtra")
 library(gridExtra)
-library(plyr)
-
+library(ggplot2)
+library (plyr)
+library(Kendall)
 
 ######################################################################################################
 #Define all CKAN resource IDs
@@ -30,10 +29,7 @@ png_MMP_height_fn = "MMP overall height.png"#Name of final figure
 #Load data
 ###################################################################################################
 
-d <- load_ckan_csv(csv_rid, date_colnames = c('date', 'Date'))
-names(d)[names(d) == 'Park_name'] <- 'Park'###Changes column name
-names(d)[names(d) == 'Sites'] <- 'Site'###Changes column name
-
+d <- load_ckan_csv(csv_rid)
 
 ####################################################################################################
 #Define graphic properties
@@ -58,20 +54,28 @@ graphics = theme(axis.text.x=element_text(angle=45, hjust=0.9), #rotates the x a
 ##################################################################################
 
 MMP = subset(d, Park %in% c("MMP"))
-MMP_south = subset(d, Site_name %in% c("North Beach", "Sorrento"))
-MMP_centre = subset(d, Site_name %in% c("Hillarys Channel" , "Wreck Rock", "Mullaloo"))
-MMP_north = subset(d, Site_name %in% c("Ocean Reef Outer", "Ocean Reef Inner", "Burns Rocks"))
+MMP_south = subset(d, Site %in% c("North Beach", "Sorrento"))
+MMP_centre = subset(d, Site %in% c("Hillarys Channel" , "Wreck Rock", "Mullaloo"))
+MMP_north = subset(d, Site %in% c("Ocean Reef Outer", "Ocean Reef Inner", "Burns Rocks"))
 
 ####################################################################################
 #SHOOT DENSITY
 ####################################################################################
 
+make_density <- function(df){
+  df %>%
+    group_by(Year) %>%
+    dplyr::summarise(
+      N    = length(!is.na(Posidonia_sinuosa)),
+      mean = mean(Posidonia_sinuosa, na.rm = TRUE),
+      sd   = sd(Posidonia_sinuosa, na.rm = TRUE),
+      se   = sd(Posidonia_sinuosa, na.rm = TRUE) / sqrt(N)
+    )
+}
+
 #OverallShoot density
-MMP_shootdensity <- plyr::ddply(MMP, .(Year), summarise,
-                                      N    = length(!is.na(Posidonia_sinuosa)),
-                                      mean = mean(Posidonia_sinuosa, na.rm=TRUE),
-                                      sd   = sd(Posidonia_sinuosa, na.rm=TRUE),
-                                      se   = sd(Posidonia_sinuosa, na.rm=TRUE) / sqrt(length(!is.na(Posidonia_sinuosa)) ))
+
+MMP_shootdensity <- make_density(MMP)
 
 MMP_shootdensity_plot <- ggplot(MMP_shootdensity, aes(x=Year, y=mean)) +
   geom_errorbar(aes(ymin=mean-se, ymax=mean+se), width=.02, colour="black", position=pd) +
@@ -79,39 +83,33 @@ MMP_shootdensity_plot <- ggplot(MMP_shootdensity, aes(x=Year, y=mean)) +
   scale_x_continuous(limits=c(min(MMP_shootdensity$Year-0.125), max(MMP_shootdensity$Year+0.125)), breaks=min(MMP_shootdensity$Year):max(MMP_shootdensity$Year)) +
   scale_y_continuous(limits=c(min(0), max(25)))+
   xlab("Year") +
-  ylab(expression(paste("Mean density (","0.04m"^-2,")", sep = ""))) +
+  ylab(expression(paste("Mean (±SE) density (","0.04m"^-2,")", sep = ""))) +
   #ggtitle("All MMP")+
   theme_bw() + graphics
 
 MMP_shootdensity_plot
 
+##############################################################
+#MMP_north Shoot density
 
-#MMP_south Shoot density
-MMP_south_shootdensity <- plyr::ddply(MMP_south, .(Year), summarise,
-               N    = length(!is.na(Posidonia_sinuosa)),
-               mean = mean(Posidonia_sinuosa, na.rm=TRUE),
-               sd   = sd(Posidonia_sinuosa, na.rm=TRUE),
-               se   = sd(Posidonia_sinuosa, na.rm=TRUE) / sqrt(length(!is.na(Posidonia_sinuosa)) ))
+MMP_north_shootdensity <- make_density(MMP_north)
 
-MMP_south_shootdensity_plot <- ggplot(MMP_south_shootdensity, aes(x=Year, y=mean)) +
+MMP_north_shootdensity_plot <- ggplot(MMP_north_shootdensity, aes(x=Year, y=mean)) +
   geom_errorbar(aes(ymin=mean-se, ymax=mean+se), width=.02, colour="black", position=pd) +
   geom_point(position=pd, size=3, fill="black") + # 21 is filled circle
-  scale_x_continuous(limits=c(min(MMP_south_shootdensity$Year-0.125), max(MMP_south_shootdensity$Year+0.125)), breaks=min(MMP_south_shootdensity$Year):max(MMP_south_shootdensity$Year)) +
+  scale_x_continuous(limits=c(min(MMP_north_shootdensity$Year-0.125), max(MMP_north_shootdensity$Year+0.125)), breaks=min(MMP_north_shootdensity$Year):max(MMP_north_shootdensity$Year)) +
   scale_y_continuous(limits=c(min(0), max(25)))+
   xlab("Year") +
-  ylab(expression(paste("Mean density (","0.04m"^-2,")", sep = ""))) +
-  ggtitle("a) South")+
+  ylab(expression(paste("Mean (±SE) density (","0.04m"^-2,")", sep = ""))) +
+  ggtitle("a) North")+
   theme_bw() + graphics
 
-MMP_south_shootdensity_plot
+MMP_north_shootdensity_plot
 
 #############################################################
 #MMP_centre shoot density
-MMP_centre_shootdensity <- ddply(MMP_centre, .(Year), summarise,
-             N    = length(!is.na(Posidonia_sinuosa)),
-             mean = mean(Posidonia_sinuosa, na.rm=TRUE),
-             sd   = sd(Posidonia_sinuosa, na.rm=TRUE),
-             se   = sd(Posidonia_sinuosa, na.rm=TRUE) / sqrt(length(!is.na(Posidonia_sinuosa)) ))
+
+MMP_centre_shootdensity <- make_density(MMP_centre)
 
 MMP_centre_shootdensity_plot<-ggplot(MMP_centre_shootdensity, aes(x=Year, y=mean)) +
   geom_errorbar(aes(ymin=mean-se, ymax=mean+se), width=.02, colour="black", position=pd) +
@@ -119,43 +117,48 @@ MMP_centre_shootdensity_plot<-ggplot(MMP_centre_shootdensity, aes(x=Year, y=mean
   scale_x_continuous(limits=c(min(MMP_centre_shootdensity$Year-0.125), max(MMP_centre_shootdensity$Year+0.125)), breaks=min(MMP_centre_shootdensity$Year):max(MMP_centre_shootdensity$Year)) +
   scale_y_continuous(limits=c(min(0), max(25)))+
   xlab("Year") +
-  ylab(expression(paste("Mean density (","0.04m"^-2,")", sep = ""))) +
+  ylab(expression(paste("Mean (±SE) density (","0.04m"^-2,")", sep = ""))) +
   ggtitle("b) Centre")+
   theme_bw() + graphics
 
 MMP_centre_shootdensity_plot
 
 #################################################################
-#MMP_north shoot density
-MMP_north_shootdensity <- ddply(MMP_north, .(Year), summarise,
-             N    = length(!is.na(Posidonia_sinuosa)),
-             mean = mean(Posidonia_sinuosa, na.rm=TRUE),
-             sd   = sd(Posidonia_sinuosa, na.rm=TRUE),
-             se   = sd(Posidonia_sinuosa, na.rm=TRUE) / sqrt(length(!is.na(Posidonia_sinuosa)) ))
+#MMP_south shoot density
 
-MMP_north_shootdensity_plot<-ggplot(MMP_north_shootdensity, aes(x=Year, y=mean)) +
+MMP_south_shootdensity <- make_density(MMP_south)
+
+MMP_south_shootdensity_plot<-ggplot(MMP_south_shootdensity, aes(x=Year, y=mean)) +
   geom_errorbar(aes(ymin=mean-se, ymax=mean+se), width=.02, colour="black", position=pd) +
   geom_point(position=pd, size=3, fill="black") + # 21 is filled circle
-  scale_x_continuous(limits=c(min(MMP_north_shootdensity$Year-0.125), max(MMP_north_shootdensity$Year+0.125)), breaks=min(MMP_north_shootdensity$Year):max(MMP_north_shootdensity$Year)) +
+  scale_x_continuous(limits=c(min(MMP_south_shootdensity$Year-0.125), max(MMP_south_shootdensity$Year+0.125)), breaks=min(MMP_south_shootdensity$Year):max(MMP_south_shootdensity$Year)) +
   scale_y_continuous(limits=c(min(0), max(25)))+
   xlab("Year") +
-  ylab(expression(paste("Mean density (","0.04m"^-2,")", sep = ""))) +
-  ggtitle("c) North")+
+  ylab(expression(paste("Mean (±SE) density (","0.04m"^-2,")", sep = ""))) +
+  ggtitle("c) South")+
   theme_bw() + graphics
 
-MMP_north_shootdensity_plot
-
+MMP_south_shootdensity_plot
 
 ####################################################################################
 #MAXIMUM CANOPY HEIGHT
 ####################################################################################
 
+make_maxheight <- function(df){
+  df %>%
+    group_by(Year) %>%
+    dplyr::summarise(
+      N    = length(!is.na(Maximum_height_mm)),
+      mean = mean(Maximum_height_mm, na.rm = TRUE),
+      sd   = sd(Maximum_height_mm, na.rm = TRUE),
+      se   = sd(Maximum_height_mm, na.rm = TRUE) / sqrt(N)
+    )
+}
+
+###########################################################
 #Overall maximum canopy height density
-MMP_maxheight <- plyr::ddply(MMP, .(Year), summarise,
-                                N    = length(!is.na(Maximum_height_mm)),
-                                mean = mean(Maximum_height_mm, na.rm=TRUE),
-                                sd   = sd(Maximum_height_mm, na.rm=TRUE),
-                                se   = sd(Maximum_height_mm, na.rm=TRUE) / sqrt(length(!is.na(Maximum_height_mm)) ))
+
+MMP_maxheight <- make_maxheight(MMP)
 
 MMP_maxheight_plot <- ggplot(MMP_maxheight, aes(x=Year, y=mean)) +
   geom_errorbar(aes(ymin=mean-se, ymax=mean+se), width=.02, colour="black", position=pd) +
@@ -163,18 +166,16 @@ MMP_maxheight_plot <- ggplot(MMP_maxheight, aes(x=Year, y=mean)) +
   scale_x_continuous(limits=c(min(MMP_maxheight$Year-0.125), max(MMP_maxheight$Year+0.125)), breaks=min(MMP_maxheight$Year):max(MMP_maxheight$Year)) +
   scale_y_continuous(limits=c(min(0), max(1000)))+
   xlab("Year") +
-  ylab(expression(paste("Mean max height (mm)", sep = ""))) +
+  ylab(expression(paste("Mean (±SE) max. height (mm)", sep = ""))) +
   #ggtitle("All MMP")+
   theme_bw() + graphics
 
 MMP_maxheight_plot
 
+#########################################################
 #MMP_south max canopy height
-MMP_south_maxheight <- plyr::ddply(MMP_south, .(Year), summarise,
-                                      N    = length(!is.na(Maximum_height_mm)),
-                                      mean = mean(Maximum_height_mm, na.rm=TRUE),
-                                      sd   = sd(Maximum_height_mm, na.rm=TRUE),
-                                      se   = sd(Maximum_height_mm, na.rm=TRUE) / sqrt(length(!is.na(Maximum_height_mm)) ))
+
+MMP_south_maxheight <- make_density(MMP_south)
 
 MMP_south_maxheight_plot <- ggplot(MMP_south_maxheight, aes(x=Year, y=mean)) +
   geom_errorbar(aes(ymin=mean-se, ymax=mean+se), width=.02, colour="black", position=pd) +
@@ -182,19 +183,16 @@ MMP_south_maxheight_plot <- ggplot(MMP_south_maxheight, aes(x=Year, y=mean)) +
   scale_x_continuous(limits=c(min(MMP_south_maxheight$Year-0.125), max(MMP_south_maxheight$Year+0.125)), breaks=min(MMP_south_maxheight$Year):max(MMP_south_maxheight$Year)) +
   scale_y_continuous(limits=c(min(0), max(1000)))+
   xlab("Year") +
-  ylab(expression(paste("Mean max height (mm)", sep = ""))) +
-  ggtitle("a) South")+
+  ylab(expression(paste("Mean (±SE) max. height (mm)", sep = ""))) +
+  ggtitle("c) South")+
   theme_bw() + graphics
 
 MMP_south_maxheight_plot
 
 #############################################################
 #MMP_centre maximum canopy height
-MMP_centre_maxheight <- ddply(MMP_centre, .(Year), summarise,
-                                 N    = length(!is.na(Maximum_height_mm)),
-                                 mean = mean(Maximum_height_mm, na.rm=TRUE),
-                                 sd   = sd(Maximum_height_mm, na.rm=TRUE),
-                                 se   = sd(Maximum_height_mm, na.rm=TRUE) / sqrt(length(!is.na(Maximum_height_mm)) ))
+
+MMP_centre_maxheight <- make_maxheight(MMP_centre)
 
 MMP_centre_maxheight_plot <- ggplot(MMP_centre_maxheight, aes(x=Year, y=mean)) +
   geom_errorbar(aes(ymin=mean-se, ymax=mean+se), width=.02, colour="black", position=pd) +
@@ -202,19 +200,16 @@ MMP_centre_maxheight_plot <- ggplot(MMP_centre_maxheight, aes(x=Year, y=mean)) +
   scale_x_continuous(limits=c(min(MMP_centre_maxheight$Year-0.125), max(MMP_centre_maxheight$Year+0.125)), breaks=min(MMP_centre_maxheight$Year):max(MMP_centre_maxheight$Year)) +
   scale_y_continuous(limits=c(min(0), max(1000)))+
   xlab("Year") +
-  ylab(expression(paste("Mean max height (mm)", sep = ""))) +
-  ggtitle("a) Centre")+
+  ylab(expression(paste("Mean (±SE) max. height (mm)", sep = ""))) +
+  ggtitle("b) Centre")+
   theme_bw() + graphics
 
 MMP_centre_maxheight_plot
 
 #################################################################
 #MMP_north maximum canopy height
-MMP_north_maxheight <- ddply(MMP_north, .(Year), summarise,
-                                N    = length(!is.na(Maximum_height_mm)),
-                                mean = mean(Maximum_height_mm, na.rm=TRUE),
-                                sd   = sd(Maximum_height_mm, na.rm=TRUE),
-                                se   = sd(Maximum_height_mm, na.rm=TRUE) / sqrt(length(!is.na(Maximum_height_mm)) ))
+
+MMP_north_maxheight <- make_maxheight(MMP_north)
 
 MMP_north_maxheight_plot <- ggplot(MMP_north_maxheight, aes(x=Year, y=mean)) +
   geom_errorbar(aes(ymin=mean-se, ymax=mean+se), width=.02, colour="black", position=pd) +
@@ -222,8 +217,8 @@ MMP_north_maxheight_plot <- ggplot(MMP_north_maxheight, aes(x=Year, y=mean)) +
   scale_x_continuous(limits=c(min(MMP_north_maxheight$Year-0.125), max(MMP_north_maxheight$Year+0.125)), breaks=min(MMP_north_maxheight$Year):max(MMP_north_maxheight$Year)) +
   scale_y_continuous(limits=c(min(0), max(1000)))+
   xlab("Year") +
-  ylab(expression(paste("Mean max height (mm)", sep = ""))) +
-  ggtitle("a) North")+
+  ylab(expression(paste("Mean (±SE) max. height (mm)", sep = ""))) +
+  ggtitle("c) North")+
   theme_bw() + graphics
 
 MMP_north_maxheight_plot
@@ -233,12 +228,20 @@ MMP_north_maxheight_plot
 #MEAN CANOPY HEIGHT
 ####################################################################################
 
+make_meanheight <- function(df){
+  df %>%
+    group_by(Year) %>%
+    dplyr::summarise(
+      N    = length(!is.na(Mean_height_mm)),
+      mean = mean(Mean_height_mm, na.rm = TRUE),
+      sd   = sd(Mean_height_mm, na.rm = TRUE),
+      se   = sd(Mean_height_mm, na.rm = TRUE) / sqrt(N)
+    )
+}
+
 #Overall mean canopy height density
-MMP_meanheight <- plyr::ddply(MMP, .(Year), summarise,
-                             N    = length(!is.na(Mean_height_mm)),
-                             mean = mean(Mean_height_mm, na.rm=TRUE),
-                             sd   = sd(Mean_height_mm, na.rm=TRUE),
-                             se   = sd(Mean_height_mm, na.rm=TRUE) / sqrt(length(!is.na(Mean_height_mm)) ))
+
+MMP_meanheight <- make_meanheight(MMP)
 
 MMP_meanheight_plot <- ggplot(MMP_meanheight, aes(x=Year, y=mean)) +
   geom_errorbar(aes(ymin=mean-se, ymax=mean+se), width=.02, colour="black", position=pd) +
@@ -246,18 +249,16 @@ MMP_meanheight_plot <- ggplot(MMP_meanheight, aes(x=Year, y=mean)) +
   scale_x_continuous(limits=c(min(MMP_meanheight$Year-0.125), max(MMP_meanheight$Year+0.125)), breaks=min(MMP_meanheight$Year):max(MMP_meanheight$Year)) +
   scale_y_continuous(limits=c(min(0), max(1000)))+
   xlab("Year") +
-  ylab(expression(paste("Mean height (mm)", sep = ""))) +
+  ylab(expression(paste("Mean (±SE) 80th percentile height (mm)", sep = ""))) +
   #ggtitle("All MMP")+
   theme_bw() + graphics
 
 MMP_meanheight_plot
 
+###################################################################
 #MMP_south mean canopy height
-MMP_south_meanheight <- plyr::ddply(MMP_south, .(Year), summarise,
-                                   N    = length(!is.na(Mean_height_mm)),
-                                   mean = mean(Mean_height_mm, na.rm=TRUE),
-                                   sd   = sd(Mean_height_mm, na.rm=TRUE),
-                                   se   = sd(Mean_height_mm, na.rm=TRUE) / sqrt(length(!is.na(Mean_height_mm)) ))
+
+MMP_south_meanheight <- make_meanheight(MMP_south)
 
 MMP_south_meanheight_plot <- ggplot(MMP_south_meanheight, aes(x=Year, y=mean)) +
   geom_errorbar(aes(ymin=mean-se, ymax=mean+se), width=.02, colour="black", position=pd) +
@@ -265,19 +266,16 @@ MMP_south_meanheight_plot <- ggplot(MMP_south_meanheight, aes(x=Year, y=mean)) +
   scale_x_continuous(limits=c(min(MMP_south_meanheight$Year-0.125), max(MMP_south_meanheight$Year+0.125)), breaks=min(MMP_south_meanheight$Year):max(MMP_south_meanheight$Year)) +
   scale_y_continuous(limits=c(min(0), max(1000)))+
   xlab("Year") +
-  ylab(expression(paste("Mean height (mm)", sep = ""))) +
-  ggtitle("a) South")+
+  ylab(expression(paste("Mean (±SE) 80th percentile height (mm)", sep = ""))) +
+  # ggtitle("c) South")+
   theme_bw() + graphics
 
 MMP_south_meanheight_plot
 
 #############################################################
 #MMP_centre mean canopy height
-MMP_centre_meanheight <- ddply(MMP_centre, .(Year), summarise,
-                              N    = length(!is.na(Mean_height_mm)),
-                              mean = mean(Mean_height_mm, na.rm=TRUE),
-                              sd   = sd(Mean_height_mm, na.rm=TRUE),
-                              se   = sd(Mean_height_mm, na.rm=TRUE) / sqrt(length(!is.na(Mean_height_mm)) ))
+
+MMP_centre_meanheight <- make_meanheight(MMP_centre)
 
 MMP_centre_meanheight_plot <- ggplot(MMP_centre_meanheight, aes(x=Year, y=mean)) +
   geom_errorbar(aes(ymin=mean-se, ymax=mean+se), width=.02, colour="black", position=pd) +
@@ -285,19 +283,16 @@ MMP_centre_meanheight_plot <- ggplot(MMP_centre_meanheight, aes(x=Year, y=mean))
   scale_x_continuous(limits=c(min(MMP_centre_meanheight$Year-0.125), max(MMP_centre_meanheight$Year+0.125)), breaks=min(MMP_centre_meanheight$Year):max(MMP_centre_meanheight$Year)) +
   scale_y_continuous(limits=c(min(0), max(1000)))+
   xlab("Year") +
-  ylab(expression(paste("Mean height (mm)", sep = ""))) +
-  ggtitle("a) Centre")+
+  ylab(expression(paste("Mean (±SE) 80th percentile height (mm)", sep = ""))) +
+  # ggtitle("b) Centre")+
   theme_bw() + graphics
 
 MMP_centre_meanheight_plot
 
 #################################################################
 #MMP_north mean canopy height
-MMP_north_meanheight <- ddply(MMP_north, .(Year), summarise,
-                             N    = length(!is.na(Mean_height_mm)),
-                             mean = mean(Mean_height_mm, na.rm=TRUE),
-                             sd   = sd(Mean_height_mm, na.rm=TRUE),
-                             se   = sd(Mean_height_mm, na.rm=TRUE) / sqrt(length(!is.na(Mean_height_mm)) ))
+
+MMP_north_meanheight <- make_meanheight(MMP_north)
 
 MMP_north_meanheight_plot <- ggplot(MMP_north_meanheight, aes(x=Year, y=mean)) +
   geom_errorbar(aes(ymin=mean-se, ymax=mean+se), width=.02, colour="black", position=pd) +
@@ -305,8 +300,8 @@ MMP_north_meanheight_plot <- ggplot(MMP_north_meanheight, aes(x=Year, y=mean)) +
   scale_x_continuous(limits=c(min(MMP_north_meanheight$Year-0.125), max(MMP_north_meanheight$Year+0.125)), breaks=min(MMP_north_meanheight$Year):max(MMP_north_meanheight$Year)) +
   scale_y_continuous(limits=c(min(0), max(1000)))+
   xlab("Year") +
-  ylab(expression(paste("Mean height (mm)", sep = ""))) +
-  ggtitle("a) North")+
+  ylab(expression(paste("Mean (±SE) 80th percentile height (mm)", sep = ""))) +
+  # ggtitle("a) North")+
   theme_bw() + graphics
 
 MMP_north_meanheight_plot
@@ -322,7 +317,7 @@ grid.arrange(MMP_shootdensity_plot)
 dev.off()
 
 png(png_shoot_density_fn, width=500, height=700)
-grid.arrange(MMP_south_shootdensity_plot, MMP_centre_shootdensity_plot, MMP_north_shootdensity_plot, ncol=1)
+grid.arrange(MMP_north_shootdensity_plot, MMP_centre_shootdensity_plot, MMP_south_shootdensity_plot, ncol=1)
 dev.off()
 
 #Maximum canopy height

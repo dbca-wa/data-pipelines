@@ -88,7 +88,7 @@ make_cover <- function(df){
     )
 }
 
-
+#overall
 SIMP_cover <- make_cover(SIMP_SG)
 
 SIMP_percentcover_plot <- ggplot(SIMP_cover, aes(x=Year, y=mean)) +
