@@ -77,21 +77,28 @@ SIMP_north = subset(SIMP_SG, Site %in% c("Causeway"))
 #PERCENT COVER
 ####################################################################################
 
-SIMP_percentcover <- plyr::ddply(SIMP_SG, .(Year), summarise,
-                     N    = length(!is.na(percent)),
-                     mean = mean(percent, na.rm=TRUE),
-                     sd   = sd(percent, na.rm=TRUE),
-                     se   = sd(percent, na.rm=TRUE) / sqrt(length(!is.na(percent)) ))
+make_cover <- function(df){
+  df %>%
+    group_by(Year) %>%
+    dplyr::summarise(
+      N    = length(!is.na(percent)),
+      mean = mean(percent, na.rm = TRUE),
+      sd   = sd(percent, na.rm = TRUE),
+      se   = sd(percent, na.rm = TRUE) / sqrt(N)
+    )
+}
 
-SIMP_percentcover_plot <- ggplot(SIMP_percentcover, aes(x=Year, y=mean)) +
+
+SIMP_cover <- make_cover(SIMP_SG)
+
+SIMP_percentcover_plot <- ggplot(SIMP_cover, aes(x=Year, y=mean)) +
   geom_errorbar(aes(ymin=mean-se, ymax=mean+se), width=.02, colour="black", position=pd) +
   # geom_line(position=pd) +
   geom_point(position=pd, size=3, fill="black") + # 21 is filled circle
-  scale_x_continuous(limits=c(min(SIMP_percentcover$Year-0.125), max(SIMP_percentcover$Year+0.125)), breaks=min(SIMP_percentcover$Year):max(SIMP_percentcover$Year)) +
+  scale_x_continuous (breaks = seq(2012,2017,1), limits=c(min(2012), max(SIMP_cover$Year+0.125))) +
   scale_y_continuous(limits=c(min(0), max(100)))+
   xlab("Year") +
   ylab(expression(paste("Mean (±SE) canopy cover", sep = ""))) +
-  # ggtitle("a) Vecher Point")+
   # geom_smooth(method=lm, colour = 1, linetype = 3, se=FALSE, fullrange=TRUE)+
   theme_bw() + graphics
 
@@ -102,13 +109,9 @@ MannKendall(mean)
 detach(SIMP_percentcover)
 
 ############################################################################################
-#SIMP_south Shoot density
+#SIMP_south cover
 
-SIMP_south_percentcover <- plyr::ddply(SIMP_south, .(Year), summarise,
-                     N    = length(!is.na(percent)),
-                     mean = mean(percent, na.rm=TRUE),
-                     sd   = sd(percent, na.rm=TRUE),
-                     se   = sd(percent, na.rm=TRUE) / sqrt(length(!is.na(percent)) ))
+SIMP_south_percentcover <- make_cover(SIMP_south)
 
 SIMP_south_percentcover_plot <- ggplot(SIMP_south_percentcover, aes(x=Year, y=mean)) +
   geom_errorbar(aes(ymin=mean-se, ymax=mean+se), width=.02, colour="black", position=pd) +
@@ -131,11 +134,7 @@ detach(SIMP_south_percentcover)
 ################################################################################
 #Warnbro Sound percent cover
 
-SIMP_warnbro_percentcover <- plyr::ddply(SIMP_warnbro, .(Year), summarise,
-                   N    = length(!is.na(percent)),
-                   mean = mean(percent, na.rm=TRUE),
-                   sd   = sd(percent, na.rm=TRUE),
-                   se   = sd(percent, na.rm=TRUE) / sqrt(length(!is.na(percent)) ))
+SIMP_warnbro_percentcover <- make_cover(SIMP_warnbro)
 
 SIMP_warnbro_percentcover_plot<-ggplot(SIMP_warnbro_percentcover, aes(x=Year, y=mean)) +
   geom_errorbar(aes(ymin=mean-se, ymax=mean+se), width=.02, colour="black", position=pd) +
@@ -158,11 +157,7 @@ detach(SIMP_warnbro_percentcover)
 ####################################################################################
 #SIMP_shoalwater Bay percent cover
 
-SIMP_shoalwater_percentcover <- plyr::ddply(SIMP_shoalwater, .(Year), summarise,
-                           N    = length(!is.na(percent)),
-                           mean = mean(percent, na.rm=TRUE),
-                           sd   = sd(percent, na.rm=TRUE),
-                           se   = sd(percent, na.rm=TRUE) / sqrt(length(!is.na(percent)) ))
+SIMP_shoalwater_percentcover <- make_cover(SIMP_shoalwater)
 
 SIMP_shoalwater_percentcover_plot <- ggplot(SIMP_shoalwater_percentcover, aes(x=Year, y=mean)) +
   geom_errorbar(aes(ymin=mean-se, ymax=mean+se), width=.02, colour="black", position=pd) +
@@ -185,11 +180,7 @@ detach(SIMP_shoalwater_percentcover)
 ########################################################################################
 #SIMP_north percent cover
 
-SIMP_north_percentcover <- plyr::ddply(SIMP_north, .(Year), summarise,
-                           N    = length(!is.na(percent)),
-                           mean = mean(percent, na.rm=TRUE),
-                           sd   = sd(percent, na.rm=TRUE),
-                           se   = sd(percent, na.rm=TRUE) / sqrt(length(!is.na(percent)) ))
+SIMP_north_percentcover <- make_cover(SIMP_north)
 
 SIMP_north_percentcover_plot<-ggplot(SIMP_north_percentcover, aes(x=Year, y=mean)) +
   geom_errorbar(aes(ymin=mean-se, ymax=mean+se), width=.02, colour="black", position=pd) +
