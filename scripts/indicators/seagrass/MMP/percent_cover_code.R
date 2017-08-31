@@ -194,6 +194,6 @@ dev.off()
 #Upload figures and script back to CKAN
 #####################################################################################
 
-# ckanr::resource_update(png_SIMP_overallpercentcover_rid, png_SIMP_overallpercentcover_fn)
-# ckanr::resource_update(png_SIMP_percentcover_rid, png_SIMP_percentcover_fn)
-# ckanr::resource_update(txt_rid, "percent_cover_code.R")
+ckanr::resource_update(png_MMP_overallpercentcover_rid, png_MMP_overallpercentcover_fn)
+ckanr::resource_update(png_MMP_percentcover_rid, png_MMP_percentcover_fn)
+ckanr::resource_update(txt_rid, "percent_cover_code.R")
