@@ -211,7 +211,8 @@ SIMP_height_plot <- ggplot(SIMP_height, aes(x=Year, y=mean)) +
                    "maximum height (mm)"))) +
   # geom_smooth(method=lm, colour = 1, linetype = 3, se=FALSE, fullrange=FALSE)+
   ggtitle("a) Maximum canopy height") +
-    theme(strip.text = element_text(size=12)) + graphics
+    theme(strip.text = element_text(size=12)) + graphics+
+  theme(axis.title.x=element_blank())
 
 SIMP_height_plot
 
@@ -460,8 +461,8 @@ grid.arrange(SIMP_north_shootdensity_plot, SIMP_shoalwater_shootdensity_plot, SI
 dev.off()
 
 #Canopy height
-png(png_height_fn, width=1000, height=300)
-grid.arrange(SIMP_height_plot, SIMP_height_plot1, ncol = 2)
+png(png_height_fn, width=500, height=600)
+grid.arrange(SIMP_height_plot, SIMP_height_plot1, ncol = 1)
 dev.off()
 
 png(png_SIMP_height_fn, width=1000, height=900)

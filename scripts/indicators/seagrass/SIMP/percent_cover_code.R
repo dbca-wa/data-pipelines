@@ -170,7 +170,8 @@ SIMP_shoalwater_percentcover_plot <- ggplot(SIMP_shoalwater_percentcover, aes(x=
   ylab(expression(paste("Mean (±SE) canopy cover", sep = ""))) +
   # geom_smooth(method=lm, colour = 1, linetype = 3, se=FALSE, fullrange=TRUE)+
   ggtitle("b) Shoalwater Bay")+
-  theme_bw() + graphics
+  theme_bw() + graphics+
+  theme(axis.title.x=element_blank())
 
 SIMP_shoalwater_percentcover_plot
 
@@ -193,7 +194,8 @@ SIMP_north_percentcover_plot<-ggplot(SIMP_north_percentcover, aes(x=Year, y=mean
   ylab(expression(paste("Mean (±SE) canopy cover", sep = ""))) +
   ggtitle("a) Point Peron")+
   # geom_smooth(method=lm, colour = 1, linetype = 3, se=FALSE, fullrange=TRUE)+
-  theme_bw() + graphics
+  theme_bw() + graphics+
+  theme(axis.title.x=element_blank())
 
 SIMP_north_percentcover_plot
 
