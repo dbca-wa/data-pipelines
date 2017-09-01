@@ -36,11 +36,12 @@ d <- load_ckan_csv(csv_rid)
 #####################################################################################################
 
 pd <- position_dodge(0.1)
-graphics = theme(axis.text.x=element_text(angle=45, hjust=0.9), #rotates the x axis tick labels an angle of 45 degrees
-                 axis.title.x=element_text(), #removes x axis title
-                 axis.title.y=element_text(), #removes y axis title
+graphics = theme(axis.text.x=element_text(size = 12, angle=45, hjust=0.9), #rotates the x axis tick labels an angle of 45 degrees
+                 axis.title.x=element_text(size=15,face="bold"),
+                 axis.title.y=element_text(size=15,face="bold"), #removes y axis title
+                 axis.text.y=element_text(size = 12),
                  axis.line=element_line(colour="black"), #sets axis lines
-                 plot.title =element_text(hjust = 0.05),
+                 plot.title =element_text(size = 15, hjust = 0.05),
                  panel.grid.minor = element_blank(), #removes minor grid lines
                  panel.grid.major = element_blank(), #removes major grid lines
                  panel.border=element_blank(), #removes border
@@ -316,7 +317,7 @@ png(png_MMP_shoot_density_fn, width=500, height=300)
 grid.arrange(MMP_shootdensity_plot)
 dev.off()
 
-png(png_shoot_density_fn, width=500, height=700)
+png(png_shoot_density_fn, width=500, height=900)
 grid.arrange(MMP_north_shootdensity_plot, MMP_centre_shootdensity_plot, MMP_south_shootdensity_plot, ncol=1)
 dev.off()
 
@@ -325,7 +326,7 @@ png(png_MMP_height_fn, width=500, height=600)
 grid.arrange(MMP_maxheight_plot, MMP_meanheight_plot, ncol=1)
 dev.off()
 
-png(png_height_fn, width=1000, height=800)
+png(png_height_fn, width=1000, height=900)
 grid.arrange(MMP_north_maxheight_plot, MMP_north_meanheight_plot, MMP_centre_maxheight_plot, MMP_centre_meanheight_plot, MMP_south_maxheight_plot, MMP_south_meanheight_plot, ncol=2)
 dev.off()
 

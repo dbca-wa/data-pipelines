@@ -31,19 +31,20 @@ names(d)[names(d) == 'Region'] <- 'Park'###Changes column name
 #####################################################################################################
 
 pd <- position_dodge(0.1)
-graphics = theme(axis.text.x=element_text(angle=45, hjust=0.9), #rotates the x axis tick labels an angle of 45 degrees
-                 axis.title.x=element_text(), #removes x axis title
-                 axis.title.y=element_text(), #removes y axis title
+graphics = theme(axis.text.x=element_text(size = 12, angle=45, hjust=0.9), #rotates the x axis tick labels an angle of 45 degrees
+                 axis.title.x=element_text(size=15,face="bold"),
+                 axis.title.y=element_text(size=15,face="bold"), #removes y axis title
+                 axis.text.y=element_text(size = 12),
                  axis.line=element_line(colour="black"), #sets axis lines
-                 plot.title =element_text(hjust = 0.05),
+                 plot.title =element_text(size = 15, hjust = 0.05),
                  panel.grid.minor = element_blank(), #removes minor grid lines
                  panel.grid.major = element_blank(), #removes major grid lines
                  panel.border=element_blank(), #removes border
                  panel.background=element_blank(), #needed to ensure integrity of axis lines
                  legend.justification=c(10,10), legend.position=c(10,10), # Positions legend (x,y) in this case removes it from the graph
                  legend.title = element_text(),
-                 legend.key = element_blank()
-)
+                 legend.key = element_blank())
+
 
 ##################################################################################
 #Percent cover calculations for all data
@@ -208,7 +209,7 @@ png(png_SIMP_overallpercentcover_fn, width=500, height=300)
 grid.arrange(SIMP_percentcover_plot)
 dev.off()
 
-png(png_SIMP_percentcover_fn, width=800, height=550)
+png(png_SIMP_percentcover_fn, width=1000, height=600)
 grid.arrange(SIMP_north_percentcover_plot, SIMP_shoalwater_percentcover_plot, SIMP_warnbro_percentcover_plot, SIMP_south_percentcover_plot, ncol=2)
 dev.off()
 

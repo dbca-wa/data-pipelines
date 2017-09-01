@@ -35,17 +35,17 @@ d <- load_ckan_csv(csv_rid)
 ################################################################################
 
 pd <- position_dodge(0.1)
-graphics = theme(axis.text.x=element_text(size = 15, angle=45, hjust=0.9),
-                 axis.title.x=element_text(size = 18), #removes x axis title
-                 axis.title.y=element_text(size = 18), #removes y axis title
-                 axis.text.y=element_text(size = 18),
+graphics = theme(axis.text.x=element_text(size = 12, angle=45, hjust=0.9), #rotates the x axis tick labels an angle of 45 degrees
+                 axis.title.x=element_text(size=15,face="bold"),
+                 axis.title.y=element_text(size=15,face="bold"), #removes y axis title
+                 axis.text.y=element_text(size = 12),
                  axis.line=element_line(colour="black"), #sets axis lines
-                 plot.title =element_text(size = 18, hjust = 0.05),
+                 plot.title =element_text(size = 15, hjust = 0.05),
                  panel.grid.minor = element_blank(), #removes minor grid lines
                  panel.grid.major = element_blank(), #removes major grid lines
                  panel.border=element_blank(), #removes border
                  panel.background=element_blank(), #needed to ensure integrity of axis lines
-                 legend.justification=c(10,10), legend.position=c(10,10),
+                 legend.justification=c(10,10), legend.position=c(10,10), # Positions legend (x,y) in this case removes it from the graph
                  legend.title = element_text(),
                  legend.key = element_blank())
 
@@ -134,7 +134,8 @@ JBMP_centre_shootdensity_plot <- ggplot(
   ylab(expression(paste("Mean (±SE) density (","0.04m"^-2,")", sep = ""))) +
   ggtitle("b) Centre")+
   geom_smooth(method=lm, colour = 1, se=TRUE, fullrange=TRUE)+
-  theme_bw() + graphics
+  theme_bw() + graphics+
+  theme(axis.title.x=element_blank())
 
 JBMP_centre_shootdensity_plot
 
@@ -156,7 +157,8 @@ JBMP_north_shootdensity_plot<-ggplot(JBMP_north_shootdensity, aes(x=Year, y=mean
   ylab(expression(paste("Mean (±SE) density (","0.04m"^-2,")", sep = ""))) +
   ggtitle("a) North")+
   # geom_smooth(method=loess, colour = 1, se=TRUE, fullrange=TRUE) +
-  theme_bw() + graphics
+  theme_bw() + graphics+
+  theme(axis.title.x=element_blank())
 
 JBMP_north_shootdensity_plot
 
@@ -193,7 +195,8 @@ JBMP_maxheight_plot <- ggplot(JBMP_maxheight, aes(x=Year, y=mean)) +
                    "maximum height (mm)"))) +
   ggtitle("a) Maximum canopy height")+
   # geom_smooth(method=lm, colour = 1, se=FALSE, fullrange=FALSE)+
-  theme_bw() + graphics
+  theme_bw() + graphics+
+  theme(axis.title.x=element_blank())
 
 JBMP_maxheight_plot
 
@@ -239,7 +242,8 @@ JBMP_centre_maxheight_plot<-ggplot(JBMP_centre_maxheight, aes(x=Year, y=mean)) +
                    "maximum height (mm)"))) +
   ggtitle("b) Centre")+
   # geom_smooth(method=lm, colour = 1, se=FALSE, fullrange=FALSE)+
-    theme_bw() + graphics
+    theme_bw() + graphics+
+  theme(axis.title.x=element_blank())
 
 JBMP_centre_maxheight_plot
 
@@ -262,7 +266,8 @@ JBMP_north_maxheight_plot <- ggplot(JBMP_north_maxheight, aes(x=Year, y=mean)) +
                 "maximum height (mm)"))) +
   ggtitle("a) North")+
   # geom_smooth(method=lm, colour = 1, se=FALSE, fullrange=FALSE)+
-  theme_bw() + graphics
+  theme_bw() + graphics+
+  theme(axis.title.x=element_blank())
 
 JBMP_north_maxheight_plot
 
@@ -345,7 +350,8 @@ JBMP_centre_meanheight_plot<-ggplot(JBMP_centre_meanheight, aes(x=Year, y=mean))
                    "80th percentile height (mm)"))) +
   # ggtitle("b) Centre")+
   geom_smooth(method=lm, colour = 1, se=TRUE, fullrange=TRUE)+
-  theme_bw() + graphics
+  theme_bw() + graphics+
+  theme(axis.title.x=element_blank())
 
 JBMP_centre_meanheight_plot
 
@@ -368,7 +374,8 @@ JBMP_north_meanheight_plot <- ggplot(JBMP_north_meanheight, aes(x=Year, y=mean))
                    "80th percentile height (mm)"))) +
   # ggtitle("a) North")+
   # geom_smooth(method=lm, colour = 1, se=FALSE, fullrange=TRUE)+
-  theme_bw() + graphics
+  theme_bw() + graphics+
+  theme(axis.title.x=element_blank())
 
 JBMP_north_meanheight_plot
 
@@ -386,7 +393,7 @@ png(png_shoot_density_fn, width=500, height=300)
 grid.arrange(JBMP_shootdensity_plot)
 dev.off()
 
-png(png_JBMP_shoot_density_fn, width=800, height=1000)
+png(png_JBMP_shoot_density_fn, width=500, height=900)
 grid.arrange(JBMP_north_shootdensity_plot,
              JBMP_centre_shootdensity_plot,
              JBMP_south_shootdensity_plot,
@@ -394,11 +401,11 @@ grid.arrange(JBMP_north_shootdensity_plot,
 dev.off()
 
 #Maximum canopy height
-png(png_JBMP_height_fn, width=600, height=600)
+png(png_JBMP_height_fn, width=500, height=600)
 grid.arrange(JBMP_maxheight_plot, JBMP_meanheight_plot, ncol = 1)
 dev.off()
 
-png(png_height_fn, width=1200, height=1000)
+png(png_height_fn, width=1000, height=900)
 grid.arrange(JBMP_north_maxheight_plot,
              JBMP_north_meanheight_plot,
              JBMP_centre_maxheight_plot,
