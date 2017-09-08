@@ -1,5 +1,4 @@
 setwd("~/projects/data-pipelines/scripts/indicators/macroalgae/JBMP")
-# source("~/projects/data-pipelines/setup/ckan.R")
 
 library(gridExtra)
 library(ggplot2)
@@ -9,15 +8,12 @@ library(Kendall)
 #Define all CKAN resource IDs
 ######################################################################################################
 
-csv_rid <- "619d13a7-5df5-46e3-8391-50a2390e8df2"
-txt_rid <- "a25672bd-15d8-4644-933f-3eaa9fe6b320"
+# csv_rid <- "619d13a7-5df5-46e3-8391-50a2390e8df2"
+# txt_rid <- "a25672bd-15d8-4644-933f-3eaa9fe6b320"
 
 #percent cover plots
 png_JBMP_canopycover_rid <- "f98ef2b7-2c97-4d7b-a0d7-10d3001a6db"
-png_JBMP_canopycover_fn <-"JBMP_canopycover_subset.png"
-png_JBMP_eckcover_rid <-"70afbaf6-33d5-4e4c-9b9b-933ca251d36"
-png_JBMP_eckcover_fn <-"JBMP_ecloniacover_subset.png"
-png_JBMP_scycover_fn <-"JBMP_scycover_subset.png"
+png_JBMP_diversity_fn <-"JBMP_diversity_subset.png"
 
 pd <- position_dodge(0.1)
 graphics = theme(axis.text.x=element_text(size = 12, angle=45, hjust=0.9), #rotates the x axis tick labels an angle of 45 degrees
@@ -38,50 +34,92 @@ graphics = theme(axis.text.x=element_text(size = 12, angle=45, hjust=0.9), #rota
 #Load data
 ###################################################################################################
 
-c<-Canopy
-c =c %>% dplyr::filter(Year %in% c("1999", "2000", "2003", "2004","2006","2009", "2011", "2013", "2016"))
-unique(canopy_deep$Depth)
-canopy_sites <- c %>% filter(Site %in% c("3","4","5","6","7","10","13","15","17","19","20","22","23"))#,"26","32","35","36","38","42"))
-eck_sites <- c %>% filter(Site %in% c("3","4","5","6","7","10","13","15","17","19","23"))#,"26","32","36","38","42"))
-canopy_shallow = canopy_sites %>% dplyr::filter(Depth %in% c("Shallow"))
-canopy_deep = canopy_sites %>% dplyr::filter(Depth %in% c("Deep"))
-eck_shallow = eck_sites %>% dplyr::filter(Depth %in% c("Shallow"))
-eck_deep = eck_sites %>% dplyr::filter(Depth %in% c("Deep"))
+d<-diversity
+names(diversity)[names(diversity) == 'SURVEY_DATE'] <- 'Year'###Changes column name
+
+shallow = d %>% dplyr::filter(Depth %in% c("Shallow"))
+deep = d %>% dplyr::filter(Depth %in% c("Deep"))
 
 ######################################################################################
 
-make_canopy <- function(df){
+make_diverse <- function(df){
   df %>%
     group_by(Year) %>%
     dplyr::summarise(
-      N    = length(!is.na(canopy)),
-      mean = mean(canopy, na.rm = TRUE),
-      sd   = sd(canopy, na.rm = TRUE),
-      se   = sd(canopy, na.rm = TRUE) / sqrt(N)
+      N    = length(!is.na(richness)),
+      mean = mean(richness, na.rm = TRUE),
+      sd   = sd(richness, na.rm = TRUE),
+      se   = sd(richness, na.rm = TRUE) / sqrt(N)
     )
 }
 
+
 ######################################################################################
 
-canopy <- make_canopy(canopy_sites)
-canopy
+diverse <- make_diverse(d)
 
-canopy_plot <- ggplot(canopy, aes(x=Year, y=mean)) +
+diverse_plot <- ggplot(diverse, aes(x=Year, y=mean)) +
   geom_errorbar(aes(ymin=mean-se, ymax=mean+se), width=.02, colour="black", position=pd) +
   geom_point(position=pd, size=3, fill="black") + # 21 is filled circle
   scale_x_continuous (breaks = seq(1998,2017,2), limits=c(min(1998),
-                                                          max(canopy$Year+0.125))) +
-  scale_y_continuous(limits=c(min(0), max(20)))+
+                                                          max(diverse$Year+0.125))) +
+  scale_y_continuous(limits=c(min(0), max(100)))+
   xlab("Year") +
-  ylab(expression(paste("Mean (±SE) cover", sep = ""))) +
-  ggtitle("a) Scytothalia_deep sites")+
+  ylab(expression(paste("Mean (±SE) diversity", sep = ""))) +
+  ggtitle("a) All sites")+
   # geom_smooth(method=lm, colour = 1, se=TRUE, fullrange=TRUE)+
   theme_bw() + graphics
-canopy_plot
+diverse_plot
 
-attach(canopy)
+attach(diverse)
 MannKendall(mean)
-detach(canopy)
+detach(diverse)
+
+######################################################################################
+
+shallow <- make_diverse(shallow)
+
+shallow_plot <- ggplot(shallow, aes(x=Year, y=mean)) +
+  geom_errorbar(aes(ymin=mean-se, ymax=mean+se), width=.02, colour="black", position=pd) +
+  geom_point(position=pd, size=3, fill="black") + # 21 is filled circle
+  scale_x_continuous (breaks = seq(1998,2017,2), limits=c(min(1998),
+                                                          max(shallow$Year+0.125))) +
+  scale_y_continuous(limits=c(min(0), max(100)))+
+  xlab("Year") +
+  ylab(expression(paste("Mean (±SE) diversity", sep = ""))) +
+  ggtitle("b) Shallow sites")+
+  # geom_smooth(method=lm, colour = 1, se=TRUE, fullrange=TRUE)+
+  theme_bw() + graphics
+shallow_plot
+
+attach(diverse)
+MannKendall(mean)
+detach(diverse)
+
+######################################################################################
+
+deep <- make_diverse(deep)
+
+deep_plot <- ggplot(deep, aes(x=Year, y=mean)) +
+  geom_errorbar(aes(ymin=mean-se, ymax=mean+se), width=.02, colour="black", position=pd) +
+  geom_point(position=pd, size=3, fill="black") + # 21 is filled circle
+  scale_x_continuous (breaks = seq(1998,2017,2), limits=c(min(1998),
+                                                          max(deep$Year+0.125))) +
+  scale_y_continuous(limits=c(min(0), max(100)))+
+  xlab("Year") +
+  ylab(expression(paste("Mean (±SE) diversity", sep = ""))) +
+  ggtitle("c) Deep sites")+
+  # geom_smooth(method=lm, colour = 1, se=TRUE, fullrange=TRUE)+
+  theme_bw() + graphics
+deep_plot
+
+attach(diverse)
+MannKendall(mean)
+detach(diverse)
+
+
+
+
 
 #######################################################################################
 canopyshallow <- make_canopy(canopy_shallow)
@@ -197,82 +235,6 @@ attach(eckdeep)
 MannKendall(mean)
 detach(eckdeep)
 
-######################################################################################
-
-make_scy <- function(df){
-  df %>%
-    group_by(Year) %>%
-    dplyr::summarise(
-      N    = length(!is.na(scytothalia)),
-      mean = mean(scytothalia, na.rm = TRUE),
-      sd   = sd(scytothalia, na.rm = TRUE),
-      se   = sd(scytothalia, na.rm = TRUE) / sqrt(N)
-    )
-}
-
-######################################################################################
-
-scy <- make_canopy(canopy_sites)
-
-scy_plot <- ggplot(scy, aes(x=Year, y=mean)) +
-  geom_errorbar(aes(ymin=mean-se, ymax=mean+se), width=.02, colour="black", position=pd) +
-  geom_point(position=pd, size=3, fill="black") + # 21 is filled circle
-  scale_x_continuous (breaks = seq(1998,2017,2), limits=c(min(1998),
-                                                          max(scy$Year+0.125))) +
-  scale_y_continuous(limits=c(min(0), max(20)))+
-  xlab("Year") +
-  ylab(expression(paste("Mean (±SE) cover", sep = ""))) +
-  ggtitle("a) Scytothalia_all sites")+
-  # geom_smooth(method=lm, colour = 1, se=TRUE, fullrange=TRUE)+
-  theme_bw() + graphics
-scy_plot
-
-attach(canopy)
-MannKendall(mean)
-detach(canopy)
-
-######################################################################################
-
-scy_shallow <- make_canopy(canopy_shallow)
-
-scy_shallow_plot <- ggplot(scy_shallow, aes(x=Year, y=mean)) +
-  geom_errorbar(aes(ymin=mean-se, ymax=mean+se), width=.02, colour="black", position=pd) +
-  geom_point(position=pd, size=3, fill="black") + # 21 is filled circle
-  scale_x_continuous (breaks = seq(1998,2017,2), limits=c(min(1998),
-                                                          max(scy_shallow$Year+0.125))) +
-  scale_y_continuous(limits=c(min(0), max(20)))+
-  xlab("Year") +
-  ylab(expression(paste("Mean (±SE) cover", sep = ""))) +
-  ggtitle("b) Scytothalia_shallow sites")+
-  # geom_smooth(method=lm, colour = 1, se=TRUE, fullrange=TRUE)+
-  theme_bw() + graphics
-scy_shallow_plot
-
-attach(canopy)
-MannKendall(mean)
-detach(canopy)
-
-######################################################################################
-
-scy_deep <- make_canopy(canopy_deep)
-
-scy_deep_plot <- ggplot(scy_deep, aes(x=Year, y=mean)) +
-  geom_errorbar(aes(ymin=mean-se, ymax=mean+se), width=.02, colour="black", position=pd) +
-  geom_point(position=pd, size=3, fill="black") + # 21 is filled circle
-  scale_x_continuous (breaks = seq(1998,2017,2), limits=c(min(1998),
-                                                          max(scy_deep$Year+0.125))) +
-  scale_y_continuous(limits=c(min(0), max(20)))+
-  xlab("Year") +
-  ylab(expression(paste("Mean (±SE) cover", sep = ""))) +
-  ggtitle("c) Scytothalia_deep sites")+
-  # geom_smooth(method=lm, colour = 1, se=TRUE, fullrange=TRUE)+
-  theme_bw() + graphics
-scy_deep_plot
-
-attach(canopy)
-MannKendall(mean)
-detach(canopy)
-
 
 ################################################################################
 #Create figures (will be saved to current workdir)
@@ -289,7 +251,3 @@ png(png_JBMP_eckcover_fn, width=500, height=900)
 grid.arrange(eck_plot, eckshallow_plot, eckdeep_plot, ncol=1)
 dev.off()
 
-#scytothalia
-png(png_JBMP_scycover_fn, width=500, height=900)
-grid.arrange(scy_plot,scy_shallow_plot, scy_deep_plot, ncol = 1)
-dev.off()
