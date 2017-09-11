@@ -52,30 +52,7 @@ make_diverse <- function(df){
       se   = sd(richness, na.rm = TRUE) / sqrt(N)
     )
 }
-
-
-######################################################################################
-
-diverse <- make_diverse(d)
-
-diverse_plot <- ggplot(diverse, aes(x=Year, y=mean)) +
-  geom_errorbar(aes(ymin=mean-se, ymax=mean+se), width=.02, colour="black", position=pd) +
-  geom_point(position=pd, size=3, fill="black") + # 21 is filled circle
-  scale_x_continuous (breaks = seq(1998,2017,2), limits=c(min(1998),
-                                                          max(diverse$Year+0.125))) +
-  scale_y_continuous(limits=c(min(0), max(100)))+
-  xlab("Year") +
-  ylab(expression(paste("Mean (±SE) diversity", sep = ""))) +
-  ggtitle("a) All sites")+
-  # geom_smooth(method=lm, colour = 1, se=TRUE, fullrange=TRUE)+
-  theme_bw() + graphics
-diverse_plot
-
-attach(diverse)
-MannKendall(mean)
-detach(diverse)
-
-######################################################################################
+#####################################################################################
 
 shallow <- make_diverse(shallow)
 
@@ -84,10 +61,10 @@ shallow_plot <- ggplot(shallow, aes(x=Year, y=mean)) +
   geom_point(position=pd, size=3, fill="black") + # 21 is filled circle
   scale_x_continuous (breaks = seq(1998,2017,2), limits=c(min(1998),
                                                           max(shallow$Year+0.125))) +
-  scale_y_continuous(limits=c(min(0), max(100)))+
+  scale_y_continuous(limits=c(min(0), max(120)))+
   xlab("Year") +
   ylab(expression(paste("Mean (±SE) diversity", sep = ""))) +
-  ggtitle("b) Shallow sites")+
+  ggtitle("a) Shallow sites")+
   # geom_smooth(method=lm, colour = 1, se=TRUE, fullrange=TRUE)+
   theme_bw() + graphics
 shallow_plot
@@ -105,10 +82,10 @@ deep_plot <- ggplot(deep, aes(x=Year, y=mean)) +
   geom_point(position=pd, size=3, fill="black") + # 21 is filled circle
   scale_x_continuous (breaks = seq(1998,2017,2), limits=c(min(1998),
                                                           max(deep$Year+0.125))) +
-  scale_y_continuous(limits=c(min(0), max(100)))+
+  scale_y_continuous(limits=c(min(0), max(120)))+
   xlab("Year") +
   ylab(expression(paste("Mean (±SE) diversity", sep = ""))) +
-  ggtitle("c) Deep sites")+
+  ggtitle("b) Deep sites")+
   # geom_smooth(method=lm, colour = 1, se=TRUE, fullrange=TRUE)+
   theme_bw() + graphics
 deep_plot
@@ -123,7 +100,6 @@ detach(deep)
 
 #diversity
 
-png(png_JBMP_diversity_fn, width=500, height=900)
-grid.arrange(diverse_plot,shallow_plot, deep_plot, ncol = 1)
+png(png_JBMP_diversity_fn, width=500, height=600)
+grid.arrange(shallow_plot, deep_plot, ncol = 1)
 dev.off()
-

@@ -49,9 +49,6 @@ eck_sites <- c %>% filter(Site %in% c("3","4","5","6","7","10","13","15","17","1
 eck_shallow = eck_sites %>% dplyr::filter(Depth %in% c("Shallow"))
 eck_deep = eck_sites %>% dplyr::filter(Depth %in% c("Deep"))
 
-c_shallow = c %>% dplyr::filter(Depth %in% c("Shallow"))
-c_deep = c %>% dplyr::filter(Depth %in% c("Deep"))
-
 ##################################################################################
 # ALL CANOPY
 ##################################################################################
@@ -66,27 +63,6 @@ make_canopy <- function(df){
     )
 }
 
-######################################################################################
-
-canopy <- make_canopy(canopy_sites)
-
-canopy_plot <- ggplot(canopy, aes(x=Year, y=mean)) +
-  geom_errorbar(aes(ymin=mean-se, ymax=mean+se), width=.02, colour="black", position=pd) +
-  geom_point(position=pd, size=3, fill="black") + # 21 is filled circle
-  scale_x_continuous (breaks = seq(1998,2017,2), limits=c(min(1998),
-                                                          max(canopy$Year+0.125))) +
-  scale_y_continuous(limits=c(min(0), max(60)))+
-  xlab("Year") +
-  ylab(expression(paste("Mean (±SE) cover", sep = ""))) +
-  ggtitle("Total canopy_all sites")+
-  # geom_smooth(method=lm, colour = 1, se=TRUE, fullrange=TRUE)+
-  theme_bw() + graphics
-canopy_plot
-
-attach(canopy)
-MannKendall(mean)
-detach(canopy)
-
 #######################################################################################
 canopyshallow <- make_canopy(canopy_shallow)
 
@@ -98,7 +74,7 @@ canopyshallow_plot <- ggplot(canopyshallow, aes(x=Year, y=mean)) +
   scale_y_continuous(limits=c(min(0), max(60)))+
   xlab("Year") +
   ylab(expression(paste("Mean (±SE) cover", sep = ""))) +
-  ggtitle("b) Total canopy cover_shallow sites")+
+  ggtitle("a) Shallow sites")+
   # geom_smooth(method=lm, colour = 1, se=TRUE, fullrange=TRUE)+
   theme_bw() + graphics
 canopyshallow_plot
@@ -118,7 +94,7 @@ canopydeep_plot <- ggplot(canopydeep, aes(x=Year, y=mean)) +
   scale_y_continuous(limits=c(min(0), max(60)))+
   xlab("Year") +
   ylab(expression(paste("Mean (±SE) cover", sep = ""))) +
-  ggtitle("c) Total canopy cover_deep sites")+
+  ggtitle("b) Deep sites")+
   geom_smooth(method=lm, colour = 1, se=TRUE, fullrange=TRUE)+
   theme_bw() + graphics
 canopydeep_plot
@@ -143,27 +119,6 @@ make_eck <- function(df){
 
 ############################################################################################
 
-eck <- make_eck(eck_sites)
-
-eck_plot <- ggplot(eck, aes(x=Year, y=mean)) +
-  geom_errorbar(aes(ymin=mean-se, ymax=mean+se), width=.02, colour="black", position=pd) +
-  geom_point(position=pd, size=3, fill="black") + # 21 is filled circle
-  scale_x_continuous (breaks = seq(1998,2017,2), limits=c(min(1998),
-                                                          max(eck$Year+0.125))) +
-  scale_y_continuous(limits=c(min(0), max(60)))+
-  xlab("Year") +
-  ylab(expression(paste("Mean (±SE) cover", sep = ""))) +
-  ggtitle(expression(paste("a) ", italic("Ecklonia radiata "), "cover_all sites")))+
-  geom_smooth(method=glm, colour = 1, se=TRUE, fullrange=TRUE)+
-  theme_bw() + graphics
-eck_plot
-
-attach(eck)
-MannKendall(mean)
-detach(eck)
-
-###############################################################################
-
 eckshallow <- make_eck(eck_shallow)
 
 eckshallow_plot <- ggplot(eckshallow, aes(x=Year, y=mean)) +
@@ -174,7 +129,7 @@ eckshallow_plot <- ggplot(eckshallow, aes(x=Year, y=mean)) +
   scale_y_continuous(limits=c(min(0), max(60)))+
   xlab("Year") +
   ylab(expression(paste("Mean (±SE) cover", sep = ""))) +
-  ggtitle(expression(paste("b) ", italic("Ecklonia radiata "), "cover_shallow sites")))+
+  ggtitle(expression(paste("a) Shallow sites")))+
   geom_smooth(method=glm, colour = 1, se=TRUE, fullrange=TRUE)+
   theme_bw() + graphics
 eckshallow_plot
@@ -185,7 +140,7 @@ detach(eckshallow)
 
 ###############################################################################
 
-eckdeep <- make_eck(eck_deep)
+eckdeep <- make_eck(canopy_deep)
 
 eckdeep_plot <- ggplot(eckdeep, aes(x=Year, y=mean)) +
   geom_errorbar(aes(ymin=mean-se, ymax=mean+se), width=.02, colour="black", position=pd) +
@@ -195,7 +150,7 @@ eckdeep_plot <- ggplot(eckdeep, aes(x=Year, y=mean)) +
   scale_y_continuous(limits=c(min(0), max(60)))+
   xlab("Year") +
   ylab(expression(paste("Mean (±SE) cover", sep = ""))) +
-  ggtitle(expression(paste("c) ", italic("Ecklonia radiata "), "cover_deep sites")))+
+  ggtitle(expression(paste("b) Deep sites")))+
   geom_smooth(method=glm, colour = 1, se=TRUE, fullrange=TRUE)+
   theme_bw() + graphics
 eckdeep_plot
@@ -220,27 +175,6 @@ make_scy <- function(df){
 
 ######################################################################################
 
-scy <- make_scy(canopy_sites)
-
-scy_plot <- ggplot(scy, aes(x=Year, y=mean)) +
-  geom_errorbar(aes(ymin=mean-se, ymax=mean+se), width=.02, colour="black", position=pd) +
-  geom_point(position=pd, size=3, fill="black") + # 21 is filled circle
-  scale_x_continuous (breaks = seq(1998,2017,2), limits=c(min(1998),
-                                                          max(scy$Year+0.125))) +
-  scale_y_continuous(limits=c(min(0), max(10)))+
-  xlab("Year") +
-  ylab(expression(paste("Mean (±SE) cover", sep = ""))) +
-  ggtitle(expression(paste("a) ", italic("Scytothalia dorycarpa "), "cover_all sites")))+
-  # geom_smooth(method=lm, colour = 1, se=TRUE, fullrange=TRUE)+
-  theme_bw() + graphics
-scy_plot
-
-attach(scy)
-MannKendall(mean)
-detach(scy)
-
-######################################################################################
-
 scy_shallow <- make_scy(canopy_shallow)
 
 scy_shallow_plot <- ggplot(scy_shallow, aes(x=Year, y=mean)) +
@@ -262,7 +196,7 @@ detach(scy_shallow)
 
 ######################################################################################
 
-scy_deep <- make_scy(canopy_deep)
+scy_deep <- make_scy(c_deep)
 
 scy_deep_plot <- ggplot(scy_deep, aes(x=Year, y=mean)) +
   geom_errorbar(aes(ymin=mean-se, ymax=mean+se), width=.02, colour="black", position=pd) +
@@ -297,37 +231,17 @@ make_sarg <- function(df){
 
 ######################################################################################
 
-sarg <- make_sarg(canopy_sites)
-
-sarg_plot <- ggplot(sarg, aes(x=Year, y=mean)) +
-  geom_errorbar(aes(ymin=mean-se, ymax=mean+se), width=.02, colour="black", position=pd) +
-  geom_point(position=pd, size=3, fill="black") + # 21 is filled circle
-  scale_x_continuous (breaks = seq(1998,2017,2), limits=c(min(1998),
-                                                          max(sarg$Year+0.125))) +
-  scale_y_continuous(limits=c(min(0), max(20)))+
-  xlab("Year") +
-  ylab(expression(paste("Mean (±SE) cover", sep = ""))) +
-  ggtitle(expression(paste("c) ", italic("Sargassum"), " spp. cover_all sites")))+
-  # geom_smooth(method=lm, colour = 1, se=TRUE, fullrange=TRUE)+
-  theme_bw() + graphics
-sarg_plot
-
-attach(sarg)
-MannKendall(mean)
-detach(sarg)
-
-#######################################################################################
 sargshallow <- make_sarg(canopy_shallow)
 
 sargshallow_plot <- ggplot(sargshallow, aes(x=Year, y=mean)) +
   geom_errorbar(aes(ymin=mean-se, ymax=mean+se), width=.02, colour="black", position=pd) +
   geom_point(position=pd, size=3, fill="black") + # 21 is filled circle
   scale_x_continuous (breaks = seq(1998,2017,2), limits=c(min(1998),
-                                                          max(sarg$Year+0.125))) +
+                                                          max(sargshallow$Year+0.125))) +
   scale_y_continuous(limits=c(min(0), max(20)))+
   xlab("Year") +
   ylab(expression(paste("Mean (±SE) cover", sep = ""))) +
-  ggtitle(expression(paste("c) ", italic("Sargassum"), " spp. cover_shallow sites")))+
+  ggtitle(expression(paste("a) Shallow sites")))+
   # geom_smooth(method=lm, colour = 1, se=TRUE, fullrange=TRUE)+
   theme_bw() + graphics
 sargshallow_plot
@@ -343,11 +257,11 @@ sargdeep_plot <- ggplot(sargdeep, aes(x=Year, y=mean)) +
   geom_errorbar(aes(ymin=mean-se, ymax=mean+se), width=.02, colour="black", position=pd) +
   geom_point(position=pd, size=3, fill="black") + # 21 is filled circle
   scale_x_continuous (breaks = seq(1998,2017,2), limits=c(min(1998),
-                                                          max(sarg$Year+0.125))) +
+                                                          max(sargdeep$Year+0.125))) +
   scale_y_continuous(limits=c(min(0), max(20)))+
   xlab("Year") +
   ylab(expression(paste("Mean (±SE) cover", sep = ""))) +
-  ggtitle(expression(paste("c) ", italic("Sargassum"), " spp. cover_deep sites")))+
+  ggtitle(expression(paste("b) Deep sites")))+
   # geom_smooth(method=lm, colour = 1, se=TRUE, fullrange=TRUE)+
   theme_bw() + graphics
 sargdeep_plot
@@ -362,21 +276,21 @@ detach(sargdeep)
 
 #Canopy cover
 
-png(png_JBMP_canopycover_fn, width=500, height=900)
-grid.arrange(canopy_plot,canopyshallow_plot, canopydeep_plot, ncol = 1)
+png(png_JBMP_canopycover_fn, width=500, height=600)
+grid.arrange(canopyshallow_plot, canopydeep_plot, ncol = 1)
 dev.off()
 
 #Ecklonia cover
-png(png_JBMP_eckcover_fn, width=500, height=900)
-grid.arrange(eck_plot, eckshallow_plot, eckdeep_plot, ncol=1)
+png(png_JBMP_eckcover_fn, width=500, height=600)
+grid.arrange(eckshallow_plot, eckdeep_plot, ncol=1)
 dev.off()
 
 #scytothalia
-png(png_JBMP_scycover_fn, width=500, height=900)
-grid.arrange(scy_plot,scy_shallow_plot, scy_deep_plot, ncol = 1)
+png(png_JBMP_scycover_fn, width=500, height=600)
+grid.arrange(scy_shallow_plot, scy_deep_plot, ncol = 1)
 dev.off()
 
 #sargassum
-png(png_JBMP_sargcover_fn, width=500, height=900)
-grid.arrange(sarg_plot,sargshallow_plot, sargdeep_plot, ncol = 1)
+png(png_JBMP_sargcover_fn, width=500, height=600)
+grid.arrange(sargshallow_plot, sargdeep_plot, ncol = 1)
 dev.off()
