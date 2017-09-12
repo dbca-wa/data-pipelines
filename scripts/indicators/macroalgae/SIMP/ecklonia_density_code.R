@@ -28,8 +28,6 @@ names(d)[names(d) == 'Site name'] <- 'Site'###Changes column name
 d$eck_adult <- (d$Ecklonia_adult_density * 4) # Scales seagrass data to 1m
 d$eck_juv <- (d$Ecklonia_juvenile_density * 4) # Scales seagrass data to 1m
 
-c<-subset(d, select=c("eck_adult", "eck_juv"))
-
 ################################################################################
 #Define graphic properties
 ################################################################################
@@ -175,7 +173,7 @@ SIMP_juv_plot
 
 ######################################################################################
 
-SIMP_s_juv <- make_density(SIMP_south)
+SIMP_s_juv <- make_juvdensity(SIMP_south)
 
 SIMP_s_juv_plot <- ggplot(SIMP_s_juv, aes(x=Year, y=mean)) +
   geom_errorbar(aes(ymin=mean-se, ymax=mean+se), width=.02, colour="black", position=pd) +
@@ -194,7 +192,7 @@ SIMP_s_juv_plot
 #################################################################
 #SIMP_shoalwater Bay shoot density
 
-SIMP_shoal_juv <- make_density(SIMP_shoalwater)
+SIMP_shoal_juv <- make_juvdensity(SIMP_shoalwater)
 
 SIMP_shoal_juv_plot <- ggplot(SIMP_shoal_juv, aes(x=Year, y=mean)) +
   geom_errorbar(aes(ymin=mean-se, ymax=mean+se), width=.02, colour="black", position=pd) +
@@ -213,7 +211,7 @@ SIMP_shoal_juv_plot
 ###########################################################################
 #SIMP_north shoot density
 
-SIMP_n_juv <- make_density(SIMP_north)
+SIMP_n_juv <- make_juvdensity(SIMP_north)
 
 SIMP_n_juv_plot <- ggplot(SIMP_n_juv, aes(x=Year, y=mean)) +
   geom_errorbar(aes(ymin=mean-se, ymax=mean+se), width=.02, colour="black", position=pd) +
@@ -253,6 +251,4 @@ png(png_SIMP_eckjuv_fn, width=500, height=900)
 grid.arrange(SIMP_n_juv_plot, SIMP_shoal_juv_plot, SIMP_s_juv_plot, ncol = 1)
 dev.off()
 
-png_SIMP_eckjuv_overall_fn <-"SIMP_eckloniajuv_overall.png"
-png_SIMP_eckjuv_fn <-"SIMP_eckloniajuv.png"
 
