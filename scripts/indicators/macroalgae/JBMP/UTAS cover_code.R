@@ -41,14 +41,16 @@ graphics = theme(axis.text.x=element_text(size = 12, angle=45, hjust=0.9), #rota
 
 c<-Canopy
 c =c %>% dplyr::filter(Year %in% c("1999", "2000", "2003", "2004","2006","2009", "2011", "2013", "2016"))
-canopy_sites <- c %>% filter(Site %in% c("3","4","5","6","7","10","13","15","17","19","20","22","23"))#,"26","32","35","36","38","42"))
+canopy_sites <- c %>% filter(Site %in% c("3","4","5","6","7","10","13","15","17","19","20","22","23", "25"))#,"26","32","35","36","38","42"))
 canopy_shallow = canopy_sites %>% dplyr::filter(Depth %in% c("Shallow"))
 canopy_deep = canopy_sites %>% dplyr::filter(Depth %in% c("Deep"))
 
-eck_sites <- c %>% filter(Site %in% c("3","4","5","6","7","10","13","15","17","19","23"))#,"26","32","36","38","42"))
+eck_sites <- c %>% filter(Site %in% c("3","4","5","6","7","10","13","15","17","19","23","26","32","36","38","42"))
 eck_shallow = eck_sites %>% dplyr::filter(Depth %in% c("Shallow"))
 eck_deep = eck_sites %>% dplyr::filter(Depth %in% c("Deep"))
 
+c_shallow = c %>% dplyr::filter(Depth %in% c("Shallow"))
+c_deep = c %>% dplyr::filter(Depth %in% c("Deep"))
 ##################################################################################
 # ALL CANOPY
 ##################################################################################
@@ -175,7 +177,7 @@ make_scy <- function(df){
 
 ######################################################################################
 
-scy_shallow <- make_scy(canopy_shallow)
+scy_shallow <- make_scy(c_shallow)
 
 scy_shallow_plot <- ggplot(scy_shallow, aes(x=Year, y=mean)) +
   geom_errorbar(aes(ymin=mean-se, ymax=mean+se), width=.02, colour="black", position=pd) +
@@ -185,7 +187,7 @@ scy_shallow_plot <- ggplot(scy_shallow, aes(x=Year, y=mean)) +
   scale_y_continuous(limits=c(min(0), max(10)))+
   xlab("Year") +
   ylab(expression(paste("Mean (±SE) cover", sep = ""))) +
-  ggtitle(expression(paste("b) ", italic("Scytothalia dorycarpa "), "cover_shallow sites")))+
+  ggtitle(expression(paste("a) Shallow sites")))+
   # geom_smooth(method=lm, colour = 1, se=TRUE, fullrange=TRUE)+
   theme_bw() + graphics
 scy_shallow_plot
@@ -206,7 +208,7 @@ scy_deep_plot <- ggplot(scy_deep, aes(x=Year, y=mean)) +
   scale_y_continuous(limits=c(min(0), max(20)))+
   xlab("Year") +
   ylab(expression(paste("Mean (±SE) cover", sep = ""))) +
-  ggtitle(expression(paste("c) ", italic("Scytothalia dorycarpa "), "cover_deep sites")))+
+  ggtitle(expression(paste("b) Deep sites")))+
   geom_smooth(method=lm, colour = 1, se=TRUE, fullrange=TRUE)+
   theme_bw() + graphics
 scy_deep_plot
@@ -232,7 +234,7 @@ make_sarg <- function(df){
 ######################################################################################
 
 sargshallow <- make_sarg(canopy_shallow)
-
+sargshallow
 sargshallow_plot <- ggplot(sargshallow, aes(x=Year, y=mean)) +
   geom_errorbar(aes(ymin=mean-se, ymax=mean+se), width=.02, colour="black", position=pd) +
   geom_point(position=pd, size=3, fill="black") + # 21 is filled circle
@@ -252,7 +254,7 @@ detach(sargshallow)
 
 ##########################################################################################
 sargdeep <- make_sarg(canopy_deep)
-
+sargdeep
 sargdeep_plot <- ggplot(sargdeep, aes(x=Year, y=mean)) +
   geom_errorbar(aes(ymin=mean-se, ymax=mean+se), width=.02, colour="black", position=pd) +
   geom_point(position=pd, size=3, fill="black") + # 21 is filled circle
