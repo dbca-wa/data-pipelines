@@ -71,6 +71,7 @@ make_density <- function(df){
 }
 
 ######################################################################################
+#Overall density
 
 MMP_cover <- make_density(MMP)
 
@@ -87,6 +88,7 @@ MMP_plot <- ggplot(MMP_cover, aes(x=Year, y=mean)) +
 MMP_plot
 
 ######################################################################################
+#South density
 
 MMP_s <- make_density(MMP_south)
 
@@ -104,7 +106,7 @@ MMP_s_plot <- ggplot(MMP_s, aes(x=Year, y=mean)) +
 MMP_s_plot
 
 #################################################################
-#MMP_shoalwater Bay shoot density
+#MMP_centre density
 
 MMP_c <- make_density(MMP_centre)
 
@@ -122,7 +124,7 @@ MMP_c_plot <- ggplot(MMP_c, aes(x=Year, y=mean)) +
 MMP_c_plot
 
 ###########################################################################
-#MMP_north shoot density
+#MMP_north density
 
 MMP_n <- make_density(MMP_north)
 
@@ -155,6 +157,7 @@ make_juvdensity <- function(df){
 }
 
 ######################################################################################
+#Overall density
 
 MMP_juvcover <- make_juvdensity(MMP)
 
@@ -171,6 +174,7 @@ MMP_juv_plot <- ggplot(MMP_juvcover, aes(x=Year, y=mean)) +
 MMP_juv_plot
 
 ######################################################################################
+# South juvenile density
 
 MMP_s_juv <- make_juvdensity(MMP_south)
 
@@ -188,7 +192,7 @@ MMP_s_juv_plot <- ggplot(MMP_s_juv, aes(x=Year, y=mean)) +
 MMP_s_juv_plot
 
 #################################################################
-#MMP_shoalwater Bay shoot density
+#Centre juvenile density
 
 MMP_c_juv <- make_juvdensity(MMP_centre)
 
@@ -206,7 +210,7 @@ MMP_c_juv_plot <- ggplot(MMP_c_juv, aes(x=Year, y=mean)) +
 MMP_c_juv_plot
 
 ###########################################################################
-#MMP_north shoot density
+#North juvenile density
 
 MMP_n_juv <- make_juvdensity(MMP_north)
 
@@ -224,7 +228,7 @@ MMP_n_juv_plot <- ggplot(MMP_n_juv, aes(x=Year, y=mean)) +
 MMP_n_juv_plot
 
 #####################################################################################
-# Createfigures
+# Create figures
 #####################################################################################
 
 #Ecklonia density_overall
@@ -246,5 +250,3 @@ dev.off()
 png(png_MMP_eckjuv_fn, width=500, height=900)
 grid.arrange(MMP_n_juv_plot, MMP_c_juv_plot, MMP_s_juv_plot, ncol = 1)
 dev.off()
-
-
