@@ -143,7 +143,7 @@ SIMP_warnbro_percentcover_plot<-ggplot(SIMP_warnbro_percentcover, aes(x=Year, y=
   geom_errorbar(aes(ymin=mean-se, ymax=mean+se), width=.02, colour="black", position=pd) +
   # geom_line(position=pd) +
   geom_point(position=pd, size=3, fill="black") + # 21 is filled circle
-  scale_x_continuous (breaks = seq(2012,2017,1), limits=c(min(2012), max(2016))) +
+  scale_x_continuous (breaks = seq(2012,2017,1), limits=c(min(2012), max(2017))) +
   scale_y_continuous(limits=c(min(0), max(100)))+
   xlab("Year") +
   ylab(expression(paste("Mean (±SE) canopy cover", sep = ""))) +
@@ -166,7 +166,7 @@ SIMP_shoalwater_percentcover_plot <- ggplot(SIMP_shoalwater_percentcover, aes(x=
   geom_errorbar(aes(ymin=mean-se, ymax=mean+se), width=.02, colour="black", position=pd) +
   # geom_line(position=pd) +
   geom_point(position=pd, size=3, fill="black") + # 21 is filled circle
-  scale_x_continuous (breaks = seq(2012,2017,1), limits=c(min(2012), max(SIMP_shoalwater_percentcover$Year+0.125))) +
+  scale_x_continuous (breaks = seq(2012,2017,1), limits=c(min(2012), max(2017))) +
   scale_y_continuous(limits=c(min(0), max(100)))+
   xlab("Year") +
   ylab(expression(paste("Mean (±SE) canopy cover", sep = ""))) +
@@ -190,7 +190,7 @@ SIMP_north_percentcover_plot<-ggplot(SIMP_north_percentcover, aes(x=Year, y=mean
   geom_errorbar(aes(ymin=mean-se, ymax=mean+se), width=.02, colour="black", position=pd) +
   # geom_line(position=pd) +
   geom_point(position=pd, size=3, fill="black") + # 21 is filled circle
-  scale_x_continuous (breaks = seq(2012,2017,1), limits=c(min(2012), max(SIMP_north_percentcover$Year+0.125))) +
+  scale_x_continuous (breaks = seq(2012,2017,1), limits=c(min(2012), max(2017))) +
   scale_y_continuous(limits=c(min(0), max(100)))+
   xlab("Year") +
   ylab(expression(paste("Mean (±SE) canopy cover", sep = ""))) +
