@@ -53,17 +53,18 @@ graphics = theme(axis.text.x=element_text(size = 12, angle=45, hjust=0.9), #rota
 
 MMP = subset (d, Park=="Marmion Marine Park")
 
-MMP$Location <- as.factor(MMP$Location)
-cover <- MMP %>% add_count(Site, Year)
-cover <- plyr::ddply(cover, .(Year, Location, Site, Level1Class, n), summarise,
-                     add_count    = length(!is.na(Level1Class)))
-MMP_SG <- subset (cover, Level1Class %in% c("SEAGRASS"))
+detach("package:dplyr", unload=TRUE)
 
-names(MMP_SG)[4] <- "category" #Rename column to make more sense
-names(MMP_SG) [5] <- "total_count"
-names(MMP_SG)[6] <- "category_count" #Rename column to make more sense
+cover=count(MMP, c("Location", "Site", "Year", "Level5Class")) #counts number of observations per site, per year
+cover_obs=count(cover, c("Location", "Site", "Year"), "freq") #counts number of observations made at each site per year
+cover_add <- join(cover, cover_obs, by = c("Site", "Year")) #adds total count of site observations agains the right site/year to allow percentage calculation
+pos_cover = subset(cover_add, Level5Class %in% c("Posidonia sinuosa","Posidonia australis")) #Extracts cover information only
+MMP_SG = count(pos_cover, c("Location", "Site", "Year", "freq.1"), "freq")
+names(MMP_SG)[4] <- "total_count" #Rename column to make more sense
+names(MMP_SG)[5] <- "pos_count" #Rename column to make more sense
+MMP_SG$percent = MMP_SG$pos_count/MMP_SG$total_count *100 #Calculate percent cover
 
-MMP_SG$percent = MMP_SG$category_count/MMP_SG$total_count *100
+library(dplyr)
 
 ##################################################################################
 #Create subsets for each 'sector (south, centre, north) for MMP

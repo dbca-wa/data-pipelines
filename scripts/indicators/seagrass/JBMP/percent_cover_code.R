@@ -4,9 +4,9 @@ source("~/projects/data-pipelines/setup/ckan.R")
 library(ggplot2)
 #install.packages("gridExtra")
 library(gridExtra)
-library(plyr)
+library (plyr)
 
-######################################################################################################
+f######################################################################################################
 #Define all CKAN resource IDs
 ######################################################################################################
 
@@ -57,25 +57,31 @@ JBMP = subset (d, Park=="Jurien Bay Marine Park")
 JBMP$Location <- as.factor(JBMP$Location)
 
 
-JBMP = within(JBMP, levels(Location)[levels(Location) == "Fishermans Island"] <- "North")
+JBMP = within(JBMP, levels(Location)[levels(Location) == "Fishermans Island "] <- "North")
 JBMP = within(JBMP, levels(Location)[levels(Location) == "Boullanger Island"] <- "Centre")
 JBMP = within(JBMP, levels(Location)[levels(Location) == "Jurien Town"] <- "Centre")
 JBMP = within(JBMP, levels(Location)[levels(Location) == "South Cervantes"] <- "South")
 JBMP = within(JBMP, levels(Location)[levels(Location) == "Green Island"] <- "South")
 JBMP = within(JBMP, levels(Location)[levels(Location) == "Kangaroo Point"] <- "South")
+unique(JBMP$Location)
 
-cover <- JBMP %>% add_count(Site, Year)
-cover <- plyr::ddply(cover, .(Year, Location, Site, Level1Class, n), summarise,
-                     add_count    = length(!is.na(Level1Class)))
-JBMP_SG <- subset (cover, Level1Class %in% c("SEAGRASS"))
+detach("package:dplyr", unload=TRUE)
 
-names(JBMP_SG)[4] <- "category" #Rename column to make more sense
-names(JBMP_SG) [5] <- "total_count"
-names(JBMP_SG)[6] <- "category_count" #Rename column to make more sense
+cover=count(JBMP, c("Location", "Site", "Year", "Level5Class")) #counts number of observations per site, per year
+cover_obs=count(cover, c("Location", "Site", "Year"), "freq") #counts number of observations made at each site per year
+cover_add <- join(cover, cover_obs, by = c("Site", "Year")) #adds total count of site observations agains the right site/year to allow percentage calculation
+pos_cover = subset(cover_add, Level5Class %in% c("Posidonia sinuosa","Posidonia australis")) #Extracts cover information only
+JBMP_SG = count(pos_cover, c("Location", "Site", "Year", "freq.1"), "freq")
+names(JBMP_SG)[4] <- "total_count" #Rename column to make more sense
+names(JBMP_SG)[5] <- "pos_count" #Rename column to make more sense
+JBMP_SG$percent = JBMP_SG$pos_count/JBMP_SG$total_count *100 #Calculate percent cover
 
-JBMP_SG$percent = JBMP_SG$category_count/JBMP_SG$total_count *100
+library(dplyr)
 
-# Region subsets
+##################################################################################
+#Create subsets for each 'sector (south, centre, north) for MMP
+##################################################################################
+
 JBMP_south = subset(JBMP_SG, Location %in% c("South"))
 JBMP_centre = subset(JBMP_SG, Location %in% c("Centre"))
 JBMP_north = subset(JBMP_SG, Location %in% c( "North"))
@@ -83,6 +89,7 @@ JBMP_north = subset(JBMP_SG, Location %in% c( "North"))
 #################################################################
 #PERCENT COVER
 #################################################################
+
 
 #Overall percent cover
 
@@ -127,7 +134,7 @@ JBMP_south_cover <- make_cover(JBMP_south)
 JBMP_south_plot <- ggplot(JBMP_south_cover, aes(x=Year, y=mean))+#, colour = Category, group=Category, linetype=Category, shape=Category)) +
   geom_errorbar(aes(ymin=mean-se, ymax=mean+se), width=.02, colour="black", linetype = 1, position=pd) +
   geom_point(position=pd, size=3) + # 21 is filled circle
-  scale_x_continuous(breaks = seq(2011,2016,1), limits=c(min(2011),(max(2016))))+
+  scale_x_continuous(breaks = seq(2011,2017,1), limits=c(min(2011),(max(2017))))+
   scale_y_continuous(limits=c(min(0), max(100)))+
   xlab("Year") +
   ylab(expression(paste("Mean (±SE) cover"))) +
@@ -148,7 +155,7 @@ JBMP_centre_cover <- make_cover(JBMP_centre)
 JBMP_centre_plot <- ggplot(JBMP_centre_cover, aes(x=Year, y=mean))+#, colour = Category, group=Category, linetype=Category, shape=Category)) +
   geom_errorbar(aes(ymin=mean-se, ymax=mean+se), width=.02, colour="black", linetype = 1, position=pd) +
   geom_point(position=pd, size=3) + # 21 is filled circle
-  scale_x_continuous(limits=c(min(JBMP_centre_cover$Year-0.125), max(JBMP_centre_cover$Year+0.125)), breaks=min(JBMP_centre_cover$Year):max(JBMP_centre_cover$Year)) +
+  scale_x_continuous(breaks = seq(2011,2017,1), limits=c(min(2011),(max(2017))))+
   scale_y_continuous(limits=c(min(0), max(100)))+
   xlab("Year") +
   ylab(expression(paste("Mean (±SE) cover")))+
@@ -171,7 +178,7 @@ JBMP_north_plot <- ggplot(JBMP_north_cover, aes(x=Year, y=mean))+#, colour = Cat
   geom_errorbar(aes(ymin=mean-se, ymax=mean+se), width=.02, colour="black", linetype = 1, position=pd) +
   #geom_line(position=pd) +
   geom_point(position=pd, size=3) + # 21 is filled circle
-  scale_x_continuous(limits=c(min(JBMP_north_cover$Year-0.125), max(JBMP_north_cover$Year+0.125)), breaks=min(JBMP_north_cover$Year):max(JBMP_north_cover$Year)) +
+  scale_x_continuous(breaks = seq(2011,2017,1), limits=c(min(2011),(max(2017))))+
   scale_y_continuous(limits=c(min(0), max(100)))+
   xlab("Year") +
   ylab(expression(paste("Mean (±SE) cover"))) +
@@ -204,3 +211,4 @@ dev.off()
 ckanr::resource_update(png_JBMP_overall_percentcover_rid, png_JBMP_overall_percentcover_fn)
 ckanr::resource_update(png_JBMP_percentcover_rid, png_JBMP_percentcover_fn)
 ckanr::resource_update(txt_rid, "percent_cover_code.R")
+
