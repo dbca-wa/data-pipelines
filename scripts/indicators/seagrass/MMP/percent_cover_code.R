@@ -24,6 +24,7 @@ png_MMP_percentcover_fn <-"MMP_percentcover.png"
 ###################################################################################################
 
 d <- load_ckan_csv(csv_rid)
+d<-Camera_data
 names(d)[names(d) == 'Region'] <- 'Park'###Changes column name
 
 ####################################################################################################
@@ -70,9 +71,9 @@ library(dplyr)
 #Create subsets for each 'sector (south, centre, north) for MMP
 ##################################################################################
 
-MMP_south = subset(MMP_SG, Location %in% c("South"))
-MMP_centre = subset(MMP_SG, Location %in% c("Central"))
-MMP_north = subset(MMP_SG, Location %in% c("North"))
+MMP_south = subset(MMP_SG, Site %in% c("North Beach", "Sorrento"))
+MMP_centre = subset(MMP_SG, Site %in% c("Hillarys Channel" , "Wreck Rock", "Mullaloo"))
+MMP_north = subset(MMP_SG, Site %in% c("Ocean Reef Outer", "Ocean Reef Inner", "Burns Rocks"))
 
 ####################################################################################
 #PERCENT COVER
@@ -98,7 +99,8 @@ MMP_percentcover_plot <- ggplot(MMP_cover, aes(x=Year, y=mean)) +
   geom_errorbar(aes(ymin=mean-se, ymax=mean+se), width=.02, colour="black", position=pd) +
   # geom_line(position=pd) +
   geom_point(position=pd, size=3, fill="black") + # 21 is filled circle
-  scale_x_continuous (breaks = seq(2011,2017,1), limits=c(min(2011), max(MMP_cover$Year+0.125))) +
+  scale_x_continuous (breaks = seq(2011,2017,2), limits=c(min(2011),
+                                                          max(2017))) +
   scale_y_continuous(limits=c(min(0), max(100)))+
   xlab("Year") +
   ylab(expression(paste("Mean (±SE) canopy cover", sep = ""))) +
@@ -120,7 +122,8 @@ MMP_north_percentcover_plot <- ggplot(MMP_north_cover, aes(x=Year, y=mean)) +
   geom_errorbar(aes(ymin=mean-se, ymax=mean+se), width=.02, colour="black", position=pd) +
   # geom_line(position=pd) +
   geom_point(position=pd, size=3, fill="black") + # 21 is filled circle
-  scale_x_continuous (breaks = seq(2011,2017,1), limits=c(min(2011), max(MMP_north$Year+0.125))) +
+  scale_x_continuous (breaks = seq(2011,2017,2), limits=c(min(2011),
+                                                          max(2017))) +
   scale_y_continuous(limits=c(min(0), max(100)))+
   xlab("Year") +
   ylab(expression(paste("Mean (±SE) canopy cover", sep = ""))) +
@@ -143,7 +146,8 @@ MMP_centre_percentcover_plot <- ggplot(MMP_centre_cover, aes(x=Year, y=mean)) +
   geom_errorbar(aes(ymin=mean-se, ymax=mean+se), width=.02, colour="black", position=pd) +
   # geom_line(position=pd) +
   geom_point(position=pd, size=3, fill="black") + # 21 is filled circle
-  scale_x_continuous (breaks = seq(2011,2017,1), limits=c(min(2011), max(MMP_centre$Year+0.125))) +
+  scale_x_continuous (breaks = seq(2011,2017,2), limits=c(min(2011),
+                                                          max(2017))) +
   scale_y_continuous(limits=c(min(0), max(100)))+
   xlab("Year") +
   ylab(expression(paste("Mean (±SE) canopy cover", sep = ""))) +
@@ -166,7 +170,8 @@ MMP_south_percentcover_plot <- ggplot(MMP_south_cover, aes(x=Year, y=mean)) +
   geom_errorbar(aes(ymin=mean-se, ymax=mean+se), width=.02, colour="black", position=pd) +
   # geom_line(position=pd) +
   geom_point(position=pd, size=3, fill="black") + # 21 is filled circle
-  scale_x_continuous (breaks = seq(2011,2017,1), limits=c(min(2011), max(MMP_south$Year+0.125))) +
+  scale_x_continuous (breaks = seq(2011,2017,2), limits=c(min(2011),
+                                                          max(2017))) +
   scale_y_continuous(limits=c(min(0), max(100)))+
   xlab("Year") +
   ylab(expression(paste("Mean (±SE) canopy cover", sep = ""))) +

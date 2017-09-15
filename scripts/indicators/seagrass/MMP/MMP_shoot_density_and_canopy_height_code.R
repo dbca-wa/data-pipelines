@@ -30,7 +30,7 @@ png_MMP_height_fn = "MMP overall height.png"#Name of final figure
 ###################################################################################################
 
 d <- load_ckan_csv(csv_rid)
-
+d<-in_water_data
 ####################################################################################################
 #Define graphic properties
 #####################################################################################################
@@ -81,8 +81,8 @@ MMP_shootdensity <- make_density(MMP)
 MMP_shootdensity_plot <- ggplot(MMP_shootdensity, aes(x=Year, y=mean)) +
   geom_errorbar(aes(ymin=mean-se, ymax=mean+se), width=.02, colour="black", position=pd) +
   geom_point(position=pd, size=3, fill="black") + # 21 is filled circle
-  scale_x_continuous(limits=c(min(MMP_shootdensity$Year-0.125), max(MMP_shootdensity$Year+0.125)), breaks=min(MMP_shootdensity$Year):max(MMP_shootdensity$Year)) +
-  scale_y_continuous(limits=c(min(0), max(25)))+
+  scale_x_continuous (breaks = seq(2005,2017,2), limits=c(min(2005),
+                                                          max(2017))) +
   xlab("Year") +
   ylab(expression(paste("Mean (±SE) density (","0.04m"^-2,")", sep = ""))) +
   #ggtitle("All MMP")+
@@ -98,8 +98,8 @@ MMP_north_shootdensity <- make_density(MMP_north)
 MMP_north_shootdensity_plot <- ggplot(MMP_north_shootdensity, aes(x=Year, y=mean)) +
   geom_errorbar(aes(ymin=mean-se, ymax=mean+se), width=.02, colour="black", position=pd) +
   geom_point(position=pd, size=3, fill="black") + # 21 is filled circle
-  scale_x_continuous(limits=c(min(MMP_north_shootdensity$Year-0.125), max(MMP_north_shootdensity$Year+0.125)), breaks=min(MMP_north_shootdensity$Year):max(MMP_north_shootdensity$Year)) +
-  scale_y_continuous(limits=c(min(0), max(25)))+
+  scale_x_continuous (breaks = seq(2005,2017,2), limits=c(min(2005),
+                                                          max(2017))) +
   xlab("Year") +
   ylab(expression(paste("Mean (±SE) density (","0.04m"^-2,")", sep = ""))) +
   ggtitle("a) North")+
@@ -115,8 +115,8 @@ MMP_centre_shootdensity <- make_density(MMP_centre)
 MMP_centre_shootdensity_plot<-ggplot(MMP_centre_shootdensity, aes(x=Year, y=mean)) +
   geom_errorbar(aes(ymin=mean-se, ymax=mean+se), width=.02, colour="black", position=pd) +
   geom_point(position=pd, size=3, fill="black") + # 21 is filled circle
-  scale_x_continuous(limits=c(min(MMP_centre_shootdensity$Year-0.125), max(MMP_centre_shootdensity$Year+0.125)), breaks=min(MMP_centre_shootdensity$Year):max(MMP_centre_shootdensity$Year)) +
-  scale_y_continuous(limits=c(min(0), max(25)))+
+  scale_x_continuous (breaks = seq(2005,2017,2), limits=c(min(2005),
+                                                          max(2017))) +
   xlab("Year") +
   ylab(expression(paste("Mean (±SE) density (","0.04m"^-2,")", sep = ""))) +
   ggtitle("b) Centre")+
@@ -132,7 +132,8 @@ MMP_south_shootdensity <- make_density(MMP_south)
 MMP_south_shootdensity_plot<-ggplot(MMP_south_shootdensity, aes(x=Year, y=mean)) +
   geom_errorbar(aes(ymin=mean-se, ymax=mean+se), width=.02, colour="black", position=pd) +
   geom_point(position=pd, size=3, fill="black") + # 21 is filled circle
-  scale_x_continuous(limits=c(min(MMP_south_shootdensity$Year-0.125), max(MMP_south_shootdensity$Year+0.125)), breaks=min(MMP_south_shootdensity$Year):max(MMP_south_shootdensity$Year)) +
+  scale_x_continuous (breaks = seq(2005,2017,2), limits=c(min(2005),
+                                                          max(2017))) +
   scale_y_continuous(limits=c(min(0), max(25)))+
   xlab("Year") +
   ylab(expression(paste("Mean (±SE) density (","0.04m"^-2,")", sep = ""))) +
@@ -164,7 +165,8 @@ MMP_maxheight <- make_maxheight(MMP)
 MMP_maxheight_plot <- ggplot(MMP_maxheight, aes(x=Year, y=mean)) +
   geom_errorbar(aes(ymin=mean-se, ymax=mean+se), width=.02, colour="black", position=pd) +
   geom_point(position=pd, size=3, fill="black") + # 21 is filled circle
-  scale_x_continuous(limits=c(min(MMP_maxheight$Year-0.125), max(MMP_maxheight$Year+0.125)), breaks=min(MMP_maxheight$Year):max(MMP_maxheight$Year)) +
+  scale_x_continuous (breaks = seq(2005,2017,2), limits=c(min(2005),
+                                                          max(2017))) +
   scale_y_continuous(limits=c(min(0), max(1000)))+
   xlab("Year") +
   ylab(expression(paste("Mean (±SE) max. height (mm)", sep = ""))) +
@@ -176,12 +178,13 @@ MMP_maxheight_plot
 #########################################################
 #MMP_south max canopy height
 
-MMP_south_maxheight <- make_density(MMP_south)
+MMP_south_maxheight <- make_maxheight(MMP_south)
 
 MMP_south_maxheight_plot <- ggplot(MMP_south_maxheight, aes(x=Year, y=mean)) +
   geom_errorbar(aes(ymin=mean-se, ymax=mean+se), width=.02, colour="black", position=pd) +
   geom_point(position=pd, size=3, fill="black") + # 21 is filled circle
-  scale_x_continuous(limits=c(min(MMP_south_maxheight$Year-0.125), max(MMP_south_maxheight$Year+0.125)), breaks=min(MMP_south_maxheight$Year):max(MMP_south_maxheight$Year)) +
+  scale_x_continuous (breaks = seq(2005,2017,2), limits=c(min(2005),
+                                                          max(2017))) +
   scale_y_continuous(limits=c(min(0), max(1000)))+
   xlab("Year") +
   ylab(expression(paste("Mean (±SE) max. height (mm)", sep = ""))) +
@@ -198,7 +201,8 @@ MMP_centre_maxheight <- make_maxheight(MMP_centre)
 MMP_centre_maxheight_plot <- ggplot(MMP_centre_maxheight, aes(x=Year, y=mean)) +
   geom_errorbar(aes(ymin=mean-se, ymax=mean+se), width=.02, colour="black", position=pd) +
   geom_point(position=pd, size=3, fill="black") + # 21 is filled circle
-  scale_x_continuous(limits=c(min(MMP_centre_maxheight$Year-0.125), max(MMP_centre_maxheight$Year+0.125)), breaks=min(MMP_centre_maxheight$Year):max(MMP_centre_maxheight$Year)) +
+  scale_x_continuous (breaks = seq(2005,2017,2), limits=c(min(2005),
+                                                          max(2017))) +
   scale_y_continuous(limits=c(min(0), max(1000)))+
   xlab("Year") +
   ylab(expression(paste("Mean (±SE) max. height (mm)", sep = ""))) +
@@ -215,7 +219,8 @@ MMP_north_maxheight <- make_maxheight(MMP_north)
 MMP_north_maxheight_plot <- ggplot(MMP_north_maxheight, aes(x=Year, y=mean)) +
   geom_errorbar(aes(ymin=mean-se, ymax=mean+se), width=.02, colour="black", position=pd) +
   geom_point(position=pd, size=3, fill="black") + # 21 is filled circle
-  scale_x_continuous(limits=c(min(MMP_north_maxheight$Year-0.125), max(MMP_north_maxheight$Year+0.125)), breaks=min(MMP_north_maxheight$Year):max(MMP_north_maxheight$Year)) +
+  scale_x_continuous (breaks = seq(2005,2017,2), limits=c(min(2005),
+                                                          max(2017))) +
   scale_y_continuous(limits=c(min(0), max(1000)))+
   xlab("Year") +
   ylab(expression(paste("Mean (±SE) max. height (mm)", sep = ""))) +
@@ -223,7 +228,6 @@ MMP_north_maxheight_plot <- ggplot(MMP_north_maxheight, aes(x=Year, y=mean)) +
   theme_bw() + graphics
 
 MMP_north_maxheight_plot
-
 
 ####################################################################################
 #MEAN CANOPY HEIGHT
@@ -247,7 +251,8 @@ MMP_meanheight <- make_meanheight(MMP)
 MMP_meanheight_plot <- ggplot(MMP_meanheight, aes(x=Year, y=mean)) +
   geom_errorbar(aes(ymin=mean-se, ymax=mean+se), width=.02, colour="black", position=pd) +
   geom_point(position=pd, size=3, fill="black") + # 21 is filled circle
-  scale_x_continuous(limits=c(min(MMP_meanheight$Year-0.125), max(MMP_meanheight$Year+0.125)), breaks=min(MMP_meanheight$Year):max(MMP_meanheight$Year)) +
+  scale_x_continuous (breaks = seq(2005,2017,2), limits=c(min(2005),
+                                                          max(2017))) +
   scale_y_continuous(limits=c(min(0), max(1000)))+
   xlab("Year") +
   ylab(expression(paste("Mean (±SE) 80th percentile height (mm)", sep = ""))) +
@@ -264,7 +269,8 @@ MMP_south_meanheight <- make_meanheight(MMP_south)
 MMP_south_meanheight_plot <- ggplot(MMP_south_meanheight, aes(x=Year, y=mean)) +
   geom_errorbar(aes(ymin=mean-se, ymax=mean+se), width=.02, colour="black", position=pd) +
   geom_point(position=pd, size=3, fill="black") + # 21 is filled circle
-  scale_x_continuous(limits=c(min(MMP_south_meanheight$Year-0.125), max(MMP_south_meanheight$Year+0.125)), breaks=min(MMP_south_meanheight$Year):max(MMP_south_meanheight$Year)) +
+  scale_x_continuous (breaks = seq(2005,2017,2), limits=c(min(2005),
+                                                          max(2017))) +
   scale_y_continuous(limits=c(min(0), max(1000)))+
   xlab("Year") +
   ylab(expression(paste("Mean (±SE) 80th percentile height (mm)", sep = ""))) +
@@ -281,7 +287,8 @@ MMP_centre_meanheight <- make_meanheight(MMP_centre)
 MMP_centre_meanheight_plot <- ggplot(MMP_centre_meanheight, aes(x=Year, y=mean)) +
   geom_errorbar(aes(ymin=mean-se, ymax=mean+se), width=.02, colour="black", position=pd) +
   geom_point(position=pd, size=3, fill="black") + # 21 is filled circle
-  scale_x_continuous(limits=c(min(MMP_centre_meanheight$Year-0.125), max(MMP_centre_meanheight$Year+0.125)), breaks=min(MMP_centre_meanheight$Year):max(MMP_centre_meanheight$Year)) +
+  scale_x_continuous (breaks = seq(2005,2017,2), limits=c(min(2005),
+                                                          max(2017))) +
   scale_y_continuous(limits=c(min(0), max(1000)))+
   xlab("Year") +
   ylab(expression(paste("Mean (±SE) 80th percentile height (mm)", sep = ""))) +
@@ -298,7 +305,8 @@ MMP_north_meanheight <- make_meanheight(MMP_north)
 MMP_north_meanheight_plot <- ggplot(MMP_north_meanheight, aes(x=Year, y=mean)) +
   geom_errorbar(aes(ymin=mean-se, ymax=mean+se), width=.02, colour="black", position=pd) +
   geom_point(position=pd, size=3, fill="black") + # 21 is filled circle
-  scale_x_continuous(limits=c(min(MMP_north_meanheight$Year-0.125), max(MMP_north_meanheight$Year+0.125)), breaks=min(MMP_north_meanheight$Year):max(MMP_north_meanheight$Year)) +
+  scale_x_continuous (breaks = seq(2005,2017,2), limits=c(min(2005),
+                                                          max(2017))) +
   scale_y_continuous(limits=c(min(0), max(1000)))+
   xlab("Year") +
   ylab(expression(paste("Mean (±SE) 80th percentile height (mm)", sep = ""))) +
