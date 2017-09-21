@@ -1,6 +1,5 @@
 setwd("~/projects/data-pipelines/scripts/indicators/finfish")
 #source("~/projects/data-pipelines/setup/ckan.R")
-library(ggplot2)
 library(plyr)
 library(gridExtra)
 library(reshape)
@@ -15,7 +14,7 @@ dat <- read.csv("JBMP_All Data.csv")
 
 #Check column names
 
-colnames (dat)
+colnames(dat)
 
 #Limit to those columns that are important for this analysis
 
