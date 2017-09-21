@@ -5,7 +5,6 @@ library(gridExtra)
 library(ggplot2)
 library (plyr)
 library(Kendall)
-library(dplyr)
 ######################################################################################################
 #Define all CKAN resource IDs
 ######################################################################################################
@@ -54,18 +53,17 @@ graphics = theme(axis.text.x=element_text(size = 12, angle=45, hjust=0.9), #rota
 
 SIMP = subset (d, Park=="Shoalwater Islands Marine Park")
 
-detach("package:dplyr", unload=TRUE)
+SIMP$Location <- as.factor(SIMP$Location)
+cover <- SIMP %>% add_count(Site, Year)
+cover <- plyr::ddply(cover, .(Year, Location, Site, Level1Class, n), summarise,
+                                 add_count    = length(!is.na(Level1Class)))
+SIMP_SG <- subset (cover, Level1Class %in% c("SEAGRASS"))
 
-cover=count(SIMP, c("Location", "Site", "Year", "Level5Class")) #counts number of observations per site, per year
-cover_obs=count(cover, c("Location", "Site", "Year"), "freq") #counts number of observations made at each site per year
-cover_add <- join(cover, cover_obs, by = c("Site", "Year")) #adds total count of site observations agains the right site/year to allow percentage calculation
-pos_cover = subset(cover_add, Level5Class %in% c("Posidonia sinuosa","Posidonia australis")) #Extracts cover information only
-SIMP_SG = count(pos_cover, c("Location", "Site", "Year", "freq.1"), "freq")
-names(SIMP_SG)[4] <- "total_count" #Rename column to make more sense
-names(SIMP_SG)[5] <- "pos_count" #Rename column to make more sense
-SIMP_SG$percent = SIMP_SG$pos_count/SIMP_SG$total_count *100 #Calculate percent cover
+names(SIMP_SG)[4] <- "category" #Rename column to make more sense
+names(SIMP_SG) [5] <- "total_count"
+names(SIMP_SG)[6] <- "category_count" #Rename column to make more sense
 
-library(dplyr)
+SIMP_SG$percent = SIMP_SG$category_count/SIMP_SG$total_count *100
 
 ##################################################################################
 #Create subsets for each 'sector (south, centre, north) for SIMP
@@ -107,9 +105,9 @@ SIMP_percentcover_plot <- ggplot(SIMP_cover, aes(x=Year, y=mean)) +
 
 SIMP_percentcover_plot
 
-attach(SIMP_cover)
+attach(SIMP_percentcover)
 MannKendall(mean)
-detach(SIMP_cover)
+detach(SIMP_percentcover)
 
 ############################################################################################
 #SIMP_south cover
@@ -143,7 +141,7 @@ SIMP_warnbro_percentcover_plot<-ggplot(SIMP_warnbro_percentcover, aes(x=Year, y=
   geom_errorbar(aes(ymin=mean-se, ymax=mean+se), width=.02, colour="black", position=pd) +
   # geom_line(position=pd) +
   geom_point(position=pd, size=3, fill="black") + # 21 is filled circle
-  scale_x_continuous (breaks = seq(2012,2017,1), limits=c(min(2012), max(2017))) +
+  scale_x_continuous (breaks = seq(2012,2017,1), limits=c(min(2012), max(2016))) +
   scale_y_continuous(limits=c(min(0), max(100)))+
   xlab("Year") +
   ylab(expression(paste("Mean (±SE) canopy cover", sep = ""))) +
@@ -166,7 +164,7 @@ SIMP_shoalwater_percentcover_plot <- ggplot(SIMP_shoalwater_percentcover, aes(x=
   geom_errorbar(aes(ymin=mean-se, ymax=mean+se), width=.02, colour="black", position=pd) +
   # geom_line(position=pd) +
   geom_point(position=pd, size=3, fill="black") + # 21 is filled circle
-  scale_x_continuous (breaks = seq(2012,2017,1), limits=c(min(2012), max(2017))) +
+  scale_x_continuous (breaks = seq(2012,2017,1), limits=c(min(2012), max(SIMP_shoalwater_percentcover$Year+0.125))) +
   scale_y_continuous(limits=c(min(0), max(100)))+
   xlab("Year") +
   ylab(expression(paste("Mean (±SE) canopy cover", sep = ""))) +
@@ -190,7 +188,7 @@ SIMP_north_percentcover_plot<-ggplot(SIMP_north_percentcover, aes(x=Year, y=mean
   geom_errorbar(aes(ymin=mean-se, ymax=mean+se), width=.02, colour="black", position=pd) +
   # geom_line(position=pd) +
   geom_point(position=pd, size=3, fill="black") + # 21 is filled circle
-  scale_x_continuous (breaks = seq(2012,2017,1), limits=c(min(2012), max(2017))) +
+  scale_x_continuous (breaks = seq(2012,2017,1), limits=c(min(2012), max(SIMP_north_percentcover$Year+0.125))) +
   scale_y_continuous(limits=c(min(0), max(100)))+
   xlab("Year") +
   ylab(expression(paste("Mean (±SE) canopy cover", sep = ""))) +

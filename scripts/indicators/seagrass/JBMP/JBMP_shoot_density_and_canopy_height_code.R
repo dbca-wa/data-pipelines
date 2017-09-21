@@ -27,24 +27,25 @@ png_JBMP_height_fn = "JBMP overall height.png"#Name of final figure
 ################################################################################
 #Load data
 ################################################################################
+
 d <- load_ckan_csv(csv_rid)
-# d <- In_water_data
+
 ################################################################################
 #Define graphic properties
 ################################################################################
 
 pd <- position_dodge(0.1)
-graphics = theme(axis.text.x=element_text(angle=45, hjust=0.9),
-                 axis.title.x=element_text(size = 18), #removes x axis title
-                 axis.title.y=element_text(size = 18), #removes y axis title
-                 axis.text.y=element_text(size = 18),
+graphics = theme(axis.text.x=element_text(size = 12, angle=45, hjust=0.9), #rotates the x axis tick labels an angle of 45 degrees
+                 axis.title.x=element_text(size=15,face="bold"),
+                 axis.title.y=element_text(size=15,face="bold"), #removes y axis title
+                 axis.text.y=element_text(size = 12),
                  axis.line=element_line(colour="black"), #sets axis lines
-                 plot.title =element_text(hjust = 0.05),
+                 plot.title =element_text(size = 15, hjust = 0.05),
                  panel.grid.minor = element_blank(), #removes minor grid lines
                  panel.grid.major = element_blank(), #removes major grid lines
                  panel.border=element_blank(), #removes border
                  panel.background=element_blank(), #needed to ensure integrity of axis lines
-                 legend.justification=c(10,10), legend.position=c(10,10),
+                 legend.justification=c(10,10), legend.position=c(10,10), # Positions legend (x,y) in this case removes it from the graph
                  legend.title = element_text(),
                  legend.key = element_blank())
 
@@ -82,12 +83,10 @@ JBMP_shootdensity <- make_shootdensity(JBMP)
 JBMP_shootdensity_plot <- ggplot(JBMP_shootdensity, aes(x=Year, y=mean)) +
   geom_errorbar(aes(ymin=mean-se, ymax=mean+se), width=.02, colour="black", position=pd) +
   geom_point(position=pd, size=3, fill="black") + # 21 is filled circle
-  scale_x_continuous(
-    limits=c(min(JBMP_shootdensity$Year-0.125), max(JBMP_shootdensity$Year+0.125)),
-    breaks=min(JBMP_shootdensity$Year):max(JBMP_shootdensity$Year)) +
+  scale_x_continuous(breaks = seq(2003,2017,2), limits=c(min(2003),(max(2017))))+
   scale_y_continuous(limits=c(min(0), max(60)))+
   xlab("Year") +
-  ylab(expression(paste("Mean density (","0.04m"^-2,")", sep = ""))) +
+  ylab(expression(paste("Mean (±SE) density (","0.04m"^-2,")", sep = ""))) +
   geom_smooth(method=lm, colour = 1, se=TRUE, fullrange=TRUE)+
   theme_bw() + graphics
 
@@ -97,7 +96,6 @@ attach(JBMP_shootdensity)
 MannKendall(mean)
 detach(JBMP_shootdensity)
 
-
 ################################################################################
 #JBMP_south Shoot density
 
@@ -106,10 +104,10 @@ JBMP_south_shootdensity <- make_shootdensity(JBMP_south)
 JBMP_south_shootdensity_plot <- ggplot(JBMP_south_shootdensity, aes(x=Year, y=mean)) +
   geom_errorbar(aes(ymin=mean-se, ymax=mean+se), width=.02, colour="black", position=pd) +
   geom_point(position=pd, size=3, fill="black") +
-  scale_x_continuous(breaks = seq(2003,2017,1), limits=c(min(2003),(max(2017))))+
+  scale_x_continuous(breaks = seq(2003,2017,2), limits=c(min(2003),(max(2017))))+
   scale_y_continuous(limits=c(min(0), max(60)))+
   xlab("Year") +
-  ylab(expression(paste("Mean density (","0.04m"^-2,")", sep = ""))) +
+  ylab(expression(paste("Mean (±SE) density (","0.04m"^-2,")", sep = ""))) +
   ggtitle("c) South") +
   # geom_smooth(method=lm, colour = 1, se=FALSE, fullrange=TRUE)+
   theme_bw() + graphics
@@ -130,17 +128,14 @@ JBMP_centre_shootdensity_plot <- ggplot(
   geom_errorbar(aes(ymin=mean-se, ymax=mean+se),
                 width=.02, colour="black", position=pd) +
   geom_point(position=pd, size=3, fill="black") + # 21 is filled circle
-  scale_x_continuous(
-    limits=c(
-      min(JBMP_centre_shootdensity$Year-0.125),
-      max(JBMP_centre_shootdensity$Year+0.125)),
-    breaks=min(JBMP_centre_shootdensity$Year):max(JBMP_centre_shootdensity$Year)) +
+  scale_x_continuous(breaks = seq(2003,2017,2), limits=c(min(2003),(max(2017))))+
   scale_y_continuous(limits=c(min(0), max(60)))+
   xlab("Year") +
-  ylab(expression(paste("Mean density (","0.04m"^-2,")", sep = ""))) +
+  ylab(expression(paste("Mean (±SE) density (","0.04m"^-2,")", sep = ""))) +
   ggtitle("b) Centre")+
   geom_smooth(method=lm, colour = 1, se=TRUE, fullrange=TRUE)+
-  theme_bw() + graphics
+  theme_bw() + graphics+
+  theme(axis.title.x=element_blank())
 
 JBMP_centre_shootdensity_plot
 
@@ -156,15 +151,14 @@ JBMP_north_shootdensity <- make_shootdensity(JBMP_north)
 JBMP_north_shootdensity_plot<-ggplot(JBMP_north_shootdensity, aes(x=Year, y=mean)) +
   geom_errorbar(aes(ymin=mean-se, ymax=mean+se), width=.02, colour="black", position=pd) +
   geom_point(position=pd, size=3, fill="black") + # 21 is filled circle
-  scale_x_continuous(
-    limits=c(min(JBMP_north_shootdensity$Year-0.125), max(JBMP_north_shootdensity$Year+0.125)),
-    breaks=min(JBMP_north_shootdensity$Year):max(JBMP_north_shootdensity$Year)) +
+  scale_x_continuous(breaks = seq(2003,2017,2), limits=c(min(2003),(max(2017))))+
   scale_y_continuous(limits=c(min(0), max(60)))+
   xlab("Year") +
-  ylab(expression(paste("Mean density (","0.04m"^-2,")", sep = ""))) +
+  ylab(expression(paste("Mean (±SE) density (","0.04m"^-2,")", sep = ""))) +
   ggtitle("a) North")+
   # geom_smooth(method=loess, colour = 1, se=TRUE, fullrange=TRUE) +
-  theme_bw() + graphics
+  theme_bw() + graphics+
+  theme(axis.title.x=element_blank())
 
 JBMP_north_shootdensity_plot
 
@@ -176,7 +170,7 @@ detach(JBMP_north_shootdensity)
 ################################################################################
 #MAXIMUM CANOPY HEIGHT
 ################################################################################
-#Overall maximum canopy height density
+
 make_maxheight <- function(df){
   df %>%
     group_by(Year) %>%
@@ -188,20 +182,21 @@ make_maxheight <- function(df){
     )
 }
 
+#Overall maximum canopy height density
 JBMP_maxheight <- make_maxheight(JBMP)
 
 JBMP_maxheight_plot <- ggplot(JBMP_maxheight, aes(x=Year, y=mean)) +
   geom_errorbar(aes(ymin=mean-se, ymax=mean+se), width=.02, colour="black", position=pd) +
   geom_point(position=pd, size=3, fill="black") + # 21 is filled circle
-  scale_x_continuous(
-    limits=c(min(JBMP_maxheight$Year-0.125), max(JBMP_maxheight$Year+0.125)),
-    breaks=min(JBMP_maxheight$Year):max(JBMP_maxheight$Year)) +
+  scale_x_continuous(breaks = seq(2003,2017,2), limits=c(min(2003),(max(2017))))+
   scale_y_continuous(limits=c(min(0), max(1000)))+
   xlab("Year") +
-  ylab(expression(paste("Mean max height (mm)", sep = ""))) +
+  ylab(bquote(atop("Mean (±SE)",
+                   "maximum height (mm)"))) +
   ggtitle("a) Maximum canopy height")+
   # geom_smooth(method=lm, colour = 1, se=FALSE, fullrange=FALSE)+
-  theme_bw() + graphics
+  theme_bw() + graphics+
+  theme(axis.title.x=element_blank())
 
 JBMP_maxheight_plot
 
@@ -211,15 +206,17 @@ detach(JBMP_maxheight)
 
 ################################################################################
 #JBMP_south max canopy height
+
 JBMP_south_maxheight <- make_maxheight(JBMP_south)
 
 JBMP_south_maxheight_plot <- ggplot(JBMP_south_maxheight, aes(x=Year, y=mean)) +
   geom_errorbar(aes(ymin=mean-se, ymax=mean+se), width=.02, colour="black", position=pd) +
   geom_point(position=pd, size=3, fill="black") + # 21 is filled circle
-  scale_x_continuous(breaks = seq(2003,2017,1), limits=c(min(2003),(max(2017))))+
+  scale_x_continuous(breaks = seq(2003,2017,2), limits=c(min(2003),(max(2017))))+
   scale_y_continuous(limits=c(min(0), max(1000)))+
   xlab("Year") +
-  ylab(expression(paste("Mean max height (mm)", sep = ""))) +
+  ylab(bquote(atop("Mean (±SE)",
+                   "maximum height (mm)"))) +
   ggtitle("c) South") +
   # geom_smooth(method=lm, colour = 1, se=FALSE, fullrange=TRUE)+
     theme_bw() + graphics
@@ -238,15 +235,15 @@ JBMP_centre_maxheight <- make_maxheight(JBMP_centre)
 JBMP_centre_maxheight_plot<-ggplot(JBMP_centre_maxheight, aes(x=Year, y=mean)) +
   geom_errorbar(aes(ymin=mean-se, ymax=mean+se), width=.02, colour="black", position=pd) +
   geom_point(position=pd, size=3, fill="black") + # 21 is filled circle
-  scale_x_continuous(
-    limits=c(min(JBMP_centre_maxheight$Year-0.125), max(JBMP_centre_maxheight$Year+0.125)),
-    breaks=min(JBMP_centre_maxheight$Year):max(JBMP_centre_maxheight$Year)) +
+  scale_x_continuous(breaks = seq(2003,2017,2), limits=c(min(2003),(max(2017))))+
   scale_y_continuous(limits=c(min(0), max(1000)))+
   xlab("Year") +
-  ylab(expression(paste("Mean max height (mm)", sep = ""))) +
+  ylab(bquote(atop("Mean (±SE)",
+                   "maximum height (mm)"))) +
   ggtitle("b) Centre")+
   # geom_smooth(method=lm, colour = 1, se=FALSE, fullrange=FALSE)+
-    theme_bw() + graphics
+    theme_bw() + graphics+
+  theme(axis.title.x=element_blank())
 
 JBMP_centre_maxheight_plot
 
@@ -262,15 +259,15 @@ JBMP_north_maxheight <- make_maxheight(JBMP_north)
 JBMP_north_maxheight_plot <- ggplot(JBMP_north_maxheight, aes(x=Year, y=mean)) +
   geom_errorbar(aes(ymin=mean-se, ymax=mean+se), width=.02, colour="black", position=pd) +
   geom_point(position=pd, size=3, fill="black") + # 21 is filled circle
-  scale_x_continuous(
-    limits=c(min(JBMP_north_maxheight$Year-0.125), max(JBMP_north_maxheight$Year+0.125)),
-    breaks=min(JBMP_north_maxheight$Year):max(JBMP_north_maxheight$Year)) +
+  scale_x_continuous(breaks = seq(2003,2017,2), limits=c(min(2003),(max(2017))))+
   scale_y_continuous(limits=c(min(0), max(1000)))+
   xlab("Year") +
-  ylab(expression(paste("Mean max height (mm)", sep = ""))) +
+  ylab(bquote(atop("Mean (±SE)",
+                "maximum height (mm)"))) +
   ggtitle("a) North")+
   # geom_smooth(method=lm, colour = 1, se=FALSE, fullrange=FALSE)+
-  theme_bw() + graphics
+  theme_bw() + graphics+
+  theme(axis.title.x=element_blank())
 
 JBMP_north_maxheight_plot
 
@@ -278,11 +275,9 @@ attach(JBMP_north_maxheight)
 MannKendall(mean)
 detach(JBMP_north_maxheight)
 
-
 ################################################################################
 #MEAN CANOPY HEIGHT
 ################################################################################
-#Overall mean canopy height density
 
 make_meanheight <- function(df){
   df %>%
@@ -294,18 +289,19 @@ make_meanheight <- function(df){
       se   = sd(Mean_height_mm, na.rm=TRUE) / sqrt(N)
     )
 }
+################################################################################
+#Overall mean canopy height density
 
 JBMP_meanheight <- make_meanheight(JBMP)
 
 JBMP_meanheight_plot <- ggplot(JBMP_meanheight, aes(x=Year, y=mean)) +
   geom_errorbar(aes(ymin=mean-se, ymax=mean+se), width=.02, colour="black", position=pd) +
   geom_point(position=pd, size=3, fill="black") + # 21 is filled circle
-  scale_x_continuous(
-    limits=c(min(JBMP_meanheight$Year-0.125), max(JBMP_meanheight$Year+0.125)),
-    breaks=min(JBMP_meanheight$Year):max(JBMP_meanheight$Year)) +
+  scale_x_continuous(breaks = seq(2003,2017,2), limits=c(min(2003),(max(2017))))+
   scale_y_continuous(limits=c(min(0), max(1000)))+
   xlab("Year") +
-  ylab(expression(paste("Mean 80th percentile height (mm)", sep = ""))) +
+  ylab(bquote(atop("Mean (±SE)",
+                   "80th percentile height (mm)"))) +
   ggtitle("b) 80th percentile canopy height")+
   geom_smooth(method=lm, colour = 1, se=TRUE, fullrange=FALSE)+
   theme_bw() + graphics
@@ -324,10 +320,11 @@ JBMP_south_meanheight <- make_meanheight(JBMP_south)
 JBMP_south_meanheight_plot <- ggplot(JBMP_south_meanheight, aes(x=Year, y=mean)) +
   geom_errorbar(aes(ymin=mean-se, ymax=mean+se), width=.02, colour="black", position=pd) +
   geom_point(position=pd, size=3, fill="black") + # 21 is filled circle
-  scale_x_continuous(breaks = seq(2003,2017,1), limits=c(min(2003),(max(2017))))+
+  scale_x_continuous(breaks = seq(2003,2017,2), limits=c(min(2003),(max(2017))))+
   scale_y_continuous(limits=c(min(0), max(1000)))+
   xlab("Year") +
-  ylab(expression(paste("Mean 80th percentile (mm)", sep = ""))) +
+  ylab(bquote(atop("Mean (±SE)",
+                   "80th percentile height (mm)"))) +
   # ggtitle("c) South") +
   # geom_smooth(method=lm, colour = 1, se=FALSE, fullrange=TRUE)+
   theme_bw() + graphics
@@ -346,15 +343,15 @@ JBMP_centre_meanheight <- make_meanheight(JBMP_centre)
 JBMP_centre_meanheight_plot<-ggplot(JBMP_centre_meanheight, aes(x=Year, y=mean)) +
   geom_errorbar(aes(ymin=mean-se, ymax=mean+se), width=.02, colour="black", position=pd) +
   geom_point(position=pd, size=3, fill="black") + # 21 is filled circle
-  scale_x_continuous(
-    limits=c(min(JBMP_centre_meanheight$Year-0.125), max(JBMP_centre_meanheight$Year+0.125)),
-    breaks=min(JBMP_centre_meanheight$Year):max(JBMP_centre_meanheight$Year)) +
+  scale_x_continuous(breaks = seq(2003,2017,2), limits=c(min(2003),(max(2017))))+
   scale_y_continuous(limits=c(min(0), max(1000)))+
   xlab("Year") +
-  ylab(expression(paste("Mean 80th percentile height (mm)", sep = ""))) +
+  ylab(bquote(atop("Mean (±SE)",
+                   "80th percentile height (mm)"))) +
   # ggtitle("b) Centre")+
   geom_smooth(method=lm, colour = 1, se=TRUE, fullrange=TRUE)+
-  theme_bw() + graphics
+  theme_bw() + graphics+
+  theme(axis.title.x=element_blank())
 
 JBMP_centre_meanheight_plot
 
@@ -370,22 +367,21 @@ JBMP_north_meanheight <- make_meanheight(JBMP_north)
 JBMP_north_meanheight_plot <- ggplot(JBMP_north_meanheight, aes(x=Year, y=mean)) +
   geom_errorbar(aes(ymin=mean-se, ymax=mean+se), width=.02, colour="black", position=pd) +
   geom_point(position=pd, size=3, fill="black") + # 21 is filled circle
-  scale_x_continuous(
-    limits=c(min(JBMP_north_meanheight$Year-0.125), max(JBMP_north_meanheight$Year+0.125)),
-    breaks=min(JBMP_north_meanheight$Year):max(JBMP_north_meanheight$Year)) +
+  scale_x_continuous(breaks = seq(2003,2017,2), limits=c(min(2003),(max(2017))))+
   scale_y_continuous(limits=c(min(0), max(1000)))+
   xlab("Year") +
-  ylab(expression(paste("Mean 80th percentile height (mm)", sep = ""))) +
+  ylab(bquote(atop("Mean (±SE)",
+                   "80th percentile height (mm)"))) +
   # ggtitle("a) North")+
   # geom_smooth(method=lm, colour = 1, se=FALSE, fullrange=TRUE)+
-  theme_bw() + graphics
+  theme_bw() + graphics+
+  theme(axis.title.x=element_blank())
 
 JBMP_north_meanheight_plot
 
 attach(JBMP_north_meanheight)
 MannKendall(mean)
 detach(JBMP_north_meanheight)
-
 
 ################################################################################
 #Create figures (will be saved to current workdir)
@@ -397,7 +393,7 @@ png(png_shoot_density_fn, width=500, height=300)
 grid.arrange(JBMP_shootdensity_plot)
 dev.off()
 
-png(png_JBMP_shoot_density_fn, width=500, height=800)
+png(png_JBMP_shoot_density_fn, width=500, height=900)
 grid.arrange(JBMP_north_shootdensity_plot,
              JBMP_centre_shootdensity_plot,
              JBMP_south_shootdensity_plot,
@@ -405,11 +401,11 @@ grid.arrange(JBMP_north_shootdensity_plot,
 dev.off()
 
 #Maximum canopy height
-png(png_JBMP_height_fn, width=400, height=500)
+png(png_JBMP_height_fn, width=500, height=600)
 grid.arrange(JBMP_maxheight_plot, JBMP_meanheight_plot, ncol = 1)
 dev.off()
 
-png(png_height_fn, width=800, height=800)
+png(png_height_fn, width=1000, height=900)
 grid.arrange(JBMP_north_maxheight_plot,
              JBMP_north_meanheight_plot,
              JBMP_centre_maxheight_plot,

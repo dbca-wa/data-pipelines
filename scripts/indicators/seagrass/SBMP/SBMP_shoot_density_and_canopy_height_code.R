@@ -486,7 +486,7 @@ png(png_SBMP_overall_shoot_density_fn, width=500, height=300)
 grid.arrange(SBMP_shootdensity_plot)
 dev.off()
 
-png(png_SBMP_shoot_density_fn, width=1000, height=800)
+png(png_SBMP_shoot_density_fn, width=1000, height=600)
 grid.arrange(SBMP_westerngulf_shootdensity_plot, SBMP_peron_shootdensity_plot, SBMP_monkeymia_shootdensity_plot, SBMP_wooramel_shootdensity_plot,ncol=2)
 dev.off()
 
@@ -495,7 +495,7 @@ png(png_SBMP_overall_max_height_fn, width=500, height=300)
 grid.arrange(SBMP_maxheight_plot)
 dev.off()
 
-png(png_SBMP_max_height_fn, width=1000, height=800)
+png(png_SBMP_max_height_fn, width=1000, height=600)
 grid.arrange(SBMP_westerngulf_maxheight_plot, SBMP_peron_maxheight_plot, SBMP_monkeymia_maxheight_plot, SBMP_wooramel_maxheight_plot,ncol=2)
 dev.off()
 

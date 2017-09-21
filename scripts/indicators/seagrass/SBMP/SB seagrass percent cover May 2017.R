@@ -5,7 +5,6 @@ source("~/projects/data-pipelines/setup/ckan.R")
 library(ggplot2)
 #install.packages("gridExtra")
 library(gridExtra)
-detach("package:dplyr", unload=TRUE)
 library(plyr)
 library(car)
 library (Kendall)
@@ -56,10 +55,11 @@ graphics = theme(axis.text.x=element_text(angle=45, size = 15, hjust=0.9), #rota
 ##################################################################################
 #Percent cover calculations for all data
 ##################################################################################
-
 # All seagrass pooled
 SBMP = subset (d, Park=="Shark Bay Marine Park")
 SBMP$Location <- as.factor(SBMP$Location)
+
+detach("package:dplyr", unload=TRUE)
 
 SGcover=count(SBMP, c("Site", "Zone", "Year", "Location", "Level1Class")) #counts number of observations per site, per year
 SGcover_obs=count(SGcover, c("Site", "Year"), "freq") #counts number of observations made at each site per year
@@ -83,34 +83,30 @@ SBMP_percentcover$percent = SBMP_percentcover$category_count/SBMP_percentcover$t
 
 amphibolis_cover <- subset(SBMP_percentcover, genus == c("Amphibolis spp."))
 amphib_cover <- subset (amphibolis_cover, Site %in% c("Monkey Mia control_Amphibolis","Monkey Mia Outer Bank_Amphibolis","Peron Site 3","Herald Bight west Amphibolis","Herald Loop_Amphibolis","Gladstone Site 2_Amphibolis","Gladstone Marker_Amphibolis","0433 Shark Bay Amphibolis","SBMR 0581 Amphibolis","0037 Shark Bay Amphibolis","0595 Shark Bay Amphibolis","0459 Shark Bay Amphibolis","SBMR 0464 Amphibolis","0466 Shark Bay Amphibolis","0456 Shark Bay Amphibolis","0481 Shark Bay Amphibolis","0380 Settlement Amphibolis","Useless Loop North_Amphibolis","Wooramel north_Amphibolis","Disappointment Reach Amphibolis"))
-
+amphib_cover
 posidonia_cover <- subset(SBMP_percentcover, genus == c("Posidonia spp."))
 pos_cover <- subset (posidonia_cover, Site %in% c("Denham", "Sandy Point", "Big Lagoon", "South Passage", "Useless Loop South", "Useless Loop North", "Peron South", "Disappointment Reach", "Wooramel North", "Monkey Mia Inner Bank", "Monkey Mia Pearl Control", "East Peron", "0380 Settlement", "Monkey Mia South", "Monkey Mia South outer"))
 
-# Posidonia and Amphibolis region subsets
-amphib_cover = within(amphib_cover, levels(Location)[levels(Location) == "Western Gulf"] <- "Western Gulf")
-amphib_cover = within(amphib_cover, levels(Location)[levels(Location) == "Dirk Hartog Island"] <- "Western Gulf")
-amphib_cover = within(amphib_cover, levels(Location)[levels(Location) == "South-Western Gulf"] <- "Peron")
-amphib_cover = within(amphib_cover, levels(Location)[levels(Location) == "Peron West"] <- "Peron")
-amphib_cover = within(amphib_cover, levels(Location)[levels(Location) == "Monkey Mia"] <- "Monkey Mia")
-amphib_cover = within(amphib_cover, levels(Location)[levels(Location) == "Peron East"] <- "Monkey Mia")
-amphib_cover = within(amphib_cover, levels(Location)[levels(Location) == "Eastern Gulf"] <- "Eastern Gulf")
-amphib_cover = within(amphib_cover, levels(Location)[levels(Location) == "Gladstone"] <- "Eastern Gulf")
+# # Posidonia and Amphibolis region subsets
+# amphib_cover = within(amphib_cover, levels(Location)[levels(Location) == "Western Gulf"] <- "Western Gulf")
+# amphib_cover = within(amphib_cover, levels(Location)[levels(Location) == "Dirk Hartog Island"] <- "Western Gulf")
+# amphib_cover = within(amphib_cover, levels(Location)[levels(Location) == "South-Western Gulf"] <- "Peron")
+# amphib_cover = within(amphib_cover, levels(Location)[levels(Location) == "Peron West"] <- "Peron")
+# amphib_cover = within(amphib_cover, levels(Location)[levels(Location) == "Monkey Mia"] <- "Monkey Mia")
+# amphib_cover = within(amphib_cover, levels(Location)[levels(Location) == "Peron East"] <- "Monkey Mia")
+# amphib_cover = within(amphib_cover, levels(Location)[levels(Location) == "Eastern Gulf"] <- "Eastern Gulf")
+# amphib_cover = within(amphib_cover, levels(Location)[levels(Location) == "Gladstone"] <- "Eastern Gulf")
+#
+# pos_cover = within(pos_cover, levels(Location)[levels(Location) == "Western Gulf"] <- "Western Gulf")
+# pos_cover = within(pos_cover, levels(Location)[levels(Location) == "Dirk Hartog Island"] <- "Western Gulf")
+# pos_cover = within(pos_cover, levels(Location)[levels(Location) == "South-Western Gulf"] <- "Peron")
+# pos_cover = within(pos_cover, levels(Location)[levels(Location) == "Peron West"] <- "Peron")
+# pos_cover = within(pos_cover, levels(Location)[levels(Location) == "Monkey Mia"] <- "Monkey Mia")
+# pos_cover = within(pos_cover, levels(Location)[levels(Location) == "Peron East"] <- "Monkey Mia")
+# pos_cover = within(pos_cover, levels(Location)[levels(Location) == "Eastern Gulf"] <- "Eastern Gulf")
+# pos_cover = within(pos_cover, levels(Location)[levels(Location) == "Gladstone"] <- "Eastern Gulf")
 
-pos_cover = within(pos_cover, levels(Location)[levels(Location) == "Western Gulf"] <- "Western Gulf")
-pos_cover = within(pos_cover, levels(Location)[levels(Location) == "Dirk Hartog Island"] <- "Western Gulf")
-pos_cover = within(pos_cover, levels(Location)[levels(Location) == "South-Western Gulf"] <- "Peron")
-pos_cover = within(pos_cover, levels(Location)[levels(Location) == "Peron West"] <- "Peron")
-pos_cover = within(pos_cover, levels(Location)[levels(Location) == "Monkey Mia"] <- "Monkey Mia")
-pos_cover = within(pos_cover, levels(Location)[levels(Location) == "Peron East"] <- "Monkey Mia")
-pos_cover = within(pos_cover, levels(Location)[levels(Location) == "Eastern Gulf"] <- "Eastern Gulf")
-pos_cover = within(pos_cover, levels(Location)[levels(Location) == "Gladstone"] <- "Eastern Gulf")
-
-amphib_cover$Location <- factor(amphib_cover$Location, levels= c("Western Gulf", "Peron", "Monkey Mia", "Eastern Gulf"))
-amphib_cover<-amphib_cover[order(amphib_cover$Location), ]
-
-pos_cover$Location <- factor(pos_cover$Location, levels= c("Western Gulf", "Peron", "Monkey Mia", "Eastern Gulf"))
-pos_cover<-pos_cover[order(pos_cover$Location), ]
+library(dplyr)
 
 #################################################################
 #PERCENT COVER
