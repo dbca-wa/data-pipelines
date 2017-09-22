@@ -1,0 +1,213 @@
+---
+title: "BioSys"
+author: "Florian Mayer, DBCA"
+date: "2017/09/21"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r libs, echo=FALSE, message=FALSE}
+library(httr)
+library(dplyr)
+library(purrr)
+library(tibble)
+library(DT)
+# devtools::install_github("datadotworld/datapackage-r")
+# library(datapkg)
+# install.packages("kimisc")
+library(kimisc)
+```
+# Setup
+Obtain a Biosys username and password and add to your `~/.Rprofile`:
+
+```{r setenv, eval=FALSE}
+Sys.setenv(BIOSYS_API_USERNAME = "USERNAME")
+Sys.setenv(BIOSYS_API_PASSWORD = "PASSWORD")
+```
+
+# Data flow
+
+* Benthic images are analysed and annotated in the software EcoPAAS
+* EcoPAAS outputs data as Excel
+* BioSys imports Excel using a config created by Paul's uploader (tm)
+* [Biosys GUI](https://biosys.dbca.wa.gov.au/)
+* [BioSys API in Browser](https://biosys.dbca.wa.gov.au/sso/api) 
+using single sign on (needs active browser window)
+* [BioSys API in scripts](https://biosys.dbca.wa.gov.au/api) using basicauth 
+(username and password)
+* [BioSys API documentation](https://biosys-admin.dbca.wa.gov.au/api/explorer/)
+
+# Accessing data from BioSys
+## Helper functions
+
+* Data is retrieved from the BioSys API through an HTTP GET with basicauth.
+* The JSON returned from the BioSys API is parsed into a `tibble`.
+* All heavy lifting is factored out into helper functions.
+
+```{r helpers}
+#' Make map_chr resilient against NULL
+map_chr_hack <- function(.x, .f, ...) {
+  map(.x, .f, ...) %>%
+    purrr::map_if(is.null, ~ NA_character_) %>%
+    purrr::flatten_chr()
+}
+
+#' Make map_dbl resilient against NULL
+map_dbl_hack <- function(.x, .f, ...) {
+  map(.x, .f, ...) %>%
+    purrr::map_if(is.null, ~ NA_real_) %>%
+    purrr::flatten_dbl()
+}
+
+#' Basic Biosys API GET returning HTTP response content
+biosys_get <- function(api_path,
+  api="https://biosys.dbca.wa.gov.au/api/",
+  auth=httr::authenticate(Sys.getenv("BIOSYS_UN"), 
+                          Sys.getenv("BIOSYS_PW")),
+  query = list()){
+  httr::GET(file.path(api, api_path), auth, query = query) %>% 
+    httr::content(.)
+} 
+
+#' Parse BioSys projects to tibble
+biosys_projects <- function(
+  auth=httr::authenticate(
+    Sys.getenv("BIOSYS_UN"), Sys.getenv("BIOSYS_PW"))){
+  biosys_get("projects", auth = auth) %>% {
+    tibble::tibble(
+      id = purrr::map_chr(., "id"),
+      name = purrr::map_chr(., "name"),
+      code = purrr::map_chr(., "code"),
+      description = map_chr_hack(., "description"),
+      site_count = purrr::map_int(., "site_count"),
+      dataset_count = purrr::map_int(., "dataset_count"),
+      record_count = purrr::map_int(., "record_count"),
+      longitude = purrr::map(., c("centroid", "coordinates")) %>% 
+        map_dbl_hack(magrittr::extract2, 1),
+      latitude = purrr::map(., c("centroid", "coordinates")) %>% 
+        map_dbl_hack(magrittr::extract2, 2),
+      datum = purrr::map_chr(., "datum"),
+      timezone = purrr::map_chr(., "timezone")
+      # site_data_package
+      # custodians
+    )
+  }
+}
+
+#' Parse BioSys datasets to tibble
+biosys_datasets <- function(
+  auth=httr::authenticate(
+    Sys.getenv("BIOSYS_UN"), Sys.getenv("BIOSYS_PW")),
+  project_id = NULL){
+  if (!is.null(project_id)) {
+    query = list("project" = project_id)
+  } else {
+      query = list()
+  }
+  biosys_get("datasets", auth = auth, query = query) %>% {
+    tibble::tibble(
+      id = purrr::map_chr(., "id"),
+      record_count = purrr::map_int(., "record_count"),
+      data_package = purrr::map(., "data_package"),
+      name = purrr::map_chr(., "name"),
+      type = purrr::map_chr(., "type"),
+      description = map_chr_hack(., "description"),
+      project_id = purrr::map_int(., "project")
+    )
+  }
+}
+
+#' Parse BioSys datasets to tibble
+biosys_records <- function(
+  auth=httr::authenticate(Sys.getenv("BIOSYS_UN"),
+                          Sys.getenv("BIOSYS_PW")),
+  project_id = NULL){
+  if (!is.null(project_id)) {
+    query = list("dataset__project__id" = project_id)
+  } else {
+      query = list()
+  }
+  biosys_json <- biosys_get("records", auth = auth, query = query)
+  
+  biosys_records <- biosys_json %>% {
+   tibble::tibble(
+     id = purrr::map_chr(., "id"),
+     datetime = map_chr_hack(., "datetime"),
+     species_name = map_chr_hack(., "species_name"),
+     name_id = map_chr_hack(., "name_id"),
+     file_name = purrr::map(., "source_info") %>% 
+        map_chr_hack(magrittr::extract2, 1),
+     file_row = purrr::map(., "source_info") %>% 
+       map_chr_hack(magrittr::extract2, 2),
+     last_modified = purrr::map_chr(., "last_modified"),
+     dataset = purrr::map_chr(., "dataset"),
+     site = map_chr_hack(., "site"),
+     data = purrr::map(., "data")
+   )}
+  
+  datacols <- biosys_records$data %>% 
+    kimisc::list_to_df(.) %>% 
+    magrittr::extract2("value") %>% 
+    purrr::transpose(.) %>% 
+    tibble::as_tibble(.)
+  
+  metadatacols <- biosys_records %>% select(-data)
+
+  out <- cbind(metadatacols, datacols)
+  out
+  
+}
+
+
+
+#' Parse BioSys records into a tibble, flatten data into cols
+parse_records <- function(biosys_json){
+ biosys_records <- biosys_json %>% {
+   tibble::tibble(
+     id = purrr::map_chr(., "id"),
+     datetime = map_chr_hack(., "datetime"),
+     species_name = map_chr_hack(., "species_name"),
+     name_id = map_chr_hack(., "name_id"),
+     file_name = purrr::map(., "source_info") %>% 
+        map_chr_hack(magrittr::extract2, 1),
+     file_row = purrr::map(., "source_info") %>% 
+       map_chr_hack(magrittr::extract2, 2),
+     last_modified = purrr::map_chr(., "last_modified"),
+     dataset = purrr::map_chr(., "dataset"),
+     site = map_chr_hack(., "site"),
+     data = purrr::map(., "data")
+   )}
+  
+  datacols <- biosys_records$data %>% 
+  kimisc::list_to_df(.) %>% 
+  magrittr::extract2("value") %>% 
+  purrr::transpose(.) %>% 
+  tibble::as_tibble(.)
+  
+  metadatacols <- biosys_records %>% select(-data)
+
+  cbind(metadatacols, datacols)
+}
+```
+
+## BioSys projects
+```{r projects}
+projects <- biosys_projects()
+DT::datatable(projects)
+```
+
+## BioSys datasets
+```{r datasets}
+datasets <- biosys_datasets(project_id = 6)
+DT::datatable(datasets)
+```
+
+## BioSys records
+```{r records}
+records <- biosys_records(project_id = 6)
+DT::datatable(head(records, n=100))
+```
+
