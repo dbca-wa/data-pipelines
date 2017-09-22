@@ -1,4 +1,4 @@
-setwd("~/projects/data-pipelines/scripts/indicators/seagrass/MMP")
+12setwd("~/projects/data-pipelines/scripts/indicators/seagrass/MMP")
 source("~/projects/data-pipelines/setup/ckan.R")
 
 library(gridExtra)
