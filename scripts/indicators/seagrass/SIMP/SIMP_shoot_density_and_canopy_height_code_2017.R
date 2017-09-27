@@ -355,7 +355,7 @@ detach(SIMP_height1)
 
 #SIMP_south max canopy height
 
-SIMP_south_height1 <- make_maxheight(SIMP_south)
+SIMP_south_height1 <- make_meanheight(SIMP_south)
 
 SIMP_south_height_plot1 <- ggplot(SIMP_south_height1, aes(x=Year, y=mean)) +
   geom_errorbar(aes(ymin=mean-se, ymax=mean+se), width=.02, colour="black", position=pd) +
@@ -378,7 +378,7 @@ detach(SIMP_south_height1)
 #############################################################
 #Warnbro Sound max canopy height
 
-SIMP_warnbro_height1 <- make_maxheight(SIMP_warnbro)
+SIMP_warnbro_height1 <- make_meanheight(SIMP_warnbro)
 
 SIMP_warnbro_height_plot1<-ggplot(SIMP_warnbro_height1, aes(x=Year, y=mean)) +
   geom_errorbar(aes(ymin=mean-se, ymax=mean+se), width=.02, colour="black", position=pd) +
@@ -402,7 +402,7 @@ detach(SIMP_warnbro_height1)
 #################################################################
 #SIMP_shoalwater maxy canopy height
 
-SIMP_shoalwater_height1 <- make_maxheight(SIMP_shoalwater)
+SIMP_shoalwater_height1 <- make_meanheight(SIMP_shoalwater)
 
 SIMP_shoalwater_height_plot1 <- ggplot(SIMP_shoalwater_height1, aes(x=Year, y=mean)) +
   geom_errorbar(aes(ymin=mean-se, ymax=mean+se), width=.02, colour="black", position=pd) +
@@ -426,7 +426,7 @@ detach(SIMP_shoalwater_height1)
 ###########################################################################
 #SIMP_north max canopy height
 
-SIMP_north_height1 <- make_maxheight(SIMP_north)
+SIMP_north_height1 <- make_meanheight(SIMP_north)
 
 SIMP_north_height_plot1<-ggplot(SIMP_north_height1, aes(x=Year, y=mean)) +
   geom_errorbar(aes(ymin=mean-se, ymax=mean+se), width=.02, colour="black", position=pd) +
