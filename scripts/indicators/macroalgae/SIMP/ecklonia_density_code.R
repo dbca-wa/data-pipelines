@@ -111,12 +111,12 @@ SIMP_shoal <- make_density(SIMP_shoalwater)
 SIMP_shoal_plot <- ggplot(SIMP_shoal, aes(x=Year, y=mean)) +
   geom_errorbar(aes(ymin=mean-se, ymax=mean+se), width=.02, colour="black", position=pd) +
   geom_point(position=pd, size=3, fill="black") + # 21 is filled circle
-  scale_x_continuous (breaks = seq(1998,2017,1), limits=c(min(SIMP_shoal$Year-0.125),
-                                                          max(SIMP_shoal$Year+0.125))) +
+  scale_x_continuous (breaks = seq(1998,2017,1), limits=c(min(2012),
+                                                          max(2015))) +
   scale_y_continuous(limits=c(min(0), max(20)))+
   xlab("Year") +
   ylab(expression(paste("Mean (±SE) density (","m"^-2,")", sep = ""))) +
-  ggtitle ("b)  Shoalwater")+
+  ggtitle ("b)  Centre")+
   # geom_smooth(method=lm, colour = 1, se=TRUE, fullrange=TRUE)+
   theme_bw() + graphics
 SIMP_shoal_plot
@@ -197,12 +197,12 @@ SIMP_shoal_juv <- make_juvdensity(SIMP_shoalwater)
 SIMP_shoal_juv_plot <- ggplot(SIMP_shoal_juv, aes(x=Year, y=mean)) +
   geom_errorbar(aes(ymin=mean-se, ymax=mean+se), width=.02, colour="black", position=pd) +
   geom_point(position=pd, size=3, fill="black") + # 21 is filled circle
-  scale_x_continuous (breaks = seq(1998,2017,1), limits=c(min(SIMP_shoal_juv$Year-0.125),
-                                                          max(SIMP_shoal_juv$Year+0.125))) +
+  scale_x_continuous (breaks = seq(1998,2017,1), limits=c(min(2012),
+                                                          max(2015))) +
   scale_y_continuous(limits=c(min(0), max(20)))+
   xlab("Year") +
   ylab(expression(paste("Mean (±SE) density (","m"^-2,")", sep = ""))) +
-  ggtitle ("b)  Shoalwater")+
+  ggtitle ("b)  Centre")+
   # geom_smooth(method=lm, colour = 1, se=TRUE, fullrange=TRUE)+
   theme_bw() + graphics
 SIMP_shoal_juv_plot
