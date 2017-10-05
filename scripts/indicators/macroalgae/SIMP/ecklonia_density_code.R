@@ -28,6 +28,8 @@ names(d)[names(d) == 'Site name'] <- 'Site'###Changes column name
 d$eck_adult <- (d$Ecklonia_adult_density * 4) # Scales seagrass data to 1m
 d$eck_juv <- (d$Ecklonia_juvenile_density * 4) # Scales seagrass data to 1m
 
+
+df2 <- aggregate(Ecklonia_adult_density~Site,all_data,length)
 ################################################################################
 #Define graphic properties
 ################################################################################
