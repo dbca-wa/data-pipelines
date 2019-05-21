@@ -1,5 +1,5 @@
 setwd("~/projects/data-pipelines/scripts/indicators/finfish")
-#source("~/projects/data-pipelines/setup/ckan.R")
+source("~/projects/data-pipelines/setup/ckan.R")
 library(ggplot2)
 library(plyr)
 library(gridExtra)
@@ -9,13 +9,17 @@ library(mgcv)
 library(MASS)
 library(MuMIn)
 
-#Load CSV
+#Load local CSV
+# dat <- read.csv("JBMP_All Data.csv")
 
-dat <- read.csv("JBMP_All Data.csv")
+# or from the data catalogue
+data_rid <- "fe26c690-980d-4af4-a6ac-953eed50caf5"
+dat <- ckanr::resource_show(data_rid)$url %>% readr::read_csv(.)
+
 
 #Check column names
 
-colnames (dat)
+colnames(dat)
 
 #Limit to those columns that are important for this analysis
 
@@ -94,3 +98,5 @@ png(filename = "TargetJBMP.png",
     width = 600, height = 400, units = "px", pointsize = 6)
 TargetJBMPFig
 dev.off()
+
+#ckanr::resource_update("fe26c690-980d-4af4-a6ac-953eed50caf5", "TargetJBMP.png")
