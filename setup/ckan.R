@@ -10,9 +10,11 @@ if (file.exists("~/.Rprofile")) source("~/.Rprofile")
 
 if (!require("pacman")) install.packages("pacman")
 pacman::p_load(bitops,
+               ckanr,
                caTools,
                colorspace,
                dplyr,
+               tidyr,
                ggplot2,
                Hmisc,
                knitr,

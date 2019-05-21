@@ -30,3 +30,4 @@ vignettes/*.pdf
 *.pdf
 *.xlsx
 README.html
+scripts/ckan_secret.R
