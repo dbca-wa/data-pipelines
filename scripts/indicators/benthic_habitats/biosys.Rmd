@@ -1,9 +1,17 @@
 ---
-title: "BioSys"
+title: "Accessing BioSys data"
 author: "Florian Mayer, DBCA"
 date: "2017/09/21"
 output: html_document
 ---
+
+This workbook shows how to access EcoPAAS data once they are uploaded
+into the data warehouse BioSys.
+
+The two primary purposes of doing so are:
+
+* to QA data and identify possible required edits to records, and
+* to analyse and visualise data.
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
@@ -55,12 +63,14 @@ map_chr_hack <- function(.x, .f, ...) {
     purrr::flatten_chr()
 }
 
+
 #' Make map_dbl resilient against NULL
 map_dbl_hack <- function(.x, .f, ...) {
   map(.x, .f, ...) %>%
     purrr::map_if(is.null, ~ NA_real_) %>%
     purrr::flatten_dbl()
 }
+
 
 #' Basic Biosys API GET returning HTTP response content
 biosys_get <- function(api_path,
@@ -71,6 +81,7 @@ biosys_get <- function(api_path,
   httr::GET(file.path(api, api_path), auth, query = query) %>% 
     httr::content(.)
 } 
+
 
 #' Parse BioSys projects to tibble
 biosys_projects <- function(
@@ -97,6 +108,7 @@ biosys_projects <- function(
   }
 }
 
+
 #' Parse BioSys datasets to tibble
 biosys_datasets <- function(
   auth=httr::authenticate(
@@ -120,7 +132,8 @@ biosys_datasets <- function(
   }
 }
 
-#' Parse BioSys datasets to tibble
+
+#' Parse BioSys records to tibble
 biosys_records <- function(
   auth=httr::authenticate(Sys.getenv("BIOSYS_UN"),
                           Sys.getenv("BIOSYS_PW")),
@@ -148,19 +161,17 @@ biosys_records <- function(
      data = purrr::map(., "data")
    )}
   
+  metadatacols <- biosys_records %>% select(-data)
+  
   datacols <- biosys_records$data %>% 
     kimisc::list_to_df(.) %>% 
     magrittr::extract2("value") %>% 
     purrr::transpose(.) %>% 
     tibble::as_tibble(.)
   
-  metadatacols <- biosys_records %>% select(-data)
-
   out <- cbind(metadatacols, datacols)
   out
-  
 }
-
 
 
 #' Parse BioSys records into a tibble, flatten data into cols
