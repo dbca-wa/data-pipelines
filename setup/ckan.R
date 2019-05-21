@@ -6,6 +6,8 @@
 # install.packages("dplyr")
 # devtools::install_github("parksandwildlife/ckanr")
 
+if (file.exists("~/.Rprofile")) source("~/.Rprofile")
+
 if (!require("pacman")) install.packages("pacman")
 pacman::p_load(bitops,
                caTools,
@@ -31,7 +33,7 @@ Sys.setenv(CKAN_URL="https://data.dpaw.wa.gov.au")
 
 # Setup ckanr
 ckanr::ckanr_setup(url=Sys.getenv("CKAN_URL"), key=Sys.getenv("CKAN_API_KEY"))
-ckan <- ckanr::src_ckan("https://data.dpaw.wa.gov.au/")
+ckan <- ckanr::src_ckan(Sys.getenv("CKAN_URL"))
 
 # # Set default resource ID
 # default_resource_id <- "ccc68eb7-8105-4cc8-8112-57bf1558e82f"
