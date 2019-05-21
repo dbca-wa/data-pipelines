@@ -1,4 +1,4 @@
-setwd("~/projects/data-pipelines/scripts/indicators/macroalgae/SIMP")
+setwd("~/projects/data-pipelines/scripts/indicators/macroalgae/MMP")
 source("~/projects/data-pipelines/setup/ckan.R")
 
 
@@ -17,16 +17,16 @@ library(dplyr)
 
 #percent cover plots
 # png_SIMP_overallpercentcover_rid <- "f98ef2b7-2c97-4d7b-a0d7-10d3001a6dfb"
-png_SIMP_overallpercentcover_fn <-"SIMP_overallpercentcover.png"
+png_MMP_overallpercentcover_fn <-"MMP_overallpercentcover.png"
 # png_SIMP_percentcover_rid <-"70afbaf6-33d5-4e4c-9b9b-933eca251d36"
-png_SIMP_percentcover_fn <-"SIMP_percentcover.png"
+png_MMP_percentcover_fn <-"MMP_percentcover.png"
 
 ###################################################################################################
 #Load data
 ###################################################################################################
 
 d <- load_ckan_csv(csv_rid)
-d<-Camera_data
+d<-PER_All_Macroalgae
 names(d)[names(d) == 'Region'] <- 'Park'###Changes column name
 
 ####################################################################################################
@@ -53,29 +53,28 @@ graphics = theme(axis.text.x=element_text(size = 12, angle=45, hjust=0.9), #rota
 ##################################################################################
 # All canopy algae pooled
 
-SIMP = subset (d, Park=="Shoalwater Marine Park")
-
+MMP = subset (d, Park=="Marmion Marine Park")
+unique(MMP$Baseclassmodifiers)
 detach("package:dplyr", unload=TRUE)
 
-cover=count(SIMP, c("Site", "Year", "Baseclassmodifiers")) #counts number of observations per site, per year
+cover=count(MMP, c("Site", "Year", "Baseclassmodifiers")) #counts number of observations per site, per year
 cover_obs=count(cover, c("Site", "Year"), "freq") #counts number of observations made at each site per year
 cover_add <- join(cover, cover_obs, by = c("Site", "Year")) #adds total count of site observations agains the right site/year to allow percentage calculation
 canopy_cover = subset(cover_add, Baseclassmodifiers %in% c("Canopy")) #Extracts cover information only
-SIMP_canopy = count(canopy_cover, c("Site", "Year", "freq.1"), "freq")
-names(SIMP_canopy)[3] <- "total_count" #Rename column to make more sense
-names(SIMP_canopy)[4] <- "canopy_count" #Rename column to make more sense
-SIMP_canopy$percent = SIMP_canopy$canopy_count/SIMP_canopy$total_count *100 #Calculate percent cover
+MMP_canopy = count(canopy_cover, c("Site", "Year", "freq.1"), "freq")
+names(MMP_canopy)[3] <- "total_count" #Rename column to make more sense
+names(MMP_canopy)[4] <- "canopy_count" #Rename column to make more sense
+MMP_canopy$percent = MMP_canopy$canopy_count/MMP_canopy$total_count *100 #Calculate percent cover
 
 library(dplyr)
-
 
 ##################################################################################
 #Create subsets for each 'sector (south, centre, north) for SIMP
 ##################################################################################
-unique(SIMP$Site)
-SIMP_south = subset(SIMP_canopy, Site %in% c("Breacher Point", "Sisters"))
-SIMP_centre = subset(SIMP_canopy, Site %in% c("Second Rock", "Penguin Island", "Seal Island"))
-SIMP_north = subset(SIMP_canopy, Site %in% c("Bird Island", "Peron north", "John Point"))
+unique(MMP_canopy$Year)
+MMP_south = subset(MMP_canopy, Site %in% c("Watermans", "Watermans Outer"))
+MMP_centre = subset(MMP_canopy, Site %in% c("Little Island", "The Lumps"))
+MMP_north = subset(MMP_canopy, Site %in% c("Burns Rocks", "Burns Rocks Offshore", "Three Mile Reef Inner","Three Mile Reef Outer"))
 
 ####################################################################################
 #PERCENT COVER
@@ -94,9 +93,9 @@ make_cover <- function(df){
 
 #####################################################################
 #overall
-SIMP_cover <- make_cover(SIMP_canopy)
+MMP_cover <- make_cover(MMP_canopy)
 
-SIMP_percentcover_plot <- ggplot(SIMP_cover, aes(x=Year, y=mean)) +
+MMP_percentcover_plot <- ggplot(MMP_cover, aes(x=Year, y=mean)) +
   geom_errorbar(aes(ymin=mean-se, ymax=mean+se), width=.02, colour="black", position=pd) +
   # geom_line(position=pd) +
   geom_point(position=pd, size=3, fill="black") + # 21 is filled circle
@@ -107,18 +106,18 @@ SIMP_percentcover_plot <- ggplot(SIMP_cover, aes(x=Year, y=mean)) +
   # geom_smooth(method=lm, colour = 1, linetype = 3, se=FALSE, fullrange=TRUE)+
   theme_bw() + graphics
 
-SIMP_percentcover_plot
+MMP_percentcover_plot
 
-attach(SIMP_cover)
+attach(MMP_cover)
 MannKendall(mean)
-detach(SIMP_cover)
+detach(MMP_cover)
 
 #############################################################
 #South cover
 
-SIMP_south_percentcover <- make_cover(SIMP_south)
+MMP_south_percentcover <- make_cover(MMP_south)
 
-SIMP_south_percentcover_plot <- ggplot(SIMP_south_percentcover, aes(x=Year, y=mean)) +
+MMP_south_percentcover_plot <- ggplot(MMP_south_percentcover, aes(x=Year, y=mean)) +
   geom_errorbar(aes(ymin=mean-se, ymax=mean+se), width=.02, colour="black", position=pd) +
   # geom_line(position=pd) +
   geom_point(position=pd, size=3, fill="black") + # 21 is filled circle
@@ -130,18 +129,18 @@ SIMP_south_percentcover_plot <- ggplot(SIMP_south_percentcover, aes(x=Year, y=me
   # geom_smooth(method=lm, colour = 1, linetype = 3, se=FALSE, fullrange=TRUE)+
   theme_bw() + graphics
 
-SIMP_south_percentcover_plot
+MMP_south_percentcover_plot
 
-attach(SIMP_south_percentcover)
+attach(MMP_south_percentcover)
 MannKendall(mean)
-detach(SIMP_south_percentcover)
+detach(MMP_south_percentcover)
 
 #############################################################
 #Centre percent cover
 
-SIMP_centre_percentcover <- make_cover(SIMP_centre)
+MMP_centre_percentcover <- make_cover(MMP_centre)
 
-SIMP_centre_percentcover_plot <- ggplot(SIMP_centre_percentcover, aes(x=Year, y=mean)) +
+MMP_centre_percentcover_plot <- ggplot(MMP_centre_percentcover, aes(x=Year, y=mean)) +
   geom_errorbar(aes(ymin=mean-se, ymax=mean+se), width=.02, colour="black", position=pd) +
   # geom_line(position=pd) +
   geom_point(position=pd, size=3, fill="black") + # 21 is filled circle
@@ -153,18 +152,18 @@ SIMP_centre_percentcover_plot <- ggplot(SIMP_centre_percentcover, aes(x=Year, y=
   # geom_smooth(method=lm, colour = 1, linetype = 3, se=FALSE, fullrange=TRUE)+
   theme_bw() + graphics
 
-SIMP_centre_percentcover_plot
+MMP_centre_percentcover_plot
 
-attach(SIMP_south_percentcover)
+attach(MMP_south_percentcover)
 MannKendall(mean)
-detach(SIMP_south_percentcover)
+detach(MMP_south_percentcover)
 
 #######################################################################################
 #SIMP_north percent cover
 
-SIMP_north_percentcover <- make_cover(SIMP_north)
+MMP_north_percentcover <- make_cover(MMP_north)
 
-SIMP_north_percentcover_plot <- ggplot(SIMP_north_percentcover, aes(x=Year, y=mean)) +
+MMP_north_percentcover_plot <- ggplot(MMP_north_percentcover, aes(x=Year, y=mean)) +
   geom_errorbar(aes(ymin=mean-se, ymax=mean+se), width=.02, colour="black", position=pd) +
   # geom_line(position=pd) +
   geom_point(position=pd, size=3, fill="black") + # 21 is filled circle
@@ -176,22 +175,22 @@ SIMP_north_percentcover_plot <- ggplot(SIMP_north_percentcover, aes(x=Year, y=me
   # geom_smooth(method=lm, colour = 1, linetype = 3, se=FALSE, fullrange=TRUE)+
   theme_bw() + graphics
 
-SIMP_north_percentcover_plot
+MMP_north_percentcover_plot
 
-attach(SIMP_south_percentcover)
+attach(MMP_south_percentcover)
 MannKendall(mean)
-detach(SIMP_south_percentcover)
+detach(MMP_south_percentcover)
 
 #####################################################################################
 #Create figures (will be saved to current workdir)
 #####################################################################################
 
-png(png_SIMP_overallpercentcover_fn, width=500, height=300)
-grid.arrange(SIMP_percentcover_plot)
+png(png_MMP_overallpercentcover_fn, width=500, height=300)
+grid.arrange(MMP_percentcover_plot)
 dev.off()
 
-png(png_SIMP_percentcover_fn, width=500, height=900)
-grid.arrange(SIMP_north_percentcover_plot, SIMP_centre_percentcover_plot, SIMP_south_percentcover_plot, ncol=1)
+png(png_MMP_percentcover_fn, width=500, height=900)
+grid.arrange(MMP_north_percentcover_plot, MMP_centre_percentcover_plot, MMP_south_percentcover_plot, ncol=1)
 dev.off()
 
 
