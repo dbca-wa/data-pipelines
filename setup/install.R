@@ -2,7 +2,7 @@
 if (!require("pacman")) install.packages("pacman")
 pacman::p_load(bitops,
                caTools,
-               ckanr,
+               # ckanr,
                colorspace,
                dplyr,
                tidyr,
@@ -19,3 +19,4 @@ pacman::p_load(bitops,
                shiny,
                stringr,
                update=T)
+remotes::install_github("ropensci/ckanr")
