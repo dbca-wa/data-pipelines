@@ -5,7 +5,7 @@
 
 #Run sections 1-4 to create all the data - you need to work through this as there are several sections where you need to spec 
 #certain commands yoursef.
-#Then you can run parts of sections 5/6/7 as you requrie
+#Then you can run parts of sections 5/6/7 as you require
 
 
 ###-----1. Get set up----####
@@ -25,6 +25,7 @@ library(dplyr) #data wrangling.
 library(devtools)
 filter = dplyr::filter #make sure R uses the DPLYR version of filter
 summarise = dplyr::summarise
+mutate = dplyr::mutate
 #I'm also playing with the new tools in tidyverse for reshaping data which aren't formally in the package yet
 devtools::install_github("tidyverse/tidyr") #select 3 in first option menu
 library(tidyr)
@@ -36,7 +37,6 @@ pdf.out=paste(work.dir,"Monitoring Summaries",sep="/")
 data=paste(work.dir,"Data/Benthic",sep="/")
 ecopaasdata=paste(work.dir,"Data/Benthic/Raw EcoPaas Outputs",sep="/")
 
-
 #Make an object with todays date
 st=format(Sys.time(), "%Y-%m-%d") #make an object with todays date
 
@@ -47,7 +47,7 @@ setwd(ecopaasdata)
 dir()
 
 #Merge files
-files<-list.files(data, pattern = ".csv") #make a list of all file names in the data directory ending in CSV
+files<-list.files(ecopaasdata, pattern = ".csv") #make a list of all file names in the data directory ending in CSV
 
 dat<- NA # make a blank data frame
 
@@ -83,7 +83,7 @@ dat$Year<-as.factor(dat$Year)
 #dat<-filter(dat, MarinePark=="Marine Park Name")
 
 
-#If you want $ cover of all classes (i.e. %turf, % coral etc.) you will need to add more rows inside the summarise command
+#If you want % cover of all classes (i.e. %turf, % coral etc.) you will need to add more rows inside the summarise command
 #Two rows for each asset - an 'classcount' column and a 'classpercent' column.
 #you could pipe the data through to drop the 'classcount' columns if you wanted.
 #Ask Molly if you can't figure it out :)
@@ -152,7 +152,7 @@ meansitedat<- dat%>% #per transect
 
 ####----4. Make data into family level% cover-----####
 #This code calculates the % of each family WITHIN hard coral (i.e. will total 100%)
-#If you want the % of each family from th whole bentos you need to remove the "filter(Level2Class=="Hard coral")%>%" line
+#If you want the % of each family from the whole bentos you need to remove the "filter(Level2Class=="Hard coral")%>%" line
 
 
 #first make a loop of the coral family names
@@ -480,7 +480,7 @@ sitefamstack # family/site level % of benthos
 sum1<-summary(aov(percent~Year, data=trandatstat)) 
 names(sum1)<-paste("ANOVATotalNoInt") 
 
-#Site level
+#Site interaction
 sum2<-summary(aov(percent~Year*Site, data=trandatstat)) #Dataset choice = replicate level i.e. for this transect = replicate 
 names(sum2)<-paste("ANOVATotalInt") 
 
@@ -489,6 +489,7 @@ lm1<-aov(percent~Year*Site, data=trandatstat)
 post1<-TukeyHSD(lm1, "Site") #Show me which sites are different. You can remove that to get every site in every year
 
 #Transect level (i.e within sites)
+sites<- unique(trandatstat$Site)
 for (s in sites) {
   
   avdat<-filter(trandatstat,Site==(paste(s))) #filter the data by site
@@ -527,11 +528,16 @@ bray<- tranfamdatstat%>%
               values_from= percent, #A seperate one of these columns for every species
               values_fill=list(percent=0)) %>%
   group_by(Year,Site,Replicate)%>% #these next lines merge the replicates into one row (if you look at the data with and without running them it makes sense)
-  summarise_if(is.numeric ,sum)
-  
+  dplyr::  summarise_if(is.numeric ,sum)%>%
+  dplyr::select(-`Hard coral`)%>% # remove 'hard coral column for unidentified samples
+  dplyr::filter(Site != "Nelson Rocks")%>%
+  dplyr::filter(Year !="2016")%>%
+  dplyr::filter(count!="0") #remove transects with no coral as the matrix wont work on these
 
+str(bray)
 #Now lets transform the data
-bray1<-log(bray[,6:18]+1) #logx +1 transformation
+bray1<-log(bray[,6:17]+1) #logx +1 transformation
+
 
 #Create Bray Curtis Matrix - Chosen because lots of zeros in data
 braycurtisdists <- vegdist(bray1, method="bray")
@@ -561,7 +567,11 @@ bray2<- trangendatstat%>%
               values_from= percent, #A seperate one of these columns for every species
               values_fill=list(percent=0)) %>%
   group_by(Year,Site,Replicate)%>% #these next lines merge the replicates into one row (if you look at the data with and without running them it makes sense)
-  summarise_if(is.numeric ,sum) 
+  dplyr::  summarise_if(is.numeric ,sum)%>%
+  dplyr::select(-`Hard coral`)%>% # remove 'hard coral column for unidentified samples
+  dplyr::filter(Site != "Nelson Rocks")%>%
+  dplyr::filter(Year !="2016")%>%
+  dplyr::filter(count!="0") #remove transects with no coral as the matrix wont work on these 
 
 #Now lets transform the data
 bray3<-log(bray2[,6:42]+1) #logx +1 transformation - more columns than in family data so need to make sure we've only selected genera cols
@@ -670,7 +680,6 @@ pltName<-paste("stack", s, sep= "")
 ###-----7. Lets make this shit into a PDF ----####
 setwd(pdf.out) #put the outputs into the 'Monitoring Summaries' folder (Note: you need to make this folder within your WD first)
 
-st=format(Sys.time(), "%Y-%m-%d") #make an object with todays date
 pdf(paste("DMP_Coral_MonitoringSummary",st, ".pdf", sep = ""), height = 8, width = 10) #Change this name to suit you 
 
 textplot("Coral monitoring summary for 

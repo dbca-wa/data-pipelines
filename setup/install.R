@@ -5,7 +5,7 @@ pacman::p_load(bitops,
                # ckanr,
                colorspace,
                dplyr,
-               tidyr,
+               # tidyr,
                ggplot2,
                Hmisc,
                knitr,
@@ -19,4 +19,5 @@ pacman::p_load(bitops,
                shiny,
                stringr,
                update=T)
+remotes::install_github("tidyverse/tidyr")
 remotes::install_github("ropensci/ckanr")
