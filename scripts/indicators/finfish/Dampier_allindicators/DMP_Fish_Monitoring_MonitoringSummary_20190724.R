@@ -47,6 +47,9 @@ abun<-read.csv("DMP_Monitoring_2019-07_complete.sumcount.csv",header=T ,fileEnco
 length<-read.csv("DMP_Monitoring_2019-07_complete.length.number.csv",header=T ,fileEncoding="UTF-8-BOM")
 biom<-read.csv("DMP_Monitoring_2019-07_complete.length.number.mass.csv",header=T ,fileEncoding="UTF-8-BOM")
 
+##Note: The mastersheet of data is available on DBCA Data Catalogue (CKAN) but not the cleaned and formated files.
+#This is because data should be cleaned/checked prior to any new analysis.
+
 ###-----3. Rename some columns and make year a factor----####
 abun<-abun%>%
   dplyr::rename(feeding=rls.trophic.group,
@@ -505,7 +508,7 @@ totaltargetbiom
 targetspecies<-unique(sitetotaltargetspeciesabun$scientific)
 
 for (f in targetspecies){
-  
+
   targetabun<-sitetotaltargetspeciesabun%>%
     filter(scientific==paste(f))%>%
     ggplot(aes(x=year,y=meancount)) + #select variable to plot
@@ -514,26 +517,26 @@ for (f in targetspecies){
     labs(y = "Mean abundance (1500m2)", x="Year")+
     scale_color_manual(values=mycolors)+
     ggtitle(paste(f))
-  
+
   mpdat<- mptotaltargetspeciesabun%>%
     filter(scientific==paste(f))
-  
+
   targetabun <- targetabun +  #this line adds a archipelago-wide point to the plot as a cross
     geom_errorbar(data = mpdat,aes(ymin=meancount-se,ymax=meancount+se),width=NA, colour="light grey")+
     geom_point(data = mpdat, aes(x = year, y = meancount),
                size=4,shape="cross",colour="black",show.legend=FALSE)
   print(targetabun)
-  
+
   pltName<-paste("targetabundance", f, sep= "")
   assign(pltName,targetabun)
-  
+
 }
 
 #Individual target species biomass
 targetspecies<-unique(sitetotaltargetspeciesbiom$scientific)
 
 for (f in targetspecies){
-  
+
   targetbiom<-sitetotaltargetspeciesbiom%>%
     filter(scientific==paste(f))%>%
     ggplot(aes(x=year,y=meancount)) + #select variable to plot
@@ -542,19 +545,19 @@ for (f in targetspecies){
     labs(y = "Mean biomass (g/1500m2)", x="Year")+
     scale_color_manual(values=mycolors)+
     ggtitle(paste(f))
-  
+
   mpdat<- mptotaltargetspeciesbiom%>%
     filter(scientific==paste(f))
-  
+
   targetbiom <- targetbiom +  #this line adds a archipelago-wide point to the plot as a cross
     geom_errorbar(data = mpdat,aes(ymin=meancount-se,ymax=meancount+se),width=NA, colour="light grey")+
     geom_point(data = mpdat, aes(x = year, y = meancount),
                size=4,shape="cross",colour="black",show.legend=FALSE)
   print(targetbiom)
-  
+
   pltName<-paste("targetbiomass", f, sep= "")
   assign(pltName,targetbiom)
-  
+
 }
 
 ###-----8. Lets make this shit into a PDF ----####

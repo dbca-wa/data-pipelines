@@ -1,17 +1,17 @@
-#This script is design to created an automated annual summary report for Benthic Invertebrates 
+#This script is design to created an automated annual summary report for Benthic Invertebrates
 #Created by Molly Moustaka July 2019
 #Dept. Biodiversity, Conservation and Attractions, Marine Science Program
 #Email: molly.moustaka@dbbca.wa.gov.au
 
 ###-----1. Get set up----####
 #Clear environment
-rm(list=ls()) 
+rm(list=ls())
 
 #Install & Load packages
-#install.packages(c("ggplot2", "dplyr","RColorBrewer","gplots"),dependencies = T) 
+#install.packages(c("ggplot2", "dplyr","RColorBrewer","gplots"),dependencies = T)
 library(ggplot2) # make plots
 library(RColorBrewer) #colours for plots.
-library(gplots) #text to plot tools 
+library(gplots) #text to plot tools
 library(dplyr) #data wrangling.
 library(devtools)
 filter = dplyr::filter #make sure R uses the DPLYR version of filter
@@ -37,6 +37,12 @@ dir()
 
 #Read in the data
 dat<-read.csv("DMP_Invertebrate_Master.csv",header = T)
+
+####1.2 OPTIONAL: Pull Invertebrate mastersheet off CKAN (DBCA data catalogue)####
+#source("~/projects/data-pipelines/setup/ckan.R")
+#csv_rid <- "e1e2c62b-cffa-462f-89c4-51e71f78dc96"
+#d <- load_ckan_csv(csv_rid)
+#dplyr::glimpse(d)
 
 ###-----2. Check out the data----####
 str(dat)
@@ -72,20 +78,28 @@ mpmeangroupcount<-groupcount%>%
 ###-----3. Make some count data for species of interest----####
 unique(dat$Species)
 
-#COTS 
+#COTS
 COTcount<-dat%>%
   filter(Species=="A.planci..CoTS.")%>%
   group_by(Year,Site)%>%
   summarise(
     cotcount=sum(Count)
   )
-  
+
 #Lobsters
 lobcount<-dat%>%
   filter(Species==c("P.versicolor","P.ornatus"))%>%
   group_by(Year,Site)%>%
   summarise(
     lobcount=sum(Count)
+  )
+
+#Drupella
+drupcount<-dat%>%
+  filter(Species=='D.cornus')%>%
+  group_by(Year,Site)%>%
+  summarise(
+    drupcount=sum(Count)
   )
 
 ###-----4. Stats (not written yet as only one year of data)----####
@@ -96,8 +110,8 @@ lobcount<-dat%>%
 #avdat<-groupcount%>%
 #  filter(Group=="Asteroidea")
 
-#sum1<-summary(aov(groupcount~Year, data=avdat)) 
-#names(sum1)<-paste("ANOVATotalNoInt") 
+#sum1<-summary(aov(groupcount~Year, data=avdat))
+#names(sum1)<-paste("ANOVATotalNoInt")
 
 ###-----5. Plotting - Get set up ----####
 #First lets set a theme up. Note you cant set the point colours as part of this
@@ -113,7 +127,7 @@ theme_set(custtheme) # apply the theme
 #make a poisition jitter
 jitter <- position_jitter(width = 0.1, height = 0) #this is so points don't overlap, increase values to spread out more
 
-#create a colour palette - tell it how many colours you want 
+#create a colour palette - tell it how many colours you want
 nb.cols <- 16
 mycolors <- colorRampPalette(brewer.pal(8, "Paired"))(nb.cols)
 
@@ -121,7 +135,7 @@ mycolors <- colorRampPalette(brewer.pal(8, "Paired"))(nb.cols)
 groups<-unique(meangroupcount$Group)
 
 for (g in groups) {
-  
+
 total<-meangroupcount%>%
     filter(Group==paste(g))%>%
     ggplot(aes(x=Year,y=meangroupcount)) + #select variable to plot
@@ -159,17 +173,25 @@ lob<-lobcount%>%
   scale_color_manual(values=mycolors)+
   ggtitle("Lobsters")
 
+drup<-drupcount%>%
+  ggplot(aes(x=Year,y=drupcount)) + #select variable to plot
+  geom_point(position=jitter,aes(colour=Site),size=3, show.legend=TRUE)+ #add points, set colour +size, jitter them, legend off
+  labs(y = "Total # Drupella", x="Year")+
+  scale_color_manual(values=mycolors)+
+  ggtitle("Drupella")
+
+
 ###-----7. Lets make this shit into a PDF ----####
 setwd(pdf.out) #put the outputs into the 'Monitoring Summaries' folder (Note: you need to make this folder within your WD first)
 
 st=format(Sys.time(), "%Y-%m-%d") #make an object with todays date
-pdf(paste("DMP_Invertebrate_MonitoringSummary",st, ".pdf", sep = ""), height = 8, width = 10) #Change this name to suit you 
+pdf(paste("DMP_Invertebrate_MonitoringSummary",st, ".pdf", sep = ""), height = 8, width = 10) #Change this name to suit you
 
-textplot("Invertebrate monitoring summary for 
+textplot("Invertebrate monitoring summary for
          the Dampier Archipelago", halign="center", fixed.width=FALSE)            #set your title page as you please
 
 #add a sequence of plots and text plots, each will print on a new page of the pdf
-plot(DAAsteroidea) 
+plot(DAAsteroidea)
 plot(DABivalves)
 plot(DAcephalopod)
 plot(DAChitons)
@@ -180,17 +202,18 @@ plot(DAHolothuria)
 plot(DANudibranch)
 plot(DAWorms)
 plot(cot)
+plot(drup)
 plot(lob)
 
 dev.off()
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
+
+
+
+
+
+
+
+
+
+
+

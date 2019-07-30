@@ -5,15 +5,15 @@
 
 ###-----1. Get set up----####
 #Clear environment
-rm(list=ls()) 
+rm(list=ls())
 
 #Install & Load packages
-#install.packages(c("ggplot2", "dplyr","plotrix","gridExtra","RColorBrewer","gplots", "ggpubr","vegan"),dependencies = T) 
+#install.packages(c("ggplot2", "dplyr","plotrix","gridExtra","RColorBrewer","gplots", "ggpubr","vegan"),dependencies = T)
 library(ggplot2) # make plots
 library(plotrix) #package to calculate standard error
 library(gridExtra) #grid layouts for multiple plots
 library(RColorBrewer) #colours for plots.
-library(gplots) #text to plot tools 
+library(gplots) #text to plot tools
 library(ggpubr)#another arranging tool
 library(vegan) #multivariate stats
 library(dplyr) #data wrangling.
@@ -41,6 +41,13 @@ dir()
 
 dat<-read.csv("DMP_Coral_Juvenile_2019.csv", header=T)
 
+
+####1.2 OPTIONAL: Pull juvenile coral mastersheet off CKAN (DBCA data catalogue)####
+#source("~/projects/data-pipelines/setup/ckan.R")
+#csv_rid <- "26542b7e-44c9-43ba-8293-f1bc90f40481"
+#d <- load_ckan_csv(csv_rid)
+#dplyr::glimpse(d)
+
 ###-----2. Data checking----####
 str(dat)
 
@@ -57,7 +64,7 @@ unique(dat$Final.Genera.species)
 #Check out how many transects and quadrats we did
 table(dat$Site,dat$Quadrat) #we are missing 15 quadrats at eaglehawk and 20 at Sailfish - so we will take 10 Eaglehawk quads and make 1 transect
 
-#manipulation to fix the eaglehawk problem 
+#manipulation to fix the eaglehawk problem
   #1. Remove the last 5 quadrats
 dat<- dat%>%
   filter(Site != "Eaglehawk" | Transect!="3")
@@ -66,10 +73,10 @@ dat<- dat%>%
 dat[dat$Site=="Eaglehawk",]$Transect<-"1"
 
 
-####---3. Make data into number of juveniles----####
+####---3.1 Make data into number of juveniles----####
 #per transect
 count<-dat%>%
-  filter(Final.Genera.species!="")%>% #remove rows without juveniles 
+  filter(Final.Genera.species!="")%>% #remove rows without juveniles
   group_by(Year,Site,Transect)%>%
   summarise(
     juvcount=n()
@@ -104,7 +111,7 @@ mpdiv<- dat%>% #per site
   summarise(
     diversity = n_distinct(Final.Genera.species))
 
-####---3. Data for proportion of juveniles from each family (stacked) ----####
+####---3.2 Data for proportion of juveniles from each family (stacked) ----####
 #make a loop
 genera<-unique(dat$Final.Genera.species)
 genera<-genera[genera != ""]
@@ -115,17 +122,17 @@ mpstack <-count[FALSE,]
 for (g in genera){
 
 x<-dat%>%
-  filter(Final.Genera.species!="")%>% #remove rows without juveniles 
+  filter(Final.Genera.species!="")%>% #remove rows without juveniles
   filter(Final.Genera.species==paste(g))%>%
   group_by(Year,Site)%>%
   summarise(
     juvcount=n())
-    
+
 x$genera<-paste(g)
 sitestack<-rbind(sitestack,x)
 
 y<-dat%>%
-  filter(Final.Genera.species!="")%>% #remove rows without juveniles 
+  filter(Final.Genera.species!="")%>% #remove rows without juveniles
   filter(Final.Genera.species==paste(g))%>%
   group_by(Year)%>%
   summarise(
@@ -137,52 +144,52 @@ mpstack<-rbind(mpstack,y)
 }
 
 
-####---3. Summary of the data made so far----####
+####---3.3 Summary of the data made so far----####
 
 #Count of individual corals per transect
 count #per transect
 sitemeancount #average of transects per site
 mpmeancount #average of transects per marine park
 
-#Diversity 
-div # count of genera present at each site 
+#Diversity
+div # count of genera present at each site
 mpdiv # count of genera presemt in the marine park
 
-#Data for stacked histograms 
+#Data for stacked histograms
 sitestack #site level
 mpstack #marine park level
 
 
-####---4. Stats - MP level---#### 
+####---4.1 Stats - MP level---####
 ##CAN'T DO YET AS ONLY 1 YR DATA
 
 #Marine park level - can only test within year as some sites only have 1 transect
 #juv count
-sum1<-summary(aov(juvcount~Year, data=count)) 
+sum1<-summary(aov(juvcount~Year, data=count))
 names(sum1)<-paste("CountANOVATotalNoInt")
 
-#sum2<-summary(aov(juvcount~Year*Site, data=count)) 
+#sum2<-summary(aov(juvcount~Year*Site, data=count))
 #names(sum2)<-paste("CountANOVATotalInt")
 
 #juv diversity
-sum3<-summary(aov(diversity~Year, data=div)) 
+sum3<-summary(aov(diversity~Year, data=div))
 names(sum3)<-paste("DiversityANOVATotalNoInt")
 
-sum4<-summary(aov(diversity~Year, data=div)) 
+sum4<-summary(aov(diversity~Year, data=div))
 names(sum4)<-paste("DiversityANOVATotalInt")
 
-####---4. Stats - site level----#### 
+####---4.2 Stats - site level----####
 ##CAN'T DO YET AS ONLY 1 YR DATa
 
 for (s in sites) {
-  
+
   avdat<-filter(count,Site==(paste(s))) #filter the data by site
   sum5<-summary(aov(juvcount~Year, data=avdat)) #run ANOVA's for differences between years
-  
+
   sumName<-paste("ano", s, sep= "") #create loop naming convention
-  
+
   assign(sumName, sum5) #name combined summary list
-  
+
 } #
 
 ####----5. Plotting - setting up -----####
@@ -199,7 +206,7 @@ theme_set(custtheme) # apply the theme
 #make a poisition jitter
 jitter <- position_jitter(width = 0.1, height = 0) #this is so points don't overlap, increase values to spread out more
 
-#create a colour palette - tell it how many colours you want 
+#create a colour palette - tell it how many colours you want
 nb.cols <- 16
 mycolors <- colorRampPalette(brewer.pal(8, "Paired"))(nb.cols)
 nb.cols2<-32
@@ -233,39 +240,39 @@ rich
 
 
 ####----6. Plotting - Stackplots -----####
-#Whole Archipelago 
-mpstackplot<-ggplot(mpstack, aes(fill=genera, y=juvcount, x=Year)) + 
+#Whole Archipelago
+mpstackplot<-ggplot(mpstack, aes(fill=genera, y=juvcount, x=Year)) +
   geom_bar(stat="identity")+
   labs(y = "Number of coral juveniles", x="Year", fill="Genera")+
   scale_fill_manual(values=mycolors2)+
   ggtitle("Dampier Archipelago")
 
 #by site
-#NOTE this code doesn't apply the same colours to every genera 
+#NOTE this code doesn't apply the same colours to every genera
 sites<-unique(sitestack$Site)
 
 for (s in sites) {
   sitestackplot<- sitestack%>%
     filter(Site==(paste(s)))%>%
-    ggplot(aes(fill=genera, y=juvcount, x=Year)) + 
+    ggplot(aes(fill=genera, y=juvcount, x=Year)) +
     geom_bar(stat="identity")+
     scale_fill_manual(values=mycolors)+    #set your pallete of choice but needs to have enough colours
     coord_cartesian(ylim=c(0,100))+ #change axis height if you want
     labs(y = "Number of coral juveniles", x="Year", fill="Genera")+
     ggtitle(paste(s))
-  
+
   pltName<-paste("stack", s, sep= "")
   assign(pltName,sitestackplot)
-  
+
 }
 
 ###-----7. Lets make this shit into a PDF ----####
 setwd(pdf.out) #put the outputs into the 'Monitoring Summaries' folder (Note: you need to make this folder within your WD first)
 
 st=format(Sys.time(), "%Y-%m-%d") #make an object with todays date
-pdf(paste("DMP_Coral_Juvenile_MonitoringSummary",st, ".pdf", sep = ""), height = 8, width = 10) #Change this name to suit you 
+pdf(paste("DMP_Coral_Juvenile_MonitoringSummary",st, ".pdf", sep = ""), height = 8, width = 10) #Change this name to suit you
 
-textplot("Coral juvenile monitoring summary for 
+textplot("Coral juvenile monitoring summary for
          the Dampier Archipelago", halign="center", fixed.width=FALSE)            #set your title page as you please
 #add a sequence of plots and text plots, each will print on a new page of the pdf
 #NOTE: right now there is no stats as there is only 1 year of data. Run sections 4 when collected

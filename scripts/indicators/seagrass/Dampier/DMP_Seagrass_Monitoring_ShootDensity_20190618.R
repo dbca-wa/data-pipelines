@@ -5,16 +5,16 @@
 
 ###-----Get set up----####
 #Clear environment
-rm(list=ls()) 
+rm(list=ls())
 
 #Install & Load packages
-#install.packages(c("ggplot2", "dplyr","plotrix","gridExtra","RColorBrewer","gplots", "ggpubr"),dependencies = T) 
+#install.packages(c("ggplot2", "dplyr","plotrix","gridExtra","RColorBrewer","gplots", "ggpubr"),dependencies = T)
 library(ggplot2) # make plots
 library(dplyr) #data wrangling
 library(plotrix) #package to calculate standard error
 library(gridExtra) #grid layouts for multiple plots
 library(RColorBrewer) #colours for plots.
-library(gplots) #text to plot tools 
+library(gplots) #text to plot tools
 library(ggpubr)#another arranging tool
 
 
@@ -27,6 +27,12 @@ setwd(data)
 
 #View files in the directory
 dir()
+
+#### OPTIONAL: Pull seagrass density mastersheet off CKAN (DBCA data catalogue)####
+#source("~/projects/data-pipelines/setup/ckan.R")
+#csv_rid <- "8f1df364-1524-4aed-87a8-717664c863cc"
+#d <- load_ckan_csv(csv_rid)
+#dplyr::glimpse(d)
 
 ###-----Explore the data----####
 
@@ -76,7 +82,7 @@ dat2<- dat %>%
     MeanHalodule.uninervis = mean(Halodule.uninervis),
     MeanSyringodium.isoetifolium = mean(Syringodium.isoetifolium),
 #    MeanCymodocea.angustata = mean(Cymodocea.angustata),#hashed out because its not in this dataset
-    
+
     #this section calculates the SD for each seagrass species + total
     SDTotal=sd(Total),
     SDHalophila.ovalis = sd(Halophila.ovalis),
@@ -85,10 +91,10 @@ dat2<- dat %>%
     SDHalodule.uninervis = sd(Halodule.uninervis),
     SDSyringodium.isoetifolium = sd(Syringodium.isoetifolium),
 #    SDCymodocea.angustata = sd(Cymodocea.angustata), #hashed out because its not in this dataset
-    
+
     #this section counts the number of quadrats (obs) in each transect
     Obs=n_distinct(Quadrat),
-    
+
     #this section calculates the SE for each seagrass species + total
     SETotal=(SDTotal)/(sqrt(Obs)),
     SEHalophila.ovalis =(SDHalophila.ovalis)/(sqrt(Obs)),
@@ -98,9 +104,9 @@ dat2<- dat %>%
     SESyringodium.isoetifolium =(SDSyringodium.isoetifolium)/(sqrt(Obs))
 #    SECymodocea.angustata =(SDCymodocea.angustata)/(sqrt(Obs))#hashed out because its not in this dataset
   )
-    
-    
-  
+
+
+
 ###-----Get average values and standard error for site----####
 dat3<- dat %>%
   group_by(Year,SiteName) %>%
@@ -113,7 +119,7 @@ dat3<- dat %>%
     MeanHalodule.uninervis = mean(Halodule.uninervis),
     MeanSyringodium.isoetifolium = mean(Syringodium.isoetifolium),
 #    MeanCymodocea.angustata = mean(Cymodocea.angustata), #hashed out because its not in this dataset
-    
+
     #this section calculates the SD for each seagrass species + total
     SDTotal=sd(Total),
     SDHalophila.ovalis = sd(Halophila.ovalis),
@@ -122,10 +128,10 @@ dat3<- dat %>%
     SDHalodule.uninervis = sd(Halodule.uninervis),
     SDSyringodium.isoetifolium = sd(Syringodium.isoetifolium),
 #    SDCymodocea.angustata = sd(Cymodocea.angustata), #hashed out because its not in this dataset
-    
+
     #this section counts the number of quadrats (obs) in each transect
     Obs=n_distinct(Replicate),
-    
+
     #this section calculates the SE for each seagrass species + total
     SETotal=(SDTotal)/(sqrt(Obs)),
     SEHalophila.ovalis =(SDHalophila.ovalis)/(sqrt(Obs)),
@@ -149,7 +155,7 @@ dat4<- dat %>%
     MeanHalodule.uninervis = mean(Halodule.uninervis),
     MeanSyringodium.isoetifolium = mean(Syringodium.isoetifolium),
     #    MeanCymodocea.angustata = mean(Cymodocea.angustata), #hashed out because its not in this dataset
-    
+
     #this section calculates the SD for each seagrass species + total
     SDTotal=sd(Total),
     SDHalophila.ovalis = sd(Halophila.ovalis),
@@ -158,10 +164,10 @@ dat4<- dat %>%
     SDHalodule.uninervis = sd(Halodule.uninervis),
     SDSyringodium.isoetifolium = sd(Syringodium.isoetifolium),
     #    SDCymodocea.angustata = sd(Cymodocea.angustata), #hashed out because its not in this dataset
-    
+
     #this section counts the number of quadrats (obs) in each transect
     Obs=n_distinct(Replicate),
-    
+
     #this section calculates the SE for each seagrass species + total
     SETotal=(SDTotal)/(sqrt(Obs)),
     SEHalophila.ovalis =(SDHalophila.ovalis)/(sqrt(Obs)),
@@ -174,13 +180,13 @@ dat4<- dat %>%
 
 ###-----Time for some data analysis----####
 
-#First, site level analysis (i.e. difference between years, transect as replicate).This is just a basic ANOVA. 
-#You could expand this to include post-hoc tests pretty easily 
+#First, site level analysis (i.e. difference between years, transect as replicate).This is just a basic ANOVA.
+#You could expand this to include post-hoc tests pretty easily
 #Set up loop
 sitenames<-unique(dat2$SiteName)
 
 for (i in sitenames) {
-  
+
 avdat<-filter(dat2,SiteName==(paste(i))) #filter the data by site
 sum1<-summary(aov(MeanTotal~Year, data=avdat)) #run ANOVA's for differences between years
 names(sum1)<-paste("ANOVA Total seagrass", i, sep= "") #this line names the ANOVA output by species and site (i) so that when we stitch the list together we know whats what
@@ -207,8 +213,8 @@ assign(sumName, sumall) #name combined summary list
 
 #Now we need a whole archipelago analsysis (difference between years AND sites- this is a CROSSED ANOVA)
 #Here year is fixed and site is fixed. We are using dat2 so transect is our replicate
-sum1<-summary(aov(MeanTotal~Year*SiteName, data=dat2)) 
-names(sum1)<-paste("ANOVA Total seagrass_DampierArchipelago") 
+sum1<-summary(aov(MeanTotal~Year*SiteName, data=dat2))
+names(sum1)<-paste("ANOVA Total seagrass_DampierArchipelago")
 sum2<-summary(aov(MeanHalophila.ovalis~Year*SiteName, data=dat2))
 names(sum2)<-paste("ANOVA H. ovalis_DampierArchipelago")
 sum3<-summary(aov(MeanHalophila.decipiens~Year*SiteName, data=dat2))
@@ -239,31 +245,31 @@ for (i in sitenames) {
 
   #Total shoot density
 total<-dat2%>%
-  filter(SiteName==(paste(i)))%>% #select site 
+  filter(SiteName==(paste(i)))%>% #select site
   ggplot(aes(x=Year,y=MeanTotal)) + #select variable to plot
   geom_errorbar(aes(ymin=MeanTotal-SETotal,ymax=MeanTotal+SETotal),width=NA, position=jitter, colour="light grey")+
   geom_point(position=jitter,aes(colour=Year),size=3, show.legend=FALSE)+ #add points, set colour +size, jitter them, legend off
   coord_cartesian(ylim=c(0,(max(dat2$MeanTotal))))+ #set Y axis limits
   theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
           panel.background = element_blank(), axis.line = element_line(colour = "black"),
-          plot.title = element_text(hjust=0.5))+ 
+          plot.title = element_text(hjust=0.5))+
   labs(y = bquote('Total shoot density'~(m^2)), x="Year")
 
   #Halophila ovalis
 halo<-dat2%>%
-  filter(SiteName==(paste(i)))%>% #select site 
+  filter(SiteName==(paste(i)))%>% #select site
   ggplot(aes(x=Year,y=MeanHalophila.ovalis)) + #select variable to plot
   geom_errorbar(aes(ymin=MeanHalophila.ovalis-SEHalophila.ovalis,ymax=MeanHalophila.ovalis+SEHalophila.ovalis),width=NA, position=jitter, colour="light grey")+
   geom_point(position=jitter,aes(colour=Year),size=3, show.legend=FALSE)+ #add points, set colour +size, jitter them, legend off
   coord_cartesian(ylim=c(0,(max(dat2$MeanTotal))))+ #set Y axis limits
   theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
         panel.background = element_blank(), axis.line = element_line(colour = "black"),
-        plot.title = element_text(hjust=0.5))+ 
+        plot.title = element_text(hjust=0.5))+
   labs(y = bquote('Halophila ovalis shoot density'~(m^2)), x="Year")
 
   #Halophila decipiens
 hald<-dat2%>%
-  filter(SiteName==(paste(i)))%>% #select site 
+  filter(SiteName==(paste(i)))%>% #select site
   ggplot(aes(x=Year,y=MeanHalophila.decipiens)) + #select variable to plot
   geom_errorbar(aes(ymin=MeanHalophila.decipiens-SEHalophila.decipiens,ymax=MeanHalophila.decipiens+SEHalophila.decipiens),width=NA, position=jitter, colour="light grey")+
   geom_point(position=jitter,aes(colour=Year),size=3, show.legend=FALSE)+ #add points, set colour +size, jitter them, legend off
@@ -276,40 +282,40 @@ hald<-dat2%>%
 
   #Halophila minor
 halm<-dat2%>%
-  filter(SiteName==(paste(i)))%>% #select site 
+  filter(SiteName==(paste(i)))%>% #select site
   ggplot(aes(x=Year,y=MeanHalophila.minor)) + #select variable to plot
   geom_errorbar(aes(ymin=MeanHalophila.minor-SEHalophila.minor,ymax=MeanHalophila.minor+SEHalophila.minor),width=NA, position=jitter, colour="light grey")+
   geom_point(position=jitter,aes(colour=Year),size=3, show.legend=FALSE)+ #add points, set colour +size, jitter them, legend off
   coord_cartesian(ylim=c(0,(max(dat2$MeanTotal))))+ #set Y axis limits
   theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
         panel.background = element_blank(), axis.line = element_line(colour = "black"),
-        plot.title = element_text(hjust=0.5))+ 
+        plot.title = element_text(hjust=0.5))+
   labs(y = bquote('Halophila minor shoot density'~(m^2)), x="Year")
 
 
   #Halodule uninervis
 halu<-dat2%>%
-  filter(SiteName==(paste(i)))%>% #select site 
+  filter(SiteName==(paste(i)))%>% #select site
   ggplot(aes(x=Year,y=MeanHalodule.uninervis)) + #select variable to plot
   geom_errorbar(aes(ymin=MeanHalodule.uninervis-SEHalodule.uninervis,ymax=MeanHalodule.uninervis+SEHalodule.uninervis),width=NA, position=jitter, colour="light grey")+
   geom_point(position=jitter,aes(colour=Year),size=3, show.legend=FALSE)+ #add points, set colour +size, jitter them, legend off
   coord_cartesian(ylim=c(0,(max(dat2$MeanTotal))))+ #set Y axis limits
   theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
         panel.background = element_blank(), axis.line = element_line(colour = "black"),
-        plot.title = element_text(hjust=0.5))+ 
+        plot.title = element_text(hjust=0.5))+
   labs(y = bquote('Halodule uninervis shoot density'~(m^2)), x="Year")
 
 
   #Syringodium isoetifolium
 syr<-dat2%>%
-  filter(SiteName==(paste(i)))%>% #select site 
+  filter(SiteName==(paste(i)))%>% #select site
   ggplot(aes(x=Year,y=MeanSyringodium.isoetifolium)) + #select variable to plot
   geom_errorbar(aes(ymin=MeanSyringodium.isoetifolium-SESyringodium.isoetifolium,ymax=MeanSyringodium.isoetifolium+SESyringodium.isoetifolium),width=NA, position=jitter, colour="light grey")+
   geom_point(position=jitter,aes(colour=Year),size=3, show.legend=FALSE)+ #add points, set colour +size, jitter them, legend off
   coord_cartesian(ylim=c(0,(max(dat2$MeanTotal))))+ #set Y axis limits
   theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
         panel.background = element_blank(), axis.line = element_line(colour = "black"),
-        plot.title = element_text(hjust=0.5))+ 
+        plot.title = element_text(hjust=0.5))+
   labs(y = bquote('Syringodium isoetifolium shoot density'~(m^2)), x="Year")
 
 #Print all plots for one site onto one page
@@ -323,7 +329,7 @@ assign(pltName, (grid.arrange(total,halo,hald,halm,halu,syr,nrow=2, top=paste(i)
 } #close the loop
 
 
-#I also want to make a set of plots for the whole archipelago 
+#I also want to make a set of plots for the whole archipelago
 #First lets set a theme up. Note you cant set the point colours as part of this
 custtheme<-theme_grey()+
            theme(panel.grid.major = element_blank(), #get rid of grid
@@ -422,14 +428,14 @@ SPDampierArchipelago
 setwd(pdf.out) #put the outputs into the 'Monitoring Summaries' folder
 
 st=format(Sys.time(), "%Y-%m-%d") #make an object with todays date
-pdf(paste("DMP_Seagrass_ShootDensity_MonitoringSummary",st, ".pdf", sep = ""), height = 8, width = 10) #Change this name to suit you 
+pdf(paste("DMP_Seagrass_ShootDensity_MonitoringSummary",st, ".pdf", sep = ""), height = 8, width = 10) #Change this name to suit you
 
-textplot("Seagrass shoot density monitoring summary 
+textplot("Seagrass shoot density monitoring summary
          Dampier Archipelago", halign="center", fixed.width=FALSE)            #set your title page as you please
 plot(SPDampierArchipelago)
   textplot(capture.output(sumDampierArchipelago), cex=0.5) #this prints your ANOVA list as an image in your PDF
-plot(SPConzinc) #You will need to go through and put your own site names here 
-  textplot(capture.output(sumConzinc), cex=0.6) 
+plot(SPConzinc) #You will need to go through and put your own site names here
+  textplot(capture.output(sumConzinc), cex=0.6)
 plot(SPEastLewis)
   textplot(capture.output(sumEastLewis), cex=0.6)
 plot(SPEnderbyBay)

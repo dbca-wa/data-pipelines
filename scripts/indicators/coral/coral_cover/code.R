@@ -1,5 +1,4 @@
 source("~/projects/data-pipelines/setup/ckan.R")
-source("~/projects/data-pipelines/scripts/ckan_secret.R")
 ## Please read "scripts/indicators/README.md" first! (Click "Preview as HTML")
 
 #------------------------------------------------------------------------------#
@@ -22,7 +21,7 @@ txt_rid <- "7bf45f88-104c-42a4-b506-bc09d76d3695"
 
 #------------------------------------------------------------------------------#
 ## Analysis - your code
-d <- load_ckan_csv(csv_rid, date_colnames = c('date', 'Date')) 
+d <- load_ckan_csv(csv_rid, date_colnames = c('date', 'Date'))
 d_md <- load_ckan_csv(csv_rid_md) # your data as data.frame
 d_hist <- load_ckan_csv(csv_rid_hist, date_colnames = c('date', 'Date'))
 
@@ -122,9 +121,9 @@ Old_nmpLVL2coral=d_hist #read.table("L:/benthic/!results/NIN/R/preEcoPAASdataNIN
 
 ###############
 # names(nmpLVL2coral)[2] <- "Level2Class" #Rename column to make more sense
-# nmpLVL2coral$ReplicateY = paste(nmpLVL2coral$Replicate, nmpLVL2coral$Year, '') 
+# nmpLVL2coral$ReplicateY = paste(nmpLVL2coral$Replicate, nmpLVL2coral$Year, '')
 nmphardcoralb = tapply(nmphardcoral$LVL2_Count,nmphardcoral$Survey,sum)
-Coral=data.frame(nmphardcoralb)   
+Coral=data.frame(nmphardcoralb)
 Coral$Survey=rownames(Coral)
 nmphardcorals=join(nmphardcoral,Coral,"Survey")
 # nmphardcorals$ReplicateY = NULL
@@ -132,7 +131,7 @@ nmphardcorals$LVL2_Count = NULL
 # nmphardcorals$percentcover = NULL
 names(nmphardcorals)[9] = "LVL2_Count"
 nmphardcorald=subset(nmphardcoral, Level2Class == "Hard coral")
-nmphardcorald$percentcover = nmphardcorald$LVL2_Count/nmphardcorald$Replicate_Count *100 
+nmphardcorald$percentcover = nmphardcorald$LVL2_Count/nmphardcorald$Replicate_Count *100
 ################
 nmpcoralcover_all=rbind(nmphardcorald, Old_nmpLVL2coral)#joins EcoPAAS data and other data togetherinto one data.frame
 delete<-data.frame(unique(nmpcoralcover_all$Site))
@@ -175,18 +174,18 @@ nmpcoralcover_mean$Sector[nmpcoralcover_mean$Site == "Muiron Island South"] <-"M
 nmpcoralcover_mean$Sector[nmpcoralcover_mean$Site == "Muiron Island North"] <-"Muiron"
 nmpcoralcover_mean<- droplevels(nmpcoralcover_mean)
 
-nmpcoralcover_means <- ddply(nmpcoralcover_mean, .(Year, Sector), .inform=TRUE, summarise, 
+nmpcoralcover_means <- ddply(nmpcoralcover_mean, .(Year, Sector), .inform=TRUE, summarise,
                              N    = length(Sector),
                              Mean = mean(percentcover),
                              sd   = sd(percentcover),
                              SE   = sd(percentcover) / sqrt(length(Sector)))
 
 Ning<-ggplot(nmpcoralcover_means, aes(x = Year, y = Mean)) +
-  geom_point(size=3) + 
+  geom_point(size=3) +
   stat_smooth(method = "lm", formula = y ~ poly(x,4), se=FALSE, size = 1,col="black",linetype="dashed") +
-  geom_smooth(method = "lm", se=TRUE, size = 1.5,colour="black",fill="grey20") +  
+  geom_smooth(method = "lm", se=TRUE, size = 1.5,colour="black",fill="grey20") +
   geom_errorbar(aes(ymin=Mean-SE, ymax=Mean+SE), width=.1,colour="black") +
-  geom_point(colour="black",size=3) + 
+  geom_point(colour="black",size=3) +
   facet_wrap(~ Sector, ncol=1) +
   theme_bw() + theme(axis.title.x = element_text(size = 20, vjust = .3),axis.line = element_line(colour = "black"),
                      axis.title.y = element_text(size = 20, vjust = .3,angle=90),axis.line = element_line(colour = "black"),
@@ -208,11 +207,11 @@ Ning
 
 #######New Facet wrap and models for new plots NOT WORKING PROP ########
 
-NMPCORCOVZN=ddply(nmpcoralcover_all1, .(Sector2, Year), summarise, 
+NMPCORCOVZN=ddply(nmpcoralcover_all1, .(Sector2, Year), summarise,
                   N    = length(percentcover),
                   mean = mean(percentcover),
                   sd   = sd(percentcover),
-                  se   = sd(percentcover) / sqrt(length((percentcover)) ))   
+                  se   = sd(percentcover) / sqrt(length((percentcover)) ))
 
 #windows(7,5)
 
@@ -224,12 +223,12 @@ PlotNMPCORCOVZN=ggplot(NMPCORCOVZN, aes(x=Year, y=mean)) +
   geom_point(size=2) +                 # points
   xlab("") +
   ylab("Mean coral cover % (+/- SE)") +
-  facet_wrap(~ Sector2) +                  #this is what puts them in a grid 
+  facet_wrap(~ Sector2) +                  #this is what puts them in a grid
   scale_y_continuous(limits=c(0,80)) +
   #scale_x_continuous(limits=c(min(NMPCORCOVZN$Year-0.125), max(NMPCORCOVZN$Year+0.125)), breaks=min(NMPCORCOVZN$Year):max(NMPCORCOVZN$Year)) +
   scale_x_continuous(breaks=c(1990, 1995, 2000, 2005, 2010, 2015), limits=c(1990,2015))+
   #scale_x_discrete(limits=c("1","2","3","4","5","6","7","8","9","10","11","12"), labels=c("Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec")) +
-  #scale_x_discrete(limits=c("1","2","3","4","5","6","7","8"), labels=c("Apr","May","Jun","Jul","Aug","Sep","Oct","Nov")) +  
+  #scale_x_discrete(limits=c("1","2","3","4","5","6","7","8"), labels=c("Apr","May","Jun","Jul","Aug","Sep","Oct","Nov")) +
   theme_bw() +                                    #grid colour in this case black and white
   theme(
     strip.text.x = element_text(size=11),           #sets the size of the title to each grid section as 10
@@ -263,7 +262,7 @@ D$year=rownames(D) #change year into a variable
 rownames(D)=NULL #get rid of rownames
 
 ##plot out means with SE for coral cover by year##
-# Ning_means=ggplot(D, aes(x=D$year, y=D$Mean,)) + 
+# Ning_means=ggplot(D, aes(x=D$year, y=D$Mean,)) +
 #   geom_errorbar(aes(ymin=Mean-SE, ymax=Mean+SE), width=.1,colour="black") +
 #   geom_line() +
 #   geom_point(colour="black",size=3) +
@@ -282,14 +281,14 @@ rownames(D)=NULL #get rid of rownames
 #dev.off()
 
 #---------------------------------------------------------------------------------------------------------------------------------------------
-################################## Exercise 7 - Run a linear model through means  ##############################################################  
+################################## Exercise 7 - Run a linear model through means  ##############################################################
 Intyear=as.integer(D$year)
 Ning_Mod1<-ggplot(D, aes(x = Intyear, y = D$Mean)) +
-  geom_point(size=3) + 
+  geom_point(size=3) +
   stat_smooth(method = "lm", formula = y ~ poly(x,3), se=FALSE, size = 1,col="black",linetype="dashed") +
-  geom_smooth(method = "lm", se=TRUE, size = 1.5,colour="black",fill="grey20") +  
+  geom_smooth(method = "lm", se=TRUE, size = 1.5,colour="black",fill="grey20") +
   geom_errorbar(aes(ymin=Mean-SE, ymax=Mean+SE), width=.1,colour="black") +
-  geom_point(colour="black",size=3) + 
+  geom_point(colour="black",size=3) +
   theme_bw() + theme(axis.title.x = element_text(size = 20, vjust = .3),axis.line = element_line(colour = "black"),
                      axis.title.y = element_text(size = 20, vjust = .3,angle=90),axis.line = element_line(colour = "black"),
                      panel.grid.major = element_blank(),
@@ -329,7 +328,7 @@ DSB$year=rownames(DSB) #change year into a variable
 rownames(DSB)=NULL #get rid of rownames
 
 # #plot out means with SE for coral cover by year##
-# Ning_means=ggplot(DSB, aes(x=DSB$year, y=DSB$Mean,)) + 
+# Ning_means=ggplot(DSB, aes(x=DSB$year, y=DSB$Mean,)) +
 #   geom_errorbar(aes(ymin=Mean-SE, ymax=Mean+SE), width=.1,colour="black") +
 #   geom_line() +
 #   geom_point(colour="black",size=3) +
@@ -341,21 +340,21 @@ rownames(DSB)=NULL #get rid of rownames
 #                     panel.background = theme_blank())+
 #   xlab("") + ylab("Mean coral cover (+/- SE)")
 # Ning_means
-# 
+#
 # #300 dpi outputs for Journal##
 # #tiff("NingMeans.tiff", width = 8, height = 6, units = 'in', res = 300)
 # # Ning_means
 # dev.off()
 
 #---------------------------------------------------------------------------------------------------------------------------------------------#
-## A linear model through means  ##  
+## A linear model through means  ##
 IntyearDSB=as.integer(DSB$year)
 Ning_ModDSB<-ggplot(DSB, aes(x = IntyearDSB, y = DSB$Mean)) +
-  geom_point(size=3) + 
+  geom_point(size=3) +
   stat_smooth(method = "lm", formula = y ~ poly(x,4), se=FALSE, size = 1,col="black",linetype="dashed") +
-  geom_smooth(method = "lm", se=FALSE, size = 1.5,colour="black",fill="grey20") +  
+  geom_smooth(method = "lm", se=FALSE, size = 1.5,colour="black",fill="grey20") +
   geom_errorbar(aes(ymin=Mean-SE, ymax=Mean+SE), width=.1,colour="black") +
-  geom_point(colour="black",size=3) + 
+  geom_point(colour="black",size=3) +
   ggtitle("Bundegi") +
   xlab("Year") + ylab("Mean coral cover % (+/- SE)")+
   theme_bw() + opts(#axis.title.x = theme_text(vjust = .3),
@@ -367,7 +366,7 @@ Ning_ModDSB<-ggplot(DSB, aes(x = IntyearDSB, y = DSB$Mean)) +
     panel.grid.minor = theme_blank(),
     panel.border = theme_blank(),
     panel.background = theme_blank())+
-  scale_y_continuous(limits=c(0,80)) + 
+  scale_y_continuous(limits=c(0,80)) +
   scale_x_continuous(limits=c(1990,2014))
 #scale_x_continuous limits=c(min(D.Means$year-0.125), max(D.Means$year+0.125)), breaks=min(D.Means$year):max(D.Means$year))  +
 
@@ -392,7 +391,7 @@ DSM$year=rownames(DSM) #change year into a variable
 rownames(DSM)=NULL #get rid of rownames
 
 ##plot out means with SE for coral cover by year##
-# Ning_means=ggplot(DSM, aes(x=DSM$year, y=DSM$Mean,)) + 
+# Ning_means=ggplot(DSM, aes(x=DSM$year, y=DSM$Mean,)) +
 #   geom_errorbar(aes(ymin=Mean-SE, ymax=Mean+SE), width=.1,colour="black") +
 #   geom_line() +
 #   geom_point(colour="black",size=3) +
@@ -411,14 +410,14 @@ rownames(DSM)=NULL #get rid of rownames
 #dev.off()
 
 #---------------------------------------------------------------------------------------------------------------------------------------------#
-## A linear model through means  ##  
+## A linear model through means  ##
 IntyearDSM=as.integer(DSM$year)
 Ning_ModDSM<-ggplot(DSM, aes(x = IntyearDSM, y = DSM$Mean)) +
-  geom_point(size=3) + 
+  geom_point(size=3) +
   stat_smooth(method = "lm", formula = y ~ poly(x,3), se=FALSE, size = 1,col="black",linetype="dashed") +
-  geom_smooth(method = "lm", se=FALSE, size = 1.5,colour="black",fill="grey20") +  
+  geom_smooth(method = "lm", se=FALSE, size = 1.5,colour="black",fill="grey20") +
   geom_errorbar(aes(ymin=Mean-SE, ymax=Mean+SE), width=.1,colour="black") +
-  geom_point(colour="black",size=3) + 
+  geom_point(colour="black",size=3) +
   ggtitle("Muiron") +
   theme_bw() + opts(#axis.title.x = theme_text(vjust = .3),axis.line = theme_segment(colour = "black"), #size=20
     axis.title.y = theme_text(vjust = .3,angle=90),axis.line = theme_segment(colour = "black"),
@@ -428,7 +427,7 @@ Ning_ModDSM<-ggplot(DSM, aes(x = IntyearDSM, y = DSM$Mean)) +
     panel.grid.minor = theme_blank(),
     panel.border = theme_blank(),
     panel.background = theme_blank())+
-  scale_y_continuous(limits=c(0,80)) + 
+  scale_y_continuous(limits=c(0,80)) +
   scale_x_continuous(limits=c(1990,2015))+ # breaks=2005:2015,
   #scale_x_continuous limits=c(min(D.Means$year-0.125), max(D.Means$year+0.125)), breaks=min(D.Means$year):max(D.Means$year))  +
   xlab("Year") + ylab("Mean coral cover % (+/- SE)")
@@ -453,7 +452,7 @@ DSN$year=rownames(DSN) #change year into a variable
 rownames(DSN)=NULL #get rid of rownames
 
 ##plot out means with SE for coral cover by year##
-# Ning_means=ggplot(DSN, aes(x=DSN$year, y=DSN$Mean,)) + 
+# Ning_means=ggplot(DSN, aes(x=DSN$year, y=DSN$Mean,)) +
 #   geom_errorbar(aes(ymin=Mean-SE, ymax=Mean+SE), width=.1,colour="black") +
 #   geom_line() +
 #   geom_point(colour="black",size=3) +
@@ -472,14 +471,14 @@ rownames(DSN)=NULL #get rid of rownames
 #dev.off()
 
 #---------------------------------------------------------------------------------------------------------------------------------------------#
-## A linear model through means  ## 
+## A linear model through means  ##
 IntyearDSN=as.integer(DSN$year)
 Ning_ModDSN<-ggplot(DSN, aes(x = IntyearDSN, y = DSN$Mean)) +
-  geom_point(size=3) + 
+  geom_point(size=3) +
   stat_smooth(method = "lm", formula = y ~ poly(x,3), se=FALSE, size = 1,col="black",linetype="dashed") +
-  geom_smooth(method = "lm", se=FALSE, size = 1.5,colour="black",fill="grey20") +  
+  geom_smooth(method = "lm", se=FALSE, size = 1.5,colour="black",fill="grey20") +
   geom_errorbar(aes(ymin=Mean-SE, ymax=Mean+SE), width=.1,colour="black") +
-  geom_point(colour="black",size=3) + 
+  geom_point(colour="black",size=3) +
   ggtitle("North") +
   theme_bw() + opts(axis.title.x = theme_text(vjust = .3),
                     axis.line = theme_segment(colour = "black"),
@@ -490,7 +489,7 @@ Ning_ModDSN<-ggplot(DSN, aes(x = IntyearDSN, y = DSN$Mean)) +
                     panel.grid.minor = theme_blank(),
                     panel.border = theme_blank(),
                     panel.background = theme_blank())+
-  scale_y_continuous(limits=c(0,80)) + 
+  scale_y_continuous(limits=c(0,80)) +
   scale_x_continuous(limits=c(1990,2014))+
   #scale_x_continuous limits=c(min(D.Means$year-0.125), max(D.Means$year+0.125)), breaks=min(D.Means$year):max(D.Means$year))  +
   xlab("Year") + ylab("Mean coral cover % (+/- SE)")
@@ -515,7 +514,7 @@ DSS$year=rownames(DSS) #change year into a variable
 rownames(DSS)=NULL #get rid of rownames
 
 ##plot out means with SE for coral cover by year##
-# Ning_means=ggplot(DSS, aes(x=DSS$year, y=DSS$Mean,)) + 
+# Ning_means=ggplot(DSS, aes(x=DSS$year, y=DSS$Mean,)) +
 #   geom_errorbar(aes(ymin=Mean-SE, ymax=Mean+SE), width=.1,colour="black") +
 #   geom_line() +
 #   geom_point(colour="black",size=3) +
@@ -534,14 +533,14 @@ rownames(DSS)=NULL #get rid of rownames
 #dev.off()
 
 #---------------------------------------------------------------------------------------------------------------------------------------------#
-## A linear model through means  ##  
+## A linear model through means  ##
 IntyearDSS=as.integer(DSS$year)
 Ning_ModDSS<-ggplot(DSS, aes(x = IntyearDSS, y = DSS$Mean)) +
-  geom_point(size=3) + 
+  geom_point(size=3) +
   stat_smooth(method = "lm", formula = y ~ poly(x,3), se=FALSE, size = 1,col="black",linetype="dashed") +
-  geom_smooth(method = "lm", se=FALSE, size = 1.5,colour="black",fill="grey20") +  
+  geom_smooth(method = "lm", se=FALSE, size = 1.5,colour="black",fill="grey20") +
   geom_errorbar(aes(ymin=Mean-SE, ymax=Mean+SE), width=.1,colour="black") +
-  geom_point(colour="black",size=3) + 
+  geom_point(colour="black",size=3) +
   ggtitle("South") +
   theme_bw() + opts(axis.title.x = theme_text(vjust = .3),axis.line = theme_segment(colour = "black"),
                     #axis.title.y = theme_text(vjust = .3,angle=90),axis.line = theme_segment(colour = "black"),
@@ -551,7 +550,7 @@ Ning_ModDSS<-ggplot(DSS, aes(x = IntyearDSS, y = DSS$Mean)) +
                     panel.grid.minor = theme_blank(),
                     panel.border = theme_blank(),
                     panel.background = theme_blank())+
-  scale_y_continuous(limits=c(0,80)) + 
+  scale_y_continuous(limits=c(0,80)) +
   scale_x_continuous(limits=c(1990,2014))+
   #scale_x_continuous limits=c(min(D.Means$year-0.125), max(D.Means$year+0.125)), breaks=min(D.Means$year):max(D.Means$year))  +
   xlab("Year") + ylab("Mean coral cover % (+/- SE)")
@@ -565,10 +564,10 @@ summary(fm1.poly.DSS)
 
 #-----------------------------------------------------------------------------------------------------------------------------------#
 
-library(gridExtra)  #package used to make panel plots  
+library(gridExtra)  #package used to make panel plots
 
 ##Create a panel plot using previous 3 plots
-Panelplot<-grid.arrange(Ning_ModDSM, Ning_ModDSB, Ning_ModDSN, Ning_ModDSS) 
+Panelplot<-grid.arrange(Ning_ModDSM, Ning_ModDSB, Ning_ModDSN, Ning_ModDSS)
 #Panelplot<-grid.arrange(PlotBundegi, PlotCloates, PlotCoralBay, PlotLighthouse, PlotMandu, PlotMangrove, PlotMuiron, PlotOsprey, PlotPelican, PlotTantabiddi)
 
 #-----------------------------------------------------------------------------------------------------------------------------------#
@@ -578,7 +577,7 @@ Panelplot<-grid.arrange(Ning_ModDSM, Ning_ModDSB, Ning_ModDSN, Ning_ModDSS)
 # summary(DSS)
 # # plot(D$Mean~Intyear,pch=19)
 # # abline(Reg1)
-# 
+#
 # ##  Polynomial Regression - 4 knots  ##
 # Ning_ModDSS <- lm(D$Mean ~ poly(Intyear, 4))
 # summary(Ning_ModDSS)
@@ -597,9 +596,9 @@ Panelplot<-grid.arrange(Ning_ModDSM, Ning_ModDSB, Ning_ModDSN, Ning_ModDSS)
 # RZ=data.frame(Mean,SE) #create dataframe so ggplot can read data
 # RZ$year=rownames(RZ) #change year into a variable
 # rownames(RZ)=NULL #get rid of rownames
-# 
+#
 # ##plot out means with SE for coral cover by year##
-# # Ning_means=ggplot(RZ, aes(x=RZ$year, y=RZ$Mean,)) + 
+# # Ning_means=ggplot(RZ, aes(x=RZ$year, y=RZ$Mean,)) +
 # #   geom_errorbar(aes(ymin=Mean-SE, ymax=Mean+SE), width=.1,colour="black") +
 # #   geom_line() +
 # #   geom_point(colour="black",size=3) +
@@ -611,23 +610,23 @@ Panelplot<-grid.arrange(Ning_ModDSM, Ning_ModDSB, Ning_ModDSN, Ning_ModDSS)
 # #                     panel.background = theme_blank())+
 # #   xlab("") + ylab("Mean coral cover (+/- SE)")
 # # Ning_means
-# 
+#
 # ##300 dpi outputs for Journal##
 # #tiff("NingMeans.tiff", width = 8, height = 6, units = 'in', res = 300)
 # #Ning_means
 # #dev.off()
-# 
+#
 # #---------------------------------------------------------------------------------------------------------------------------------------------#
-# ## A linear model through means  ##  
+# ## A linear model through means  ##
 # IntyearRZ=as.integer(RZ$year)
 # Ning_ModRZ<-ggplot(RZ, aes(x = IntyearRZ, y = RZ$Mean)) +
-#   geom_point(size=3) + 
+#   geom_point(size=3) +
 #   stat_smooth(method = "lm", formula = y ~ poly(x,4), se=FALSE, size = 1,col="black",linetype="dashed") +
-#   geom_smooth(method = "lm", se=FALSE, size = 1.5,colour="black",fill="grey20") +  
+#   geom_smooth(method = "lm", se=FALSE, size = 1.5,colour="black",fill="grey20") +
 #   geom_errorbar(aes(ymin=Mean-SE, ymax=Mean+SE), width=.1,colour="black") +
 #   geom_point(colour="black",size=3) +
 #   ggtitle("Recreation Zone") +
-#   theme_bw() + opts(#axis.title.x = theme_text(size = 20, vjust = .3), 
+#   theme_bw() + opts(#axis.title.x = theme_text(size = 20, vjust = .3),
 #     axis.line = theme_segment(colour = "black"),
 #     #axis.title.y = theme_text(size = 20, vjust = .3,angle=90),axis.line = theme_segment(colour = "black"),
 #     axis.title.y = theme_blank(),
@@ -636,16 +635,16 @@ Panelplot<-grid.arrange(Ning_ModDSM, Ning_ModDSB, Ning_ModDSN, Ning_ModDSS)
 #     panel.grid.minor = theme_blank(),
 #     panel.border = theme_blank(),
 #     panel.background = theme_blank())+
-#   scale_y_continuous(limits=c(0,80)) + 
+#   scale_y_continuous(limits=c(0,80)) +
 #   scale_x_continuous(limits=c(1990,2014))+
 #   #scale_x_continuous limits=c(min(D.Means$year-0.125), max(D.Means$year+0.125)), breaks=min(D.Means$year):max(D.Means$year))  +
 #   xlab("Year") + ylab("Mean coral cover % (+/- SE)")
 # Ning_ModRZ
-# 
+#
 # #---------------------------------------------------------------------------------------------------------------------------------------------#
 # #---------------------------------------------------------------------------------------------------------------------------------------------#
-# 
-# 
+#
+#
 # ##Create function that calculates standard errors##
 # stderr <- function(x) sd(x)/sqrt(length(na.omit(x))) #standard error function
 # Mean=tapply(nmpLVL1coral_allSanctuary$percentcover,nmpLVL1coral_allSanctuary$Year, mean) #group coral into means by year
@@ -653,9 +652,9 @@ Panelplot<-grid.arrange(Ning_ModDSM, Ning_ModDSB, Ning_ModDSN, Ning_ModDSS)
 # SZ=data.frame(Mean,SE) #create dataframe so ggplot can read data
 # SZ$year=rownames(SZ) #change year into a variable
 # rownames(SZ)=NULL #get rid of rownames
-# 
+#
 # ##plot out means with SE for coral cover by year##
-# # Ning_means=ggplot(SZ, aes(x=SZ$year, y=SZ$Mean,)) + 
+# # Ning_means=ggplot(SZ, aes(x=SZ$year, y=SZ$Mean,)) +
 # #   geom_errorbar(aes(ymin=Mean-SE, ymax=Mean+SE), width=.1,colour="black") +
 # #   geom_line() +
 # #   geom_point(colour="black",size=3) +
@@ -667,44 +666,44 @@ Panelplot<-grid.arrange(Ning_ModDSM, Ning_ModDSB, Ning_ModDSN, Ning_ModDSS)
 # #                     panel.background = theme_blank())+
 # #   xlab("") + ylab("Mean coral cover (+/- SE)")
 # # Ning_means
-# 
+#
 # ##300 dpi outputs for Journal##
 # #tiff("NingMeans.tiff", width = 8, height = 6, units = 'in', res = 300)
 # #Ning_means
 # #dev.off()
-# 
+#
 # #---------------------------------------------------------------------------------------------------------------------------------------------#
-# ## A linear model through means  ##  
+# ## A linear model through means  ##
 # IntyearSZ=as.integer(SZ$year)
 # Ning_ModSZ<-ggplot(SZ, aes(x = IntyearSZ, y = SZ$Mean)) +
-#   geom_point(size=3) + 
+#   geom_point(size=3) +
 #   stat_smooth(method = "lm", formula = y ~ poly(x,3), se=FALSE, size = 1,col="black",linetype="dashed") +
-#   geom_smooth(method = "lm", se=FALSE, size = 1.5,colour="black",fill="grey20") +  
+#   geom_smooth(method = "lm", se=FALSE, size = 1.5,colour="black",fill="grey20") +
 #   geom_errorbar(aes(ymin=Mean-SE, ymax=Mean+SE), width=.1,colour="black") +
-#   geom_point(colour="black",size=3) + 
+#   geom_point(colour="black",size=3) +
 #   ggtitle("Sanctuary Zone") +
 #   theme_bw() + opts(#axis.title.x = theme_text(size = 20, vjust = .3),
 #     axis.line = theme_segment(colour = "black"),
 #     axis.title.y = theme_text(size = 13, vjust = 0.1,angle=90),
 #     #axis.title.y = theme_blank(),
-#     axis.title.x = theme_blank(),                    
+#     axis.title.x = theme_blank(),
 #     axis.line = theme_segment(colour = "black"),
 #     panel.grid.major = theme_blank(),
 #     panel.grid.minor = theme_blank(),
 #     panel.border = theme_blank(),
 #     panel.background = theme_blank())+
-#   scale_y_continuous(limits=c(0,80)) + 
+#   scale_y_continuous(limits=c(0,80)) +
 #   scale_x_continuous(limits=c(1990,2014))+
 #   #scale_x_continuous limits=c(min(D.Means$year-0.125), max(D.Means$year+0.125)), breaks=min(D.Means$year):max(D.Means$year))  +
 #   xlab("Year") + ylab("Mean coral cover % (+/- SE)")
 # Ning_ModSZ
-# 
-# 
+#
+#
 # #---------------------------------------------------------------------------------------------------------------------------------------------#
 # #---------------------------------------------------------------------------------------------------------------------------------------------#
-# 
-# 
-# 
+#
+#
+#
 # ##Create function that calculates standard errors##
 # stderr <- function(x) sd(x)/sqrt(length(na.omit(x))) #standard error function
 # Mean=tapply(nmpLVL1coral_allConservation$percentcover,nmpLVL1coral_allConservation$Year, mean) #group coral into means by year
@@ -712,9 +711,9 @@ Panelplot<-grid.arrange(Ning_ModDSM, Ning_ModDSB, Ning_ModDSN, Ning_ModDSS)
 # CZ=data.frame(Mean,SE) #create dataframe so ggplot can read data
 # CZ$year=rownames(CZ) #change year into a variable
 # rownames(CZ)=NULL #get rid of rownames
-# 
+#
 # ##plot out means with SE for coral cover by year##
-# # Ning_means=ggplot(CZ, aes(x=CZ$year, y=CZ$Mean,)) + 
+# # Ning_means=ggplot(CZ, aes(x=CZ$year, y=CZ$Mean,)) +
 # #   geom_errorbar(aes(ymin=Mean-SE, ymax=Mean+SE), width=.1,colour="black") +
 # #   geom_line() +
 # #   geom_point(colour="black",size=3) +
@@ -726,45 +725,45 @@ Panelplot<-grid.arrange(Ning_ModDSM, Ning_ModDSB, Ning_ModDSN, Ning_ModDSS)
 # #                     panel.background = theme_blank())+
 # #   xlab("") + ylab("Mean coral cover (+/- SE)")
 # # Ning_means
-# 
+#
 # ##300 dpi outputs for Journal##
 # #tiff("NingMeans.tiff", width = 8, height = 6, units = 'in', res = 300)
 # #Ning_means
 # #dev.off()
-# 
+#
 # #---------------------------------------------------------------------------------------------------------------------------------------------#
-# ## A linear model through means  ##  
+# ## A linear model through means  ##
 # IntyearCZ=as.integer(CZ$year)
 # Ning_ModCZ<-ggplot(CZ, aes(x = IntyearCZ, y = CZ$Mean)) +
-#   geom_point(size=3) + 
+#   geom_point(size=3) +
 #   stat_smooth(method = "lm", formula = y ~ poly(x,3), se=FALSE, size = 1,col="black",linetype="dashed") +
-#   geom_smooth(method = "lm", se=FALSE, size = 1.5,colour="black",fill="grey20") +  
+#   geom_smooth(method = "lm", se=FALSE, size = 1.5,colour="black",fill="grey20") +
 #   geom_errorbar(aes(ymin=Mean-SE, ymax=Mean+SE), width=.1,colour="black") +
-#   geom_point(colour="black",size=3) + 
+#   geom_point(colour="black",size=3) +
 #   ggtitle("Muiron Islands Conservation Area") +
 #   theme_bw() + opts(axis.title.x = theme_text(size = 20, vjust = .3),
 #                     axis.line = theme_segment(colour = "black"),
 #                     #axis.title.y = theme_text(size = 20, vjust = .3,angle=90),
 #                     axis.title.y = theme_blank(),
-#                     #axis.title.x = theme_blank(),                    
+#                     #axis.title.x = theme_blank(),
 #                     axis.line = theme_segment(colour = "black"),
 #                     panel.grid.major = theme_blank(),
 #                     panel.grid.minor = theme_blank(),
 #                     panel.border = theme_blank(),
 #                     panel.background = theme_blank())+
-#   scale_y_continuous(limits=c(0,80)) + 
+#   scale_y_continuous(limits=c(0,80)) +
 #   scale_x_continuous(limits=c(1990,2014))+
 #   #scale_x_continuous limits=c(min(D.Means$year-0.125), max(D.Means$year+0.125)), breaks=min(D.Means$year):max(D.Means$year))  +
 #   xlab("Year") + ylab("Mean coral cover % (+/- SE)")
 # Ning_ModCZ
-# 
-# 
+#
+#
 # #-----------------------------------------------------------------------------------------------------------------------------------#
-# 
-# library(gridExtra)  #package used to make panel plots  
-# 
+#
+# library(gridExtra)  #package used to make panel plots
+#
 # ##Create a panel plot using previous 3 plots
-# 
+#
 # Panelplot<-grid.arrange(Ning_ModRZ, Ning_ModSZ, Ning_ModCZ)
 #Panelplot<-grid.arrange(PlotBundegi, PlotCloates, PlotCoralBay, PlotLighthouse, PlotMandu, PlotMangrove, PlotMuiron, PlotOsprey, PlotPelican, PlotTantabiddi)
 

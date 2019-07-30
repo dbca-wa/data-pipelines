@@ -1,24 +1,24 @@
-#This script is designed to created an automated annual summary report for coral monitoring sites - total cover, family & genera level cover, and diversity 
+#This script is designed to created an automated annual summary report for coral monitoring sites - total cover, family & genera level cover, and diversity
 #Created by Molly Moustaka July 2019
 #Dept. Biodiversity, Conservation and Attractions, Marine Science Program
 #Email: molly.moustaka@dbbca.wa.gov.au
 
-#Run sections 1-4 to create all the data - you need to work through this as there are several sections where you need to spec 
+#Run sections 1-4 to create all the data - you need to work through this as there are several sections where you need to spec
 #certain commands yoursef.
 #Then you can run parts of sections 5/6/7 as you require
 
 
 ###-----1. Get set up----####
 #Clear environment
-rm(list=ls()) 
+rm(list=ls())
 
 #Install & Load packages
-#install.packages(c("ggplot2", "dplyr","plotrix","gridExtra","RColorBrewer","gplots", "ggpubr","vegan"),dependencies = T) 
+#install.packages(c("ggplot2", "dplyr","plotrix","gridExtra","RColorBrewer","gplots", "ggpubr","vegan"),dependencies = T)
 library(ggplot2) # make plots
 library(plotrix) #package to calculate standard error
 library(gridExtra) #grid layouts for multiple plots
 library(RColorBrewer) #colours for plots.
-library(gplots) #text to plot tools 
+library(gplots) #text to plot tools
 library(ggpubr)#another arranging tool
 library(vegan) #multivariate stats
 library(dplyr) #data wrangling.
@@ -54,15 +54,29 @@ dat<- NA # make a blank data frame
 for (f in files) {
   x<-read.csv(f,header=TRUE,fileEncoding="UTF-8-BOM")
   dat<-rbind(dat,x)
-  
+
 }
 
 #remove the bank row at the top thats made by the importing process
 dat<-dat[-1,]
 
-#Write CSV for the data catalogue
+#Write the updated Master CSV to the T drive asset folder
 setwd(data)
 write.csv(dat,file=paste("DMP_Coral_Benthic_Master",st,".csv"))
+
+####2.1 OPTIONAL: Push updated benthic coral mastersheet onto CKAN (DBCA data catalogue)####
+source("~/projects/data-pipelines/setup/ckan.R")
+dataset_rid <- "44a67383-db52-4c45-b1f7-b62ae046a3f5"
+csv_rid <- "57b442ff-46fe-4a20-ab26-5d3f7179f1a8"
+upload_to_ckan(data=dat,resource_title="Dampier Coral Benthic Mastersheet",dataset_id=dataset_rid, resource_id =csv_rid)
+
+
+####2.2 OPTIONAL: Pull benthic coral mastersheet off CKAN (DBCA data catalogue)####
+#source("~/projects/data-pipelines/setup/ckan.R")
+#csv_rid <- "57b442ff-46fe-4a20-ab26-5d3f7179f1a8"
+#d <- load_ckan_csv(csv_rid)
+#dplyr::glimpse(d)
+
 
 ####----3. Data checking----####
 #Drop columns we wont use
@@ -74,9 +88,9 @@ dat<-select(dat,c(-RegionCode,-ZoneCode,-LocationCode,-SiteCode,-ReplicateCode,
 unique(dat$Site)
 
 #Check which sites were sampled in each year
-table(dat$Site,dat$Year) #This data is a bit munted so we'll make datasets for plotting and stats seperately 
+table(dat$Site,dat$Year) #This data is a bit munted so we'll make datasets for plotting and stats seperately
 
-#Make year into a factor for analysis 
+#Make year into a factor for analysis
 dat$Year<-as.factor(dat$Year)
 
 #If you have a master dataset and just want to look at one marine park you can filter this here
@@ -157,7 +171,7 @@ meansitedat<- dat%>% #per transect
 
 #first make a loop of the coral family names
 fams<-filter(dat, Level2Class=="Hard coral") #make a subset of only coral data
-fams<-unique(fams$Level3Class) #make a character vector of all the coral families 
+fams<-unique(fams$Level3Class) #make a character vector of all the coral families
 
 #make a blank data frames for each level of resolution - don't worry about the warnings here
 tranfamdat<-trandat[FALSE,] #transect level- take the column heads from the trandat dataset
@@ -166,7 +180,7 @@ mpfamdat<-mpdat[FALSE,] #marine park level
 
 #make a loop
 for (f in fams) {
-  
+
   ##Make the data for each transect
   x<- dat%>% #per transect
     filter(Level2Class=="Hard coral")%>% #pull out only rows that are observations of hard coral
@@ -175,40 +189,40 @@ for (f in fams) {
       count=n(),                    #count the number of rows in each replicate (remebering that this is only rows containing coral)
       coralcount=sum(Level3Class==paste(f)), #count the number of those rows that equal a single family
       percent=(coralcount/count)*100)    #calculate the % of hard coral for that family
-  
+
   x$family<-paste(f) #add column with the coral family name
-  
+
   tranfamdat<-rbind(tranfamdat,x) #bind the data for this family to the whole dataset
 
-  
+
   ##Make the data for each Site
-  y<- dat%>% 
+  y<- dat%>%
     filter(Level2Class=="Hard coral")%>%
     group_by(Year,Site)%>%
     summarise(
       count=n(),
       coralcount=sum(Level3Class==paste(f)),
       percent=(coralcount/count)*100)
-  
+
   y$family<-paste(f) #add column with the coral family name
-  
+
   sitefamdat<-rbind(sitefamdat,y) #bind the data for this family to the whole dataset
 
-  
+
   ##Make the data for each marine park
-  z<- dat%>% 
+  z<- dat%>%
     filter(Level2Class=="Hard coral")%>%
     group_by(Year)%>%
     summarise(
       count=n(),
       coralcount=sum(Level3Class==paste(f)),
       percent=(coralcount/count)*100)
-  
+
   z$family<-paste(f) #add column with the coral family name
-  
+
   mpfamdat<-rbind(mpfamdat,z) #bind the data for this family to the whole dataset
-  
-}  
+
+}
 
 ####----4. Make data into genera level% cover-----####
 #This code calculates the % of each genera WITHIN hard coral (i.e. will total 100%)
@@ -217,7 +231,7 @@ for (f in fams) {
 
 #first make a loop of the coral genera names
 gens<-filter(dat, Level2Class=="Hard coral") #make a subset of only coral data
-gens<-unique(gens$Level4Class) #make a character vector of all the coral families 
+gens<-unique(gens$Level4Class) #make a character vector of all the coral families
 
 #make a blank data frames for each level of resolution- don't worry about the warnings here
 trangendat<-trandat[FALSE,] #transect level- take the column heads from the trandat dataset
@@ -226,7 +240,7 @@ mpgendat<-mpdat[FALSE,] #marine park level
 
 #make a loop
 for (g in gens) {
-  
+
   ##Make the data for each transect
   x<- dat%>% #per transect
     filter(Level2Class=="Hard coral")%>% #pull out only rows that are observations of hard coral
@@ -235,12 +249,12 @@ for (g in gens) {
       count=n(),                    #count the number of rows in each replicate (remebering that this is only rows containing coral)
       coralcount=sum(Level4Class==paste(g)), #count the number of those rows that equal a single family
       percent=(coralcount/count)*100)    #calculate the % of hard coral for that family
-  
+
   x$genera<-paste(g) #add column with the coral family name
-  
+
   trangendat<-rbind(trangendat,x) #bind the data for this family to the whole dataset
-  
-  
+
+
   ##Make the data for each site
   y<- dat%>% #per site
     filter(Level2Class=="Hard coral")%>%
@@ -249,12 +263,12 @@ for (g in gens) {
       count=n(),
       coralcount=sum(Level4Class==paste(g)),
       percent=(coralcount/count)*100)
-  
+
   y$genera<-paste(g) #add column with the coral family name
-  
+
   sitegendat<-rbind(sitegendat,y) #bind the data for this family to the whole dataset
-  
-  
+
+
   ##Make the data for each marine park
   z<- dat%>% #per mp
     filter(Level2Class=="Hard coral")%>%
@@ -263,12 +277,12 @@ for (g in gens) {
       count=n(),
       coralcount=sum(Level4Class==paste(g)),
       percent=(coralcount/count)*100)
-  
+
   z$genera<-paste(g) #add column with the coral family name
-  
+
   mpgendat<-rbind(mpgendat,z) #bind the data for this family to the whole dataset
-  
-} 
+
+}
 
 
 ####----4. Make genera-richness data-----####
@@ -300,7 +314,7 @@ divmpdat<- dat%>% #for the whole dataset (i.e. marine park)
 table(trandat$Year,trandat$Site)
 
 #we are missing most sites in 2016 & most data for Nelson Rocks so lets remove those
-#You will need to analyse this and work our what you want to remove yourself 
+#You will need to analyse this and work our what you want to remove yourself
 #Do we need to correct for missing transects i.e. 2 vs 3 transects? Do it here
 
 ####Transect level
@@ -316,7 +330,7 @@ trangendatstat<-trangendat%>%          #for genera percent cover
   filter(Year != "2016")%>%
   filter(Site !="Nelson Rocks")
 
-trandivdatstat<-divtrandat%>%        #for diversity 
+trandivdatstat<-divtrandat%>%        #for diversity
   filter(Year != "2016")%>%
   filter(Site !="Nelson Rocks")
 
@@ -334,7 +348,7 @@ sitegendatstat<-sitegendat%>%          #for genera percent cover
   filter(Year != "2016")%>%
   filter(Site !="Nelson Rocks")
 
-sitedivdatstat<-divsitedat%>%        #for diversity 
+sitedivdatstat<-divsitedat%>%        #for diversity
   filter(Year != "2016")%>%
   filter(Site !="Nelson Rocks")
 
@@ -342,20 +356,20 @@ sitedivdatstat<-divsitedat%>%        #for diversity
 ###marine park level
 mpdatstat<- dat%>% #for the whole dataset (i.e. marine park)
   filter(Year != "2016")%>%
-  filter(Site !="Nelson Rocks")%>%  
+  filter(Site !="Nelson Rocks")%>%
   group_by(Year)%>%
   summarise(
     count=n(),
     coralcount=sum(Level2Class=="Hard coral"),
     percent=(coralcount/count)*100
   )
-  
-  
+
+
 mpfamdatstat<-mpdat[FALSE,] #family at marine park level minus rows to be removed
   for (f in fams){
-    z<- dat%>% 
+    z<- dat%>%
     filter(Year != "2016")%>%
-    filter(Site !="Nelson Rocks")%>%   
+    filter(Site !="Nelson Rocks")%>%
     filter(Level2Class=="Hard coral")%>%
     group_by(Year)%>%
     summarise(
@@ -372,7 +386,7 @@ mpfamdatstat<-mpdat[FALSE,] #family at marine park level minus rows to be remove
 mpgendatstat <- mpdat[FALSE,]  #genera at marine park level minus rows to be removed
   for (g in gens) {
 
-    z<- dat%>% 
+    z<- dat%>%
       filter(Year != "2016")%>%
       filter(Site !="Nelson Rocks")%>%
       filter(Level2Class=="Hard coral")%>%
@@ -382,10 +396,10 @@ mpgendatstat <- mpdat[FALSE,]  #genera at marine park level minus rows to be rem
         coralcount=sum(Level4Class==paste(g)),
         percent=(coralcount/count)*100)
     z$genera<-paste(g) #add column with the coral family name
-    
+
     mpgendatstat<-rbind(mpgendatstat,z) #bind the data for this family to the whole dataset
   }
-    
+
 
 mpdivdatstat<- dat%>% #diversity for marine park
   filter(Year != "2016")%>%
@@ -406,7 +420,7 @@ sitefamstack <-sitedat[FALSE,]
 for (f in fams){
   s<- dat%>%
     filter(Year != "2016")%>%
-    filter(Site !="Nelson Rocks")%>%   
+    filter(Site !="Nelson Rocks")%>%
     group_by(Year)%>%
     summarise(
       count=n(),
@@ -417,7 +431,7 @@ for (f in fams){
 
   t<- dat%>%
     filter(Year != "2016")%>%
-    filter(Site !="Nelson Rocks")%>%   
+    filter(Site !="Nelson Rocks")%>%
     group_by(Year,Site)%>%
     summarise(
       count=n(),
@@ -477,12 +491,12 @@ sitefamstack # family/site level % of benthos
 
 ####----5. Statistics - Univariate - Total % Cover -----####
 #Marine park level
-sum1<-summary(aov(percent~Year, data=trandatstat)) 
-names(sum1)<-paste("ANOVATotalNoInt") 
+sum1<-summary(aov(percent~Year, data=trandatstat))
+names(sum1)<-paste("ANOVATotalNoInt")
 
 #Site interaction
-sum2<-summary(aov(percent~Year*Site, data=trandatstat)) #Dataset choice = replicate level i.e. for this transect = replicate 
-names(sum2)<-paste("ANOVATotalInt") 
+sum2<-summary(aov(percent~Year*Site, data=trandatstat)) #Dataset choice = replicate level i.e. for this transect = replicate
+names(sum2)<-paste("ANOVATotalInt")
 
 #PostHoc
 lm1<-aov(percent~Year*Site, data=trandatstat)
@@ -491,24 +505,24 @@ post1<-TukeyHSD(lm1, "Site") #Show me which sites are different. You can remove 
 #Transect level (i.e within sites)
 sites<- unique(trandatstat$Site)
 for (s in sites) {
-  
+
   avdat<-filter(trandatstat,Site==(paste(s))) #filter the data by site
   sum3<-summary(aov(percent~Year, data=avdat)) #run ANOVA's for differences between years
-  
+
   sumName<-paste("ano", s, sep= "") #create loop naming convention
-  
+
   assign(sumName, sum3) #name combined summary list
-  
+
 } #close loop - don't worry about the error here - it is because one site only has one year of data
 
 ####----5. Statistics - Univariate - Diversity  -----####
 #Marine park level
-sum4<-summary(aov(diversity~Year, data=trandivdatstat)) 
-names(sum4)<-paste("ANOVADivNoInt") 
+sum4<-summary(aov(diversity~Year, data=trandivdatstat))
+names(sum4)<-paste("ANOVADivNoInt")
 
 #Site level
-sum5<-summary(aov(diversity~Year*Site, data=trandivdatstat)) #Dataset choice = replicate level i.e. for this transect = replicate 
-names(sum5)<-paste("ANOVADivInt") 
+sum5<-summary(aov(diversity~Year*Site, data=trandivdatstat)) #Dataset choice = replicate level i.e. for this transect = replicate
+names(sum5)<-paste("ANOVADivInt")
 
 #PostHocs
 lm2<-aov(diversity~Year*Site, data=trandivdatstat)
@@ -518,8 +532,8 @@ post2<-TukeyHSD(lm2, "Site") #Show me which sites are different. You can remove 
 mpstat<-list(c(sum1,sum2,sum4,sum5)) #combine all ANOVA outputs into one list
 
 ####----5. Statistics - Multivariate - Family % Cover -----####
-#Right now we are running our stats on the % family/genera of total coral cover. 
-#You may want to change this to % of benthos for plotting/stats 
+#Right now we are running our stats on the % family/genera of total coral cover.
+#You may want to change this to % of benthos for plotting/stats
 #so our question is: are relative coral assemblages different between year/sites REGARDLESS of total % cover
 
 #First we need to get the datat into wide format
@@ -547,7 +561,7 @@ permfam<-print(adonis(braycurtisdists~Year*Site, data=bray)) #NOTE: these output
 
 #have a look at the MDS stress
 #Note stress <0.05 is very good representation in reduced dimensions, <0.1 is great, <0.2 is ok, <0.3 is poor
-fammds <- metaMDS(braycurtisdists, distance ="bray",trymax=50) 
+fammds <- metaMDS(braycurtisdists, distance ="bray",trymax=50)
 fammds
 stressplot(fammds)
 
@@ -557,8 +571,8 @@ text(fammds$points,as.character(bray$Site), cex=0.8, col=as.numeric(bray$Year))
 legend(-0.5,0.3, legend=c("2015","2017"),col=c("black","green"), cex=0.8, pch=15)
 
 ####----5. Statistics - Multivariate - Genera % Cover -----####
-#Right now we are running our stats on the % family/genera of total coral cover. 
-#You may want to change this to % of benthos for plotting/stats 
+#Right now we are running our stats on the % family/genera of total coral cover.
+#You may want to change this to % of benthos for plotting/stats
 #so our question is: are relative coral assemblages different between year/sites REGARDLESS of total % cover
 
 #First we need to get the datat into wide format
@@ -571,7 +585,7 @@ bray2<- trangendatstat%>%
   dplyr::select(-`Hard coral`)%>% # remove 'hard coral column for unidentified samples
   dplyr::filter(Site != "Nelson Rocks")%>%
   dplyr::filter(Year !="2016")%>%
-  dplyr::filter(count!="0") #remove transects with no coral as the matrix wont work on these 
+  dplyr::filter(count!="0") #remove transects with no coral as the matrix wont work on these
 
 #Now lets transform the data
 bray3<-log(bray2[,6:42]+1) #logx +1 transformation - more columns than in family data so need to make sure we've only selected genera cols
@@ -584,7 +598,7 @@ permgen<-adonis(braycurtisdists1~Year*Site, data=bray2)
 
 #have a look at the MDS stress
 #Note stress <0.05 is very good representation in reduced dimensions, <0.1 is great, <0.2 is ok, <0.3 is poor
-genmds <- metaMDS(braycurtisdists1, distance ="bray",trymax=50) 
+genmds <- metaMDS(braycurtisdists1, distance ="bray",trymax=50)
 genmds
 stressplot(genusmds)
 
@@ -629,7 +643,7 @@ total <- total +  #this line adds a archipelago-wide point to the plot as a cros
   geom_errorbar(data = meansitedat,aes(ymin=meancover-se,ymax=meancover+se),width=NA, colour="light grey")+
   geom_point(data = meansitedat, aes(x = Year, y = meancover), #change this line if you use the alternate dataset in notes above (i.e. stat/not stat)
              size=4,shape="cross",colour="black",show.legend=FALSE)
-  
+
 total
 
 #Genera richness
@@ -650,22 +664,22 @@ totalrich<-ggarrange(total,rich,nrow=2,ncol=1,
   annotate_figure(top="Dampier Archipelago")
 
 ####----6. Stacked bar plots (family) - whole marine park -----####
-#Note you can do this by genera but you need to create another dataset - ask molly if you can't figure out how :) 
+#Note you can do this by genera but you need to create another dataset - ask molly if you can't figure out how :)
 
-stackmp<-ggplot(mpfamstack, aes(fill=family, y=percent, x=Year)) + 
+stackmp<-ggplot(mpfamstack, aes(fill=family, y=percent, x=Year)) +
    geom_bar(stat="identity")+
     scale_fill_manual(values=mycolors)+    #set your pallete of choice but needs to have enough colours
     coord_cartesian(ylim=c(0,100))+ #change axis height if you want
    labs(y = "% Benthic Cover", x="Year", fill="Family")+
   ggtitle("Dampier Archipelago")
-  
+
 ####----6. Stacked bar plots (family) -  per site -----####
 sites<-unique(sitefamstack$Site)
 
 for (s in sites) {
   stacksite<- sitefamstack%>%
     filter(Site==(paste(s)))%>%
-    ggplot(aes(fill=family, y=percent, x=Year)) + 
+    ggplot(aes(fill=family, y=percent, x=Year)) +
     geom_bar(stat="identity")+
     scale_fill_manual(values=mycolors)+    #set your pallete of choice but needs to have enough colours
     coord_cartesian(ylim=c(0,100))+ #change axis height if you want
@@ -674,15 +688,15 @@ for (s in sites) {
 
 pltName<-paste("stack", s, sep= "")
   assign(pltName,stacksite)
-  
+
 }
 
 ###-----7. Lets make this shit into a PDF ----####
 setwd(pdf.out) #put the outputs into the 'Monitoring Summaries' folder (Note: you need to make this folder within your WD first)
 
-pdf(paste("DMP_Coral_MonitoringSummary",st, ".pdf", sep = ""), height = 8, width = 10) #Change this name to suit you 
+pdf(paste("DMP_Coral_MonitoringSummary",st, ".pdf", sep = ""), height = 8, width = 10) #Change this name to suit you
 
-textplot("Coral monitoring summary for 
+textplot("Coral monitoring summary for
          the Dampier Archipelago", halign="center", fixed.width=FALSE)            #set your title page as you please
 #add a sequence of plots and text plots, each will print on a new page of the pdf
 plot(totalrich) #total cover by site + genera richness by site
