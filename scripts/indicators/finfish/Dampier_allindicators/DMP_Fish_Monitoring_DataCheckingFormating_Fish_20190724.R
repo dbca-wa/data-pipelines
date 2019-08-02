@@ -69,10 +69,12 @@ write.csv(dat,file=paste(study,"Fish_DOVS_ToDate.csv",sep="_"))
 ####1.3 OPTIONAL: Push updated fish mastersheet onto CKAN (DBCA data catalogue)####
 #You may want to do this at the end post-data checking and formatting depending on what you want,
 
+#setwd("~/projects/data-pipelines/scripts/indicators/finfish/Dampier_allindicators/temp") #this is a temporary file to write a copy of the data to before it gets pushed to CKAN
 #source("~/projects/data-pipelines/setup/ckan.R")
-dataset_rid <- "44a67383-db52-4c45-b1f7-b62ae046a3f5"
-csv_rid <- "3f407973-3fe6-41d1-acbf-b4702c5a7d29"
-upload_to_ckan(data=dat,resource_title="Dampier Fish Diversity and Abundance Mastersheet",dataset_id=dataset_rid, resource_id =csv_rid)
+#csv_rid <- "3f407973-3fe6-41d1-acbf-b4702c5a7d29"
+#write_delim(dat, path = "data.csv", delim = ",")
+#r <- ckanr::resource_update(csv_rid, "data.csv")
+
 
 ####1.4 OPTIONAL: Pull fish mastersheet off CKAN (DBCA data catalogue)####
 #source("~/projects/data-pipelines/setup/ckan.R")

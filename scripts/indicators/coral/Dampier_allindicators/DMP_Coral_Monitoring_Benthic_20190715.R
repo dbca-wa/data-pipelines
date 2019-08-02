@@ -65,11 +65,11 @@ setwd(data)
 write.csv(dat,file=paste("DMP_Coral_Benthic_Master",st,".csv"))
 
 ####2.1 OPTIONAL: Push updated benthic coral mastersheet onto CKAN (DBCA data catalogue)####
-source("~/projects/data-pipelines/setup/ckan.R")
-dataset_rid <- "44a67383-db52-4c45-b1f7-b62ae046a3f5"
-csv_rid <- "57b442ff-46fe-4a20-ab26-5d3f7179f1a8"
-upload_to_ckan(data=dat,resource_title="Dampier Coral Benthic Mastersheet",dataset_id=dataset_rid, resource_id =csv_rid)
-
+#setwd("~/projects/data-pipelines/scripts/indicators/coral/Dampier_allmetrics/temp") #this is a temporary file to write a copy of the data to before it gets pushed to CKAN
+#source("~/projects/data-pipelines/setup/ckan.R")
+#csv_rid <- "57b442ff-46fe-4a20-ab26-5d3f7179f1a8"
+#write_delim(dat, path = "data.csv", delim = ",")
+#r <- ckanr::resource_update(csv_rid, "data.csv")
 
 ####2.2 OPTIONAL: Pull benthic coral mastersheet off CKAN (DBCA data catalogue)####
 #source("~/projects/data-pipelines/setup/ckan.R")
