@@ -33,9 +33,9 @@ library(tidyr)
 
 #Set the working directory (must use forward slash / )
 work.dir=("T:/529-CALMscience/Shared Data/Marine Science Program/MONITORING/Pluto Offset 4 Monitoring/Assets/Coral")
-pdf.out=paste(work.dir,"Monitoring Summaries",sep="/")
-data=paste(work.dir,"Data/Benthic",sep="/")
-ecopaasdata=paste(work.dir,"Data/Benthic/Raw EcoPaas Outputs",sep="/")
+pdf.out=paste(work.dir,"Monitoring Summaries",sep="/") #spit out monitoring summary pdfs to here
+data=paste(work.dir,"Data/Benthic",sep="/") #Spit out an updated concatenated mastersheet here
+ecopaasdata=paste(work.dir,"Data/Benthic/Raw EcoPaas Outputs",sep="/") #Read in the raw ecopaas data from here
 
 #Make an object with todays date
 st=format(Sys.time(), "%Y-%m-%d") #make an object with todays date
