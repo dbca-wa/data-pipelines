@@ -533,15 +533,23 @@ write.csv(complete.length.number, file=paste(study,"complete.length.number.csv",
 ##############                                                                  ##############
 ####UPDATE THIS SECTION WITH NEW DBCA MSP MASTER SHEET FOR GUILD/TARGET STATUS####
 ####----  5.1 Pull out feeding guild data and make Scientific name col----####
-setwd(data)
-dir()
-speciesinfo<-read.csv("DBCA_Fish_FeedingGuilds_SupplementaryInfo_20190806.csv",header=T)%>%
+speciesinfo<-master<-gs_title("DBCA Fish Feeding Guilds & Target Status_20190819")%>%
+  gs_read_csv(ws = "Sheet1")%>%
   setNames(tolower(names(.)))%>%
   filter(region.code=="MBIMCR")%>% #Filter by marine park
   mutate(scientific=paste(family,genus,species, sep=" "))
 
-#ALTERNATIVE: using UWA mastersheet
-#feeding<-master%>%
+
+#ALTERNATIVE 1: using DBCA mastersheet off T drvie
+#setwd(data)
+#dir()
+#speciesinfo<-read.csv("DBCA_Fish_FeedingGuilds_SupplementaryInfo_20190806_NowOnGoogleDrive.csv",header=T)%>%
+#  setNames(tolower(names(.)))%>%
+#  filter(region.code=="MBIMCR")%>% #Filter by marine park
+#  mutate(scientific=paste(family,genus,species, sep=" "))
+
+#ALTERNATIVE 2: using UWA mastersheet
+#speciesinfo<-master%>%
 #  select(c(family,genus,species,rls.trophic.group))%>%
 #  mutate(scientific=paste(family,genus,species, sep=" "))%>%
 #  glimpse()
@@ -586,7 +594,8 @@ specinfo.complete.length.number<-speciesinfo%>%
 ####----  5.4 Pull out species with no feeding guild data----####
 missingfeeding<-specinfo.complete.sumcount%>%
   dplyr::filter(is.na(feeding.guild))%>%
-  distinct(scientific)%>%
+  dplyr::group_by(scientific)%>%
+  dplyr:: summarise(count=sum(sumcount))%>%
   glimpse()
 
 #Write the data - you need to check this and make sure you are happy with it
@@ -596,7 +605,8 @@ write.csv(missingfeeding, file=paste(study,"feeding.guilds.missing.csv",sep = "_
 ####----  5.5 Pull out species with no target guild data----####
 missingtarget<-specinfo.complete.sumcount%>%
   dplyr::filter(is.na(target.code))%>%
-  distinct(scientific)%>%
+  dplyr::group_by(scientific)%>%
+  dplyr:: summarise(count=sum(sumcount))%>%
   glimpse()
 
 write.csv(missingtarget, file=paste(study,"target.status.missing.csv",sep = "_"), row.names=FALSE )
@@ -605,7 +615,8 @@ write.csv(missingtarget, file=paste(study,"target.status.missing.csv",sep = "_")
 unique(speciesinfo$target.code) #T =target, HT= highly targeted, P=protected, OR=ocassionally retained, NT= not targeted
 targeted<-specinfo.complete.sumcount%>%
   dplyr:: filter(target.code==c("HT", "T"))%>%
-  distinct(scientific)%>%
+  dplyr::group_by(scientific)%>%
+  dplyr:: summarise(count=sum(sumcount))%>%
   glimpse()
 
 write.csv(targeted,file=paste(study,"targeted.species.csv",sep = "_"), row.names=FALSE )
