@@ -221,6 +221,9 @@ dev.off()
 ##############################
 #BIOMASS
 
+#Remove the row with 500 herring in line with target plot
+dat.filter15 = dat.filter15[-c(28),]
+#
 dat.bio <- subset(dat.filter15, select=c("Year", "Zone", "Site", "FeedingGuild", "Biomass"))
 dat.bio.limitsites <- subset(dat.bio, Site %in% c("Becher Point SZ 1", "First Rock 1", "Murray Reef Control 2", "Murray Reef Special Purpose 1", "Passage Rock 1", "Penguin Island 2", "Peron Control 2", "Peron SZ 1", "Seal Island SZ 2", "Second Rock SZ 1", "Shoalwater Bay 1B"))
 dat.bio.limitsites$Biomass <- as.character(dat.bio.limitsites$Biomass)

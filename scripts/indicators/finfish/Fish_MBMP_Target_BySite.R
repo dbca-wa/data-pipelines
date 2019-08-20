@@ -41,12 +41,12 @@ dat.ab.total2 = melt(dat.ab.total1, id.vars=(c("Year", "Zone", "Site", "Period")
 
 #Subset dataset to highly targeted fish species at MBI and sum together so that they represent 'total target fish' per replicate
 
-dat.ab.target <- subset(dat.ab.total2, Genus.Species %in% c("Lethrinus nebulosus", "Lethrinus laticaudis", "Lethrinus miniatus", "Lethrinus punctulatus", "Epinephelus multinotatus", "Epinephelus areolatus", "Epinephelus coioides", "Plectropomus spp", "Plectropomus leopardus", "Plectropomus maculatus", "Lutjanus argentimaculatus", "Lutjanus lemniscatus", "Lutjanus sebae", "Lutjanus erythropterus", "Lutjanus malabaricus"))
+dat.ab.target <- subset(dat.ab.total2, Genus.Species %in% c("Lethrinus nebulosus", "Lethrinus laticaudis","Epinephelus areolatus", "Epinephelus coioides","Epinephelus malabaricus", "Plectropomus spp", "Plectropomus leopardus", "Plectropomus maculatus","Plectropomus spp", "Lutjanus argentimaculatus","Choerodon cyanodus","Choerodon schoenleinii"))
 dat.ab.target2 <-ddply(dat.ab.target, .(Year, Zone, Site, Period), summarise,
                        total = sum(value))
 
 #Limit to those sites and years where we have a continuous time series (three years or more). 2009 removed due to inconsistancy in DOV approach
-dat.ab.target3 <- subset(dat.ab.target2, Site %in% c("MBI5","MBI6","MBI7","MBI8", "MBI11","MBI12","MBI19","MBI16","MBI17", "MBI20","MBI23","MBI27","MBI29","MBI31", "MBI26"))
+dat.ab.target3 <- subset(dat.ab.target2, Site %in% c("MBI8","MBI7","MBI11","MBI12","MBI19","MBI16","MBI5","MBI6","MBI20","MBI26"))
 dat.ab.target4 <- subset(dat.ab.target3, Year %in% c("2010", "2011", "2012", "2015", "2017"))
 
 #Obtain mean and SE values for targeted fishes at site level for each zone across years
@@ -57,6 +57,8 @@ TargetMBI <- ddply(dat.ab.target4, .(Year, Zone,Site), summarise,
                    sd   = sd(total),
                    se   = sd(total) / sqrt(length(total)) )
 
+#Subset By Zone
+TargetMBI <- subset(TargetMBI, Zone %in% c("Sanctuary"))
 
 #Create figure for all MBI Abundance
 
@@ -70,6 +72,7 @@ TargetMBIFig <- ggplot(TargetMBI, aes(x=Year, y=mean)) +
   #stat_smooth(method = "lm", colour = "black", se = FALSE) +
   xlab("Survey Year") +
   ylab(expression(paste("Target abundance per 250 ", m^2, "", " +/- SE", sep = ""))) +
+  ggtitle("Sanctuary Zone")+
   scale_x_continuous(limits=c(min(TargetMBI$Year-0.25),max(TargetMBI$Year+0.25)), breaks=min(TargetMBI$Year):max(TargetMBI$Year)) +
   theme_bw() +
   theme(axis.text=element_text(size=14),                  #rotates the x axis tick labels an angle of 45 degrees
@@ -81,7 +84,7 @@ TargetMBIFig <- ggplot(TargetMBI, aes(x=Year, y=mean)) +
         panel.grid.major=element_blank(),          #removes major grid lines
         panel.border=element_blank(),                #removes border
         panel.background=element_blank(),            #needed to ensure integrity of axis lines
-        plot.title=element_text(hjust=1,size=14,face="bold"),
+        plot.title=element_text(hjust=0.5,size=14,face="bold"),
         #legend.position="none",
         legend.justification=c(1,1), legend.position=c(0.8,1), # Positions legend (x,y) in this case removes it from the graph
         legend.title=element_blank(),
@@ -89,10 +92,13 @@ TargetMBIFig <- ggplot(TargetMBI, aes(x=Year, y=mean)) +
         legend.text=element_text(size=18),
         legend.background=element_rect(size=0.5, linetype="solid", colour="black"))
 
-png(filename = "TargetMBI.png",
-    width = 600, height = 400, units = "px", pointsize = 6)
-TargetMBIFig+facet_grid(Zone+Site~.,scales="free_y")
+png(filename = "TargetSanctuaryMBI.png",
+    width = 600, height = 800, units = "px", pointsize = 6)
+TargetMBIFig+facet_grid(Site~.,scales="free_y")
 dev.off()
+
+#Update plot on data catalogue
+ckanr::resource_update("e2dcbac6-c127-4b89-87e5-850faf77319e", "TargetSanctuaryMBI.png")
 
 ##############################
 #Biomass

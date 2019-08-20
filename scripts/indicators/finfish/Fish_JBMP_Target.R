@@ -1,5 +1,5 @@
 setwd("~/projects/data-pipelines/scripts/indicators/finfish")
-source("~/projects/data-pipelines/setup/ckan.R")
+#source("~/projects/data-pipelines/setup/ckan.R")
 library(ggplot2)
 library(plyr)
 library(gridExtra)
@@ -13,8 +13,8 @@ library(MuMIn)
 # dat <- read.csv("JBMP_All Data.csv")
 
 # or from the data catalogue
-data_rid <- "fe26c690-980d-4af4-a6ac-953eed50caf5"
-dat <- ckanr::resource_show(data_rid)$url %>% readr::read_csv(.)
+#data_rid <- "fe26c690-980d-4af4-a6ac-953eed50caf5"
+#dat <- ckanr::resource_show(data_rid)$url %>% readr::read_csv(.)
 
 
 #Check column names

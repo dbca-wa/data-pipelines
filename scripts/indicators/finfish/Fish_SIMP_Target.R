@@ -9,14 +9,14 @@ library(MuMIn)
 
 #Load CSV
 
-#dat <- read.csv("SIMP_DOV_All.csv")
+#dat <- reall.csv")
 
 # or from the data catalogue
 data_rid <- "c80224c2-8ee6-49ae-aef4-4fabace94ac6"
 dat <- ckanr::resource_show(data_rid)$url %>% readr::read_csv(.)
 
 
-#Check column names
+#Check column namesd.csv("SIMP_DOV_A
 
 colnames (dat)
 
@@ -86,7 +86,7 @@ TargetSIMPFig <- ggplot(TargetSIMP, aes(x=Year, y=mean, group=Zone, linetype=Zon
   geom_point(position=pd, size=4) +             # points
   #stat_smooth(method = "lm", colour = "black", se = FALSE) +
   xlab("Year") +
-  ylab(expression(paste("Mean abundance per 1500 ", m^2, "", " +/- SE", sep = ""))) +
+  ylab(expression(paste("Mean abundance (1500",m^2, "", "±SE)", sep = ""))) +
   scale_x_continuous(limits=c(min(TargetSIMP$Year-0.25),max(TargetSIMP$Year+0.25)), breaks=min(TargetSIMP$Year):max(TargetSIMP$Year)) +
   #scale_y_continuous(limits=c(min(0),max(0.75))) +
   #ggtitle("a)") +
@@ -169,6 +169,9 @@ dat.bio = droplevels(dat.bio)
 dat.bio.total <- ddply(dat.bio, .(Year, Zone, Site, GenusSpecies), summarise,
                        total = sum(Biomass))
 
+#Convert Biomass to KG
+dat.bio.total$BiomassKG <- dat.bio.total$total/1000
+
 #ADD STEP HERE TO RENAME ZONES TO FISHED AND PROTECTED
 dat.bio.total$Zone <- as.character(dat.bio.total$Zone)
 dat.bio.total <- dat.bio.total[!(dat.bio.total$Zone == "" | is.na(dat.bio.total$Zone)), ]
@@ -178,9 +181,11 @@ dat.bio.total$Zone[dat.bio.total$Zone %in% "Special Purpose Scientific"] <- "Pro
 dat.bio.total$Zone[dat.bio.total$Zone %in% "Fished"] <- "General Use"
 dat.bio.total$Zone <- as.factor(dat.bio.total$Zone)
 
+
+
 #Add 0 values to dataset for transects where fish species weren't counted
 
-dat.bio.total1 <- cast(dat.bio.total, Year + Zone + Site ~ GenusSpecies, value = "total")
+dat.bio.total1 <- cast(dat.bio.total, Year + Zone + Site ~ GenusSpecies, value = "BiomassKG")
 dat.bio.total1[is.na(dat.bio.total1)] = 0
 dat.bio.total1 = droplevels(dat.bio.total1)
 dat.bio.total2 = melt(dat.bio.total1, id.vars=(c("Year", "Zone", "Site")))
@@ -220,7 +225,7 @@ TargetBioSIMPFig <- ggplot(TargetBioSIMP, aes(x=Year, y=mean, group=Zone, linety
   geom_point(position=pd, size=4) +             # points
   #stat_smooth(method = "lm", colour = "black", se = FALSE) +
   xlab("Year") +
-  ylab(expression(paste("Mean biomass (g) per 1500 ", m^2, "", " +/- SE", sep = ""))) +
+  ylab(expression(paste("Mean biomass (kg.1500",m^2, "", "±SE)", sep = ""))) +
   scale_x_continuous(limits=c(min(TargetBioSIMP$Year-0.25),max(TargetBioSIMP$Year+0.25)), breaks=min(TargetBioSIMP$Year):max(TargetBioSIMP$Year)) +
   #scale_y_continuous(limits=c(min(0),max(0.75))) +
   #ggtitle("a)") +
