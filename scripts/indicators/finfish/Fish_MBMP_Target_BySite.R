@@ -41,7 +41,8 @@ dat.ab.total2 = melt(dat.ab.total1, id.vars=(c("Year", "Zone", "Site", "Period")
 
 #Subset dataset to highly targeted fish species at MBI and sum together so that they represent 'total target fish' per replicate
 
-dat.ab.target <- subset(dat.ab.total2, Genus.Species %in% c("Lethrinus nebulosus", "Lethrinus laticaudis","Epinephelus areolatus", "Epinephelus coioides","Epinephelus malabaricus", "Plectropomus spp", "Plectropomus leopardus", "Plectropomus maculatus","Plectropomus spp", "Lutjanus argentimaculatus","Choerodon cyanodus","Choerodon schoenleinii"))
+dat.ab.target <- subset(dat.ab.total2, Genus.Species %in% c("Lethrinus nebulosus", "Lethrinus laticaudis","Epinephelus coioides","Epinephelus malabaricus", "Plectropomus spp", "Plectropomus leopardus", "Plectropomus maculatus","Lutjanus carponotatus","Lutjanus argentimaculatus","Choerodon cyanodus","Choerodon schoenleinii"))
+
 dat.ab.target2 <-ddply(dat.ab.target, .(Year, Zone, Site, Period), summarise,
                        total = sum(value))
 
@@ -51,14 +52,14 @@ dat.ab.target4 <- subset(dat.ab.target3, Year %in% c("2010", "2011", "2012", "20
 
 #Obtain mean and SE values for targeted fishes at site level for each zone across years
 
-TargetMBI <- ddply(dat.ab.target4, .(Year, Zone,Site), summarise,
+TargetMBI <- ddply(dat.ab.target4, .(Year, Zone, Site), summarise,
                    N    = length(total),
                    mean = mean(total),
                    sd   = sd(total),
                    se   = sd(total) / sqrt(length(total)) )
 
 #Subset By Zone
-TargetMBI <- subset(TargetMBI, Zone %in% c("Sanctuary"))
+TargetMBI <- subset(TargetMBI, Zone %in% c("Recreation"))
 
 #Create figure for all MBI Abundance
 
@@ -72,7 +73,7 @@ TargetMBIFig <- ggplot(TargetMBI, aes(x=Year, y=mean)) +
   #stat_smooth(method = "lm", colour = "black", se = FALSE) +
   xlab("Survey Year") +
   ylab(expression(paste("Target abundance per 250 ", m^2, "", " +/- SE", sep = ""))) +
-  ggtitle("Sanctuary Zone")+
+  ggtitle("Recreation Zone")+
   scale_x_continuous(limits=c(min(TargetMBI$Year-0.25),max(TargetMBI$Year+0.25)), breaks=min(TargetMBI$Year):max(TargetMBI$Year)) +
   theme_bw() +
   theme(axis.text=element_text(size=14),                  #rotates the x axis tick labels an angle of 45 degrees
@@ -92,22 +93,26 @@ TargetMBIFig <- ggplot(TargetMBI, aes(x=Year, y=mean)) +
         legend.text=element_text(size=18),
         legend.background=element_rect(size=0.5, linetype="solid", colour="black"))
 
-png(filename = "TargetSanctuaryMBI.png",
-    width = 600, height = 800, units = "px", pointsize = 6)
+png(filename = "TargetRecreationMBI.png",
+   width = 600, height = 400, units = "px", pointsize = 6)
 TargetMBIFig+facet_grid(Site~.,scales="free_y")
 dev.off()
 
 #Update plot on data catalogue
-ckanr::resource_update("e2dcbac6-c127-4b89-87e5-850faf77319e", "TargetSanctuaryMBI.png")
+#ckanr::resource_update("e2dcbac6-c127-4b89-87e5-850faf77319e", "TargetSanctuaryMBI.png")
+#ckanr::resource_update("bc9d125b-49f8-4be9-aaf4-4410c3a50215", "TargetGeneralMBI.png")
+ckanr::resource_update("878c20d3-f8e3-408b-a558-43fc10146a83", "TargetRecreationMBI.png")
+#ckanr::resource_update("aec5b10b-9d66-4687-b9df-c8ece0feff39", "TargetOutsideMBI.png")
+
 
 ##############################
 #Biomass
 
 #Limit to those columns that are important for this analysis
 
-dat.ab <- subset(dat, select=c("Year", "Zone", "Site", "Period", "Genus.Species", "Adjusted.Biomass..g."))
-dat.ab$Adjusted.Biomass..g. <- as.character(dat.ab$Adjusted.Biomass..g.)
-dat.ab$Adjusted.Biomass..g. <- as.integer(dat.ab$Adjusted.Biomass..g.)
+dat.ab <- subset(dat, select=c("Year", "Zone", "Site", "Period", "Genus.Species", "adjusted.biomass..g."))
+dat.ab$adjusted.biomass..g. <- as.character(dat.ab$adjusted.biomass..g.)
+dat.ab$adjusted.biomass..g. <- as.integer(dat.ab$adjusted.biomass..g.)
 
 #Remove any 'NA' values from dataset
 
@@ -117,7 +122,7 @@ dat.ab = droplevels(dat.ab)
 #Sum abundance values for individual species within site and period
 
 dat.ab.total <- ddply(dat.ab, .(Year, Zone, Site, Period, Genus.Species), summarise,
-                      total = sum(Adjusted.Biomass..g.))
+                      total = sum(adjusted.biomass..g.))
 
 #Add 0 values to dataset for transects where fish species weren't counted
 
@@ -128,7 +133,7 @@ dat.ab.total2 = melt(dat.ab.total1, id.vars=(c("Year", "Zone", "Site", "Period")
 
 #Subset dataset to highly targeted fish species at Ningaloo and some together so that they represent 'total target fish' per replicate
 
-dat.ab.target <- subset(dat.ab.total2, Genus.Species %in% c("Lethrinus nebulosus", "Lethrinus laticaudis", "Lethrinus miniatus", "Lethrinus punctulatus", "Epinephelus multinotatus", "Epinephelus areolatus", "Epinephelus coioides", "Plectropomus spp", "Plectropomus leopardus", "Plectropomus maculatus", "Lutjanus argentimaculatus", "Lutjanus lemniscatus", "Lutjanus sebae", "Lutjanus erythropterus", "Lutjanus malabaricus", "Rachycentron canadus"))
+dat.ab.target <- subset(dat.ab.total2, Genus.Species %in% c("Lethrinus nebulosus", "Lethrinus laticaudis","Epinephelus coioides","Epinephelus malabaricus", "Plectropomus spp", "Plectropomus leopardus", "Plectropomus maculatus","Lutjanus carponotatus","Lutjanus argentimaculatus","Choerodon cyanodus","Choerodon schoenleinii"))
 dat.ab.target2 <-ddply(dat.ab.target, .(Year, Zone, Site, Period), summarise,
                        total = sum(value))
 
