@@ -62,7 +62,7 @@ dat<- dat%>%
                 Transect=Transect..)
 
 #Check which sites were sampled in each year
-table(dat$Site,dat$Year) 
+table(dat$Site,dat$Year)
 
 #Make year into a factor for analysis
 dat$Year<-as.factor(dat$Year)
@@ -124,14 +124,14 @@ for (s in specs) {
   x<- dat%>% #per transect
     group_by(Year,Site,Transect)%>% #this is your data resolution i.e. to replicate level
     summarise(
-      count=n(),                    #count the number of rows in each replicate 
+      count=n(),                    #count the number of rows in each replicate
       seagrass=sum(Seagrass==paste(s)), #count the number of those rows that equal a single family
       percent=(seagrass/count)*100)    #calculate the % of hard coral for that family
-  
+
   x$species<-paste(s) #add column with the coral family name
-  
+
   spectran<-rbind(spectran,x) #bind the data for this family to the whole dataset
-  
+
   y<- dat%>% #per transect
     group_by(Year,Site,Transect)%>%
     summarise(
@@ -142,11 +142,11 @@ for (s in specs) {
     summarise(
       meancover=mean(percent),
       se=st.err(percent))
-  
+
   y$species<-paste(s) #add column with the coral family name
-  
+
   specmeansite<-rbind(specmeansite,y) #bind the data for this family to the whole dataset
-  
+
   z<- dat%>% #per transect
     group_by(Year,Site,Transect)%>%
     summarise(
@@ -157,24 +157,24 @@ for (s in specs) {
     summarise(
       meancover=mean(percent),
       se=st.err(percent))
-  
+
   z$species<-paste(s) #add column with the coral family name
-  
+
   specmeanmp<-rbind(specmeanmp,z) #bind the data for this family to the whole dataset
-  
+
 }
 
 ####----5. Make genera-richness data-----####
 #Site level
 divsite<- dat%>% #per site
-  filter(Seagrass!="None"&Seagrass !="Unknown Species Seagrass")%>% 
+  filter(Seagrass!="None"&Seagrass !="Unknown Species Seagrass")%>%
   group_by(Year,Site)%>%
   summarise(
     diversity = n_distinct(Seagrass))
 
 #MP level
 divmp<- dat%>% #per site
-  filter(Seagrass!="None"&Seagrass !="Unknown Species Seagrass")%>% 
+  filter(Seagrass!="None"&Seagrass !="Unknown Species Seagrass")%>%
   group_by(Year)%>%
   summarise(
     diversity = n_distinct(Seagrass))
@@ -198,11 +198,11 @@ names(sum2)<-paste("ANOVATotalInt")
 stat<-trandat %>%
   filter(species=="Halophila spp.")
 
-sum3<-summary(aov(percent~Year, data=stat)) 
+sum3<-summary(aov(percent~Year, data=stat))
 names(sum3)<-paste("HalophilaANOVATotalNoInt")
 
   #Site interaction
-sum4<-summary(aov(percent~Year*Site, data=stat)) 
+sum4<-summary(aov(percent~Year*Site, data=stat))
 names(sum4)<-paste("HalophilaANOVATotalInt")
 
 
@@ -231,6 +231,7 @@ mycolors <- colorRampPalette(brewer.pal(8, "Paired"))(nb.cols)
 
 #Total seagrass cover
 total<-sitemean%>%
+  #filter(species=="Halophila spp.)%>5 #add this if you want a plot for just one species rather than total % & change data to specmeanmp
   ggplot(aes(x=Year,y=meancover)) + #select variable to plot
   geom_errorbar(position =jitter,aes(ymin=meancover-se,ymax=meancover+se),width=NA, colour="light grey")+
   geom_point(position=jitter,aes(colour=Site),size=3, show.legend=TRUE)+ #add points, set colour +size, jitter them, legend off
@@ -289,10 +290,10 @@ for (s in sites) {
     coord_cartesian(ylim=c(0,25))+ #change axis height if you want
     labs(y = "Seagrass Cover", x="Year", fill="Species")+
     ggtitle(paste(s))
-  
+
   pltName<-paste("stack", s, sep= "")
   assign(pltName,stacksite)
-  
+
 }
 
 ###-----7. Lets make this shit into a PDF ----####
