@@ -17,6 +17,7 @@ library(dplyr)
 work.dir=("T:/529-CALMscience/Shared Data/Marine Science Program/MONITORING/Pluto Offset 4 Monitoring/Assets/Temperature")
 pdf.out=paste(work.dir,"Monitoring Summaries",sep="/")
 raw=paste(work.dir,"Data/Raw Data",sep="/")
+data=paste(work.dir,"Data",sep="/")
 clean=paste(work.dir,"Data/Cleaned and Concatenated Data",sep="/")
 
 #Set up study name
@@ -55,6 +56,20 @@ for (f in files) {
 
 #Remove blank top row
 dat<-dat[-1,]
+
+
+#Write the updated Master CSV to the T drive asset folder
+setwd(data)
+dir()
+write.csv(dat,file=paste("DMP_WaterTemperature_Master_AllSites",st,".csv"))
+
+####2.1 OPTIONAL: Push updated benthic coral mastersheet onto CKAN (DBCA data catalogue)####
+#setwd("~/projects/data-pipelines/scripts/indicators/coral/Dampier_allmetrics/temp") #this is a temporary file to write a copy of the data to before it gets pushed to CKAN
+#source("~/projects/data-pipelines/setup/ckan.R")
+#csv_rid <- "9bc98943-5080-491f-929e-34736c7d0e42"
+#write_delim(dat, path = "data.csv", delim = ",")
+#r <- ckanr::resource_update(csv_rid, "data.csv")
+
 
 ###-----4. Calculate daily means ----####
 daily<-dat%>%
