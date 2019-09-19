@@ -159,7 +159,7 @@ custtheme<-theme_grey()+
 
 theme_set(custtheme) # apply the theme
 
-vars <- c("in situ"="pink", "SST"="lightblue", "DHW + 10"="lightgreen")
+vars <- c("in situ"="pink", "SST"="lightblue", "DHW + 10"="lightgreen", "Cyclone"="grey")
 
 #set up plot
 plot<-daily%>%
@@ -168,8 +168,8 @@ plot<-daily%>%
   #stat_smooth(data=daily,aes(Date, dailyave),method=lm, colour="black", size=0.5)+ #off because we don't have full years of data to start with so slants line
   labs(y = "Mean dailywater temperature (c)", x="Year")+
   ylim(10,35)+
-  geom_vline(xintercept=as.numeric(as.Date("2019-03-24")), linetype="dotted", colour="grey")+ #cyclones
-  geom_vline(xintercept=as.numeric(as.Date("2019-01-26")), linetype="dotted", colour="grey")+ #cyclones
+  geom_vline(aes(xintercept=as.numeric(as.Date("2019-03-24")), colour="Cyclone"), linetype="dotted")+ #cyclones
+  geom_vline(aes(xintercept=as.numeric(as.Date("2019-01-26")),colour="Cyclone"), linetype="dotted")+ #cyclones
   geom_line(data=sst, aes(Date,sst, colour="SST"))+
   geom_line(data=dhw, aes(Date,(crw_dhw+10), colour="DHW + 10"))+
   scale_colour_manual(name="Measure", values=vars) +
