@@ -69,11 +69,11 @@ write.csv(dat,file=paste(study,"Fish_DOVS_ToDate.csv",sep="_"))
 ####1.3 OPTIONAL: Push updated fish mastersheet onto CKAN (DBCA data catalogue)####
 #You may want to do this at the end post-data checking and formatting depending on what you want,
 
-#setwd("~/projects/data-pipelines/scripts/indicators/finfish/Dampier_allindicators/temp") #this is a temporary file to write a copy of the data to before it gets pushed to CKAN
-#source("~/projects/data-pipelines/setup/ckan.R")
-#csv_rid <- "3f407973-3fe6-41d1-acbf-b4702c5a7d29"
-#write_delim(dat, path = "data.csv", delim = ",")
-#r <- ckanr::resource_update(csv_rid, "data.csv")
+setwd("~/projects/data-pipelines/scripts/indicators/finfish/Dampier_allindicators/temp") #this is a temporary file to write a copy of the data to before it gets pushed to CKAN
+source("~/projects/data-pipelines/setup/ckan.R")
+csv_rid <- "3f407973-3fe6-41d1-acbf-b4702c5a7d29"
+write_delim(dat, path = "data.csv", delim = ",")
+r <- ckanr::resource_update(csv_rid, "data.csv")
 
 
 ####1.4 OPTIONAL: Pull fish mastersheet off CKAN (DBCA data catalogue)####
@@ -99,6 +99,7 @@ dat<-dat%>%
   mutate(tranopcode=paste0(OpCode,Period,sep="_"))
 
 ####----1.5 Calculate SumCount----#### #changed this section from BRUV script
+#don't worry about the warnings
 sumcount<-dat%>%
   setNames(tolower(names(.)))%>%
   mutate(number=as.numeric(number))%>%
@@ -233,7 +234,7 @@ check.range<-ggplot(data=length, aes(as.numeric(range))) +
                  col="red",
                  fill="green",
                  alpha = .2)
-check.range # most fish recorded under 2 m away
+check.range # most fish recorded under 3 m away
 
 ggsave(check.range,file=paste(study,"check.range.png",sep = "_"))
 
@@ -532,6 +533,8 @@ write.csv(complete.length.number, file=paste(study,"complete.length.number.csv",
 ############## STARTING PART Five - Adding feeding guild/target status/metadata ##############
 ##############                                                                  ##############
 ####UPDATE THIS SECTION WITH NEW DBCA MSP MASTER SHEET FOR GUILD/TARGET STATUS####
+#### We also need to bring in spp target species - i.e. plectropomus###
+
 ####----  5.1 Pull out feeding guild data and make Scientific name col----####
 speciesinfo<-master<-gs_title("DBCA Fish Feeding Guilds & Target Status_20190819")%>%
   gs_read_csv(ws = "Sheet1")%>%

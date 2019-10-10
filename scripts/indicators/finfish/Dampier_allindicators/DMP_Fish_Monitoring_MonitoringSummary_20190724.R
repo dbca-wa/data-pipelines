@@ -43,9 +43,9 @@ st.err <- function(x) {
 setwd(tidy)
 dir()
 
-abun<-read.csv("DMP_Monitoring_2019-08_complete.sumcount.csv",header=T ,fileEncoding="UTF-8-BOM")
-length<-read.csv("DMP_Monitoring_2019-08_complete.length.number.csv",header=T ,fileEncoding="UTF-8-BOM")
-biom<-read.csv("DMP_Monitoring_2019-08_complete.length.number.mass.csv",header=T ,fileEncoding="UTF-8-BOM")
+abun<-read.csv("DMP_Monitoring_2019-10_complete.sumcount.csv",header=T ,fileEncoding="UTF-8-BOM")
+length<-read.csv("DMP_Monitoring_2019-10_complete.length.number.csv",header=T ,fileEncoding="UTF-8-BOM")
+biom<-read.csv("DMP_Monitoring_2019-10_complete.length.number.mass.csv",header=T ,fileEncoding="UTF-8-BOM")
 
 ##Note: The mastersheet of data is available on DBCA Data Catalogue (CKAN) but not the cleaned and formated files.
 #This is because data should be cleaned/checked prior to any new analysis.
@@ -113,19 +113,19 @@ sitetotalfamabun<-abun%>%
 ###Feeding guild abundance###
 #Mean sum total abundance mp and feeding level
 mptotalfeedabun<-abun%>%
-  dplyr::filter(feeding!="NA")%>% #remove rows without feeding guild data
-  group_by(year,site,transect,feeding)%>%
+  dplyr::filter(feeding.guild!="NA")%>% #remove rows without feeding guild data
+  group_by(year,site,transect,feeding.guild)%>%
   dplyr::summarise(sumcount=sum(sumcount))%>%
-  group_by(year,feeding)%>%
+  group_by(year,feeding.guild)%>%
   dplyr::summarise(meancount=mean(sumcount),
                    se = st.err(sumcount))
 
 #Mean sum total abundance site and feeding level
 sitetotalfeedabun<-abun%>%
-  dplyr::filter(feeding!="NA")%>%
-  group_by(year,site,transect,feeding)%>%
+  dplyr::filter(feeding.guild!="NA")%>%
+  group_by(year,site,transect,feeding.guild)%>%
   dplyr::summarise(sumcount=sum(sumcount))%>%
-  group_by(year,site,feeding)%>%
+  group_by(year,site,feeding.guild)%>%
   dplyr::summarise(meancount=mean(sumcount),
                    se = st.err(sumcount))
 
@@ -177,19 +177,19 @@ sitetotalfambiom<-biom%>%
 ###Feeding guild biomass###
 #Mean sum total biomass mp and feeding level
 mptotalfeedbiom<-biom%>%
-  dplyr::filter(feeding!="NA")%>% #remove rows without feeding guild data
-  group_by(year,site,transect,feeding)%>%
+  dplyr::filter(feeding.guild!="NA")%>% #remove rows without feeding guild data
+  group_by(year,site,transect,feeding.guild)%>%
   dplyr::summarise(mass.g=sum(mass.g, na.rm=T))%>%
-  group_by(year,feeding)%>%
+  group_by(year,feeding.guild)%>%
   dplyr::summarise(meancount=mean(mass.g),
                    se = st.err(mass.g))
 
 #Mean sum total biomass site and feeding level
 sitetotalfeedbiom<-biom%>%
-  dplyr::filter(feeding!="NA")%>%
-  group_by(year,site,transect,feeding)%>%
+  dplyr::filter(feeding.guild!="NA")%>%
+  group_by(year,site,transect,feeding.guild)%>%
   dplyr::summarise(mass.g=sum(mass.g, na.rm=T))%>%
-  group_by(year,site,feeding)%>%
+  group_by(year,site,feeding.guild)%>%
   dplyr::summarise(meancount=mean(mass.g),
                    se = st.err(mass.g))
 
@@ -225,7 +225,7 @@ sitesr<-abun%>%
 ###Target species abundance###
 #Mean sum total abundance MP level for pooled target species
 mptotaltargetabun<-abun%>%
-  dplyr::filter(target==c("HT", "T"))%>% #filter out target species
+  dplyr::filter(target.code==c("HT", "T"))%>% #filter out target species
   group_by(year,site,transect)%>%
   dplyr::summarise(sumcount=sum(sumcount))%>%
   group_by(year)%>%
@@ -234,7 +234,7 @@ mptotaltargetabun<-abun%>%
 
 #Mean sum total abundance MP level for individual target species
 mptotaltargetspeciesabun<-abun%>%
-  dplyr::filter(target==c("HT", "T"))%>% #filter out target species
+  dplyr::filter(target.code==c("HT", "T"))%>% #filter out target species
   group_by(year,site,transect,scientific)%>%
   dplyr::summarise(sumcount=sum(sumcount))%>%
   group_by(year,scientific)%>%
@@ -243,7 +243,7 @@ mptotaltargetspeciesabun<-abun%>%
 
 #Mean sum total abundance site level for pooled target species
 sitetotaltargetabun<-abun%>%
-  dplyr::filter(target==c("HT", "T"))%>% #filter out target species
+  dplyr::filter(target.code==c("HT", "T"))%>% #filter out target species
   group_by(year,site,transect)%>%
   dplyr::summarise(sumcount=sum(sumcount))%>%
   group_by(year,site)%>%
@@ -252,7 +252,7 @@ sitetotaltargetabun<-abun%>%
 
 #Mean sum total abundance site level for individual target species
 sitetotaltargetspeciesabun<-abun%>%
-  dplyr::filter(target==c("HT", "T"))%>% #filter out target species
+  dplyr::filter(target.code==c("HT", "T"))%>% #filter out target species
   group_by(year,site,transect,scientific)%>%
   dplyr::summarise(sumcount=sum(sumcount))%>%
   group_by(year,site,scientific)%>%
@@ -262,7 +262,7 @@ sitetotaltargetspeciesabun<-abun%>%
 ###Target species biomass###
 #Mean sum total biomass MP level for pooled target species
 mptotaltargetbiom<-biom%>%
-  dplyr::filter(target==c("HT", "T"))%>% #filter out target species
+  dplyr::filter(target.code==c("HT", "T"))%>% #filter out target species
   group_by(year,site,transect)%>%
   dplyr::summarise(mass.g=sum(mass.g, na.rm=T))%>%
   group_by(year)%>%
@@ -271,7 +271,7 @@ mptotaltargetbiom<-biom%>%
 
 #Mean sum total biomass MP level for individual target species
 mptotaltargetspeciesbiom<-biom%>%
-  dplyr::filter(target==c("HT", "T"))%>% #filter out target species
+  dplyr::filter(target.code==c("HT", "T"))%>% #filter out target species
   group_by(year,site,transect,scientific)%>%
   dplyr::summarise(mass.g=sum(mass.g, na.rm=T))%>%
   group_by(year,scientific)%>%
@@ -280,7 +280,7 @@ mptotaltargetspeciesbiom<-biom%>%
 
 #Mean sum total biomass site level for pooled target species
 sitetotaltargetbiom<-biom%>%
-  dplyr::filter(target==c("HT", "T"))%>% #filter out target species
+  dplyr::filter(target.code==c("HT", "T"))%>% #filter out target species
   group_by(year,site,transect)%>%
   dplyr::summarise(mass.g=sum(mass.g, na.rm=T))%>%
   group_by(year,site)%>%
@@ -289,7 +289,7 @@ sitetotaltargetbiom<-biom%>%
 
 #Mean sum total biomass site level for individual target species
 sitetotaltargetspeciesbiom<-biom%>%
-  dplyr::filter(target==c("HT", "T"))%>% #filter out target species
+  dplyr::filter(target.code==c("HT", "T"))%>% #filter out target species
   group_by(year,site,transect,scientific)%>%
   dplyr::summarise(mass.g=sum(mass.g, na.rm=T))%>%
   group_by(year,site,scientific)%>%
@@ -365,12 +365,12 @@ assign(pltName,family)
 }
 
 #Feeding guild abundance - this is a loop for multiple plots
-feeding<-unique(sitetotalfeedabun$feeding)
+feeding<-unique(sitetotalfeedabun$feeding.guild)
 
 for (f in feeding){
 
   feeding<-sitetotalfeedabun%>%
-    filter(feeding==paste(f))%>%
+    filter(feeding.guild==paste(f))%>%
     ggplot(aes(x=year,y=meancount)) + #select variable to plot
     geom_errorbar(position =jitter,aes(ymin=meancount-se,ymax=meancount+se),width=NA, colour="light grey")+
     geom_point(position=jitter,aes(colour=site),size=3, show.legend=TRUE)+ #add points, set colour +size, jitter them, legend off
@@ -379,7 +379,7 @@ for (f in feeding){
     ggtitle(paste(f))
 
   mpdat<- mptotalfeedabun%>%
-    filter(feeding==paste(f))
+    filter(feeding.guild==paste(f))
 
   feeding <- feeding +  #this line adds a archipelago-wide point to the plot as a cross
     geom_errorbar(data = mpdat,aes(ymin=meancount-se,ymax=meancount+se),width=NA, colour="light grey")+
@@ -436,12 +436,12 @@ for (f in families){
 }
 
 #Feeding guild biomass - this is a loop for multiple plots
-feeding<-unique(sitetotalfeedbiom$feeding)
+feeding<-unique(sitetotalfeedbiom$feeding.guild)
 
 for (f in feeding){
 
   feedingbiom<-sitetotalfeedbiom%>%
-    filter(feeding==paste(f))%>%
+    filter(feeding.guild==paste(f))%>%
     ggplot(aes(x=year,y=meancount)) + #select variable to plot
     geom_errorbar(position =jitter,aes(ymin=meancount-se,ymax=meancount+se),width=NA, colour="light grey")+
     geom_point(position=jitter,aes(colour=site),size=3, show.legend=TRUE)+ #add points, set colour +size, jitter them, legend off
@@ -450,7 +450,7 @@ for (f in feeding){
     ggtitle(paste(f))
 
   mpdat<- mptotalfeedbiom%>%
-    filter(feeding==paste(f))
+    filter(feeding.guild==paste(f))
 
   feedingbiom <- feedingbiom +  #this line adds a archipelago-wide point to the plot as a cross
     geom_errorbar(data = mpdat,aes(ymin=meancount-se,ymax=meancount+se),width=NA, colour="light grey")+
@@ -691,3 +691,4 @@ plot(`targetbiomassSerranidae Plectropomus leopardus`)
 plot(`targetbiomassSerranidae Plectropomus maculatus`)
 
 dev.off()
+
