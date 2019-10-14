@@ -60,16 +60,20 @@ for (f in files) {
 #remove the bank row at the top thats made by the importing process
 dat<-dat[-1,]
 
+#Filter out the re-done 2019 High Point data
+dat<-dat%>%
+  dplyr::filter(Site!="High Point"|Year!="2019"|Month!="May")
+
 #Write the updated Master CSV to the T drive asset folder
 setwd(data)
 write.csv(dat,file=paste("DMP_Coral_Benthic_Master",st,".csv"))
 
 ####2.1 OPTIONAL: Push updated benthic coral mastersheet onto CKAN (DBCA data catalogue)####
-#setwd("~/projects/data-pipelines/scripts/indicators/coral/Dampier_allmetrics/temp") #this is a temporary file to write a copy of the data to before it gets pushed to CKAN
-#source("~/projects/data-pipelines/setup/ckan.R")
-#csv_rid <- "57b442ff-46fe-4a20-ab26-5d3f7179f1a8"
-#write_delim(dat, path = "data.csv", delim = ",")
-#r <- ckanr::resource_update(csv_rid, "data.csv")
+setwd("~/projects/data-pipelines/scripts/indicators/coral/Dampier_allmetrics/temp") #this is a temporary file to write a copy of the data to before it gets pushed to CKAN
+source("~/projects/data-pipelines/setup/ckan.R")
+csv_rid <- "57b442ff-46fe-4a20-ab26-5d3f7179f1a8"
+write_delim(dat, path = "data.csv", delim = ",")
+r <- ckanr::resource_update(csv_rid, "data.csv")
 
 ####2.2 OPTIONAL: Pull benthic coral mastersheet off CKAN (DBCA data catalogue)####
 #source("~/projects/data-pipelines/setup/ckan.R")
