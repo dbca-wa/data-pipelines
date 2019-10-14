@@ -95,7 +95,12 @@ dat<-dat%>%
 names(dat)
 
 ####---- 1.4 Create an Opcode per transect ----####
+#First we need to fix the problem that some data has period as '1-6' and other data has period as 'T1-T6' - we need to remove the T when present
+unique(dat$Period)
+dat$Period<-str_remove(dat$Period, "T")
+
 dat<-dat%>%
+  filter(Period!="")%>%   #This section removes the 3D points Cap used to measure visibility
   mutate(tranopcode=paste0(OpCode,Period,sep="_"))
 
 ####----1.5 Calculate SumCount----#### #changed this section from BRUV script
@@ -566,6 +571,8 @@ complete.length.number.mass<-complete.length.number.mass%>%
 
 complete.length.number<-complete.length.number%>%
   mutate(scientific=paste(family,genus,species, sep=" "))
+
+unique(complete.sumcount$sample)
 
 ####----  5.2 Make sure all datasets contain a 'opcode column and add transect back in'----####
 head(complete.sumcount) #no- correct here

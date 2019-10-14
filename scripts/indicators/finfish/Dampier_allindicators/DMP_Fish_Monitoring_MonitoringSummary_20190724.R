@@ -71,6 +71,7 @@ str(abun)
 unique(abun$site) #corect number of sites no duplicates
 unique(abun$feeding) #check unique guilds
 unique(abun$target) #check target classifications
+unique(abun$year)
 
 ###-----5. Make datasets----####
 
@@ -445,7 +446,7 @@ for (f in feeding){
     ggplot(aes(x=year,y=meancount)) + #select variable to plot
     geom_errorbar(position =jitter,aes(ymin=meancount-se,ymax=meancount+se),width=NA, colour="light grey")+
     geom_point(position=jitter,aes(colour=site),size=3, show.legend=TRUE)+ #add points, set colour +size, jitter them, legend off
-    labs(y = "Mean abundance (1500m2)", x="Year")+
+    labs(y = "Mean biomass (g/1500m2)", x="Year")+
     scale_color_manual(values=mycolors)+
     ggtitle(paste(f))
 
@@ -651,18 +652,30 @@ plot(biomassTetraodontidae)
 plot(biomassZanclidae)
 
 textplot("Feeding Abundance", halign="center", fixed.width=FALSE, cex=1)
-plot(`abunbenthic invertivore`)
-plot(`abunBrowsing herbivore`)
-plot(`abunhigher carnivore`)
-plot(abunplanktivore)
-plot(`abunscraping herbivore`)
+plot(`abunLarge cropper`)
+plot(abunCorallivore)
+plot(`abunMobile invertivore`)
+plot(abunDetritivore)
+plot(`abunOmnivore`)
+plot(abunPiscivore)
+plot(`abunSmall omnivore`)
+plot(`abunSmall invertivore`)
+plot(`abunSesssile invertebrates`)
+plot(`abunSmall Cropper`)
+plot(`abunScraper/excavator`)
 
 textplot("Feeding Biomass", halign="center", fixed.width=FALSE,cex=1)
-plot(`biomassbenthic invertivore`)
-plot(`biomassBrowsing herbivore`)
-plot(`biomasshigher carnivore`)
-plot(biomassplanktivore)
-plot(`biomassscraping herbivore`)
+plot(`biomassLarge cropper`)
+plot(biomassCorallivore)
+plot(`biomassMobile invertivore`)
+plot(biomassDetritivore)
+plot(`biomassOmnivore`)
+plot(biomassPiscivore)
+plot(`biomassSmall omnivore`)
+plot(`biomassSmall invertivore`)
+plot(`biomassSesssile invertebrates`)
+plot(`biomassSmall Cropper`)
+plot(`biomassScraper/excavator`)
 
 textplot("Target species abundance", halign="center", fixed.width=FALSE,cex=1)
 plot(`targetabundanceCarangidae Carangoides fulvoguttatus`)
