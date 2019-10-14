@@ -270,6 +270,7 @@ master<-gs_title("Australia.life.history")%>%
   distinct()%>%
   glimpse()
 
+
 ####----  3.2 Update names of species that may have changed, using synonyms list----####
 # PLEASE EMAIL brooke.gibbons@uwa.edu.au if you would like this googlesheet to be shared with you
 synonyms <- gs_title("Synonyms_Australia")%>%
@@ -340,17 +341,17 @@ write.csv(wrong.length.taxa,file=paste(study,"check.wrong.length.taxa.vs.life.hi
 
 
 ####----  3.6 Drop wrong lengths----####
-drop.length<-wrong.length.taxa%>% # TO REMOVE LENGTHS OUTSIDE THE MIN/MAX OF MASTER LIST
-  distinct(family,genus,species,length)%>%
-  dplyr::select(family,genus,species,length)%>%
-  dplyr::mutate(key = paste(family,genus,species,length, sep = '_'))
+#drop.length<-wrong.length.taxa%>% # TO REMOVE LENGTHS OUTSIDE THE MIN/MAX OF MASTER LIST
+#  distinct(family,genus,species,length)%>%
+#  dplyr::select(family,genus,species,length)%>%
+#  dplyr::mutate(key = paste(family,genus,species,length, sep = '_'))
 
 # Do not run this if you would like to keep those in wrong.length.taxa
-length<-length%>%
-  dplyr::mutate(key = paste(family,genus,species,length, sep = '_'))%>%
-  anti_join(drop.length,by="key")%>% # for dropping wrong.lengths
-  dplyr::select(-c(key))%>%
-  glimpse()
+#length<-length%>%
+#  dplyr::mutate(key = paste(family,genus,species,length, sep = '_'))%>%
+#  anti_join(drop.length,by="key")%>% # for dropping wrong.lengths
+#  dplyr::select(-c(key))%>%
+#  glimpse()
 
 ####----  3.7 Check how many sumcount per species are missing from Stereosumcount, e.g. how many lengths are missing from the possible sumcount----####
 # can only look at samples where lengths were possible
@@ -572,7 +573,6 @@ complete.length.number.mass<-complete.length.number.mass%>%
 complete.length.number<-complete.length.number%>%
   mutate(scientific=paste(family,genus,species, sep=" "))
 
-unique(complete.sumcount$sample)
 
 ####----  5.2 Make sure all datasets contain a 'opcode column and add transect back in'----####
 head(complete.sumcount) #no- correct here
