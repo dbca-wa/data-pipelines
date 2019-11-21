@@ -22,6 +22,7 @@ library(stringr)
 library(RColorBrewer)
 library(gplots)
 library(tidyr)
+library(ggpubr)
 
 #Set the working directory (must use forward slash / )
 work.dir=("T:/529-CALMscience/Shared Data/Marine Science Program/MONITORING/Pluto Offset 4 Monitoring/Assets/Fish")
@@ -85,6 +86,17 @@ dplyr::summarise(sumcount=sum(sumcount))%>%
   group_by(year)%>%
 dplyr::summarise(meancount=mean(sumcount),
                  se = st.err(sumcount))
+
+###Total abundance for sites sampled in all years###
+#Mean sum total abundance MP level
+mptotalabun2<-abun%>%
+  filter(site==c("Dockrell", "Hammersley Shoal", "Legendre Gen", "NE Regnard", "Sailfish"))%>%
+  group_by(year,site,transect)%>%
+  dplyr::summarise(sumcount=sum(sumcount))%>%
+  group_by(year)%>%
+  dplyr::summarise(meancount=mean(sumcount),
+                   se = st.err(sumcount))
+
 
 #Mean sum total abundance site level
 sitetotalabun<-abun%>%
@@ -560,6 +572,83 @@ for (f in targetspecies){
   assign(pltName,targetbiom)
 
 }
+
+###-----7.6 Report plots----####
+
+#Total abundance and biomass
+totalabunrep <- ggplot(data =mptotalabun,aes(x=year, y=meancount))+
+  geom_errorbar(aes(ymin=meancount-se,ymax=meancount+se), width=0.1, colour="light grey")+
+  geom_point(size=4,shape="cross",colour="black",show.legend=FALSE)+ #change this line if you use the alternate dataset in notes above (i.e. stat/not stat)
+  labs(y = expression ("Mean abundance (1500"~m^2~")"),x="Year")+
+  expand_limits(y=0)
+totalabunrep
+
+
+totalbiomrep <- ggplot(data =mptotalbiom ,aes(x=year, y=meancount))+
+  geom_errorbar(aes(ymin=meancount-se,ymax=meancount+se), width=0.1, colour="light grey")+
+  geom_point(size=4,shape="cross",colour="black",show.legend=FALSE)+ #change this line if you use the alternate dataset in notes above (i.e. stat/not stat)
+  labs(y = expression ("Mean biomass (g/1500"~m^2~")"),x="Year")+
+  expand_limits(y=0)
+totalbiomrep
+
+totalplots<-ggarrange(totalabunrep,totalbiomrep,nrow=1,ncol=2)
+
+#Target abundance and biomass
+totaltarget <- ggplot(data =mptotaltargetabun ,aes(x=year, y=meancount))+
+  geom_errorbar(aes(ymin=meancount-se,ymax=meancount+se), width=0.1, colour="light grey")+
+  geom_point(size=4,shape="cross",colour="black",show.legend=FALSE)+ #change this line if you use the alternate dataset in notes above (i.e. stat/not stat)
+  labs(y = expression ("Mean abundance (1500"~m^2~")"),x="Year")+
+  expand_limits(y=0)
+totaltarget
+
+totaltargetbiom <- ggplot(data =mptotaltargetbiom ,aes(x=year, y=meancount))+
+  geom_errorbar(aes(ymin=meancount-se,ymax=meancount+se), width=0.1, colour="light grey")+
+  geom_point(size=4,shape="cross",colour="black",show.legend=FALSE)+ #change this line if you use the alternate dataset in notes above (i.e. stat/not stat)
+  labs(y = expression ("Mean biomass (g/1500"~m^2~")"),x="Year")+
+  expand_limits(y=0)
+totaltargetbiom
+
+#make into one plot
+targetplots<-ggarrange(totaltarget,totaltargetbiom,nrow=1,ncol=2)
+
+#Species Richness plot
+richnessplot <- ggplot(data=mpsr, aes(x=year, y=richness)) +
+      geom_point(size=4,shape="cross",colour="black",show.legend=FALSE)+
+  labs(y = expression ("Total species richness"),x="Year")+
+  expand_limits(y=0)
+richnessplot
+
+
+#Trophic plots
+feeding<-unique(mptotalfeedabun$feeding.guild)
+feeding
+
+for (f in feeding){
+
+  feedingbiom<-mptotalfeedbiom%>% ##SET TO BIOMASS NOW
+    filter(feeding.guild==paste(f))%>%
+    ggplot(aes(x=year,y=meancount)) + #select variable to plot
+    geom_errorbar(aes(ymin=meancount-se,ymax=meancount+se),width=NA, colour="light grey")+
+    geom_point(aes(x = year, y = meancount), size=4,shape="cross",colour="black",show.legend=FALSE)+
+    labs(y = expression ("Mean biomass (g/1500"~m^2~")"),x="Year")+
+    expand_limits(y=0)+
+    ggtitle(paste(f))
+
+  print(feedingbiom)
+
+  pltName<-paste("repabunfeed", f, sep= "")
+  assign(pltName,feedingbiom)
+}
+
+
+gfeedingabunplots1<-ggarrange(repabunfeedCorallivore,repabunfeedDetritivore,repabunfeedInvertivore,
+                            `repabunfeedLarge cropper`, `repabunfeedMobile Invertivore`, repabunfeedOmnivore,
+                            repabunfeedPiscivore, repabunfeedPlanktivore, `repabunfeedScraper/excavator`,
+                             nrow=3,ncol=3)
+
+gfeedingabunplots2<-ggarrange(`repabunfeedSessile Invertebrates`, `repabunfeedSmall Cropper`, `repabunfeedSmall Invertivore`,
+                              `repabunfeedSmall Omnivore`, repabunfeedZooplanktivore,
+                              nrow=2,ncol=3)
 
 ###-----8. Lets make this shit into a PDF ----####
 setwd(pdf.out) #put the outputs into the 'Monitoring Summaries' folder (Note: you need to make this folder within your WD first)

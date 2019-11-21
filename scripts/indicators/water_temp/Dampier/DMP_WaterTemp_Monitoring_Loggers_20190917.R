@@ -63,7 +63,7 @@ setwd(data)
 dir()
 write.csv(dat,file=paste("DMP_WaterTemperature_Master_AllSites",st,".csv"))
 
-####2.1 OPTIONAL: Push updated benthic coral mastersheet onto CKAN (DBCA data catalogue)####
+####2.1 OPTIONAL: Push updated mastersheet onto CKAN (DBCA data catalogue)####
 #setwd("~/projects/data-pipelines/scripts/indicators/coral/Dampier_allmetrics/temp") #this is a temporary file to write a copy of the data to before it gets pushed to CKAN
 #source("~/projects/data-pipelines/setup/ckan.R")
 #csv_rid <- "9bc98943-5080-491f-929e-34736c7d0e42"

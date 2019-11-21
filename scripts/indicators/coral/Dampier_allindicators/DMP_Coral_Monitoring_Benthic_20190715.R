@@ -26,8 +26,6 @@ library(devtools)
 filter = dplyr::filter #make sure R uses the DPLYR version of filter
 summarise = dplyr::summarise
 mutate = dplyr::mutate
-#I'm also playing with the new tools in tidyverse for reshaping data which aren't formally in the package yet
-devtools::install_github("tidyverse/tidyr") #select 3 in first option menu
 library(tidyr)
 
 
@@ -76,11 +74,11 @@ write_delim(dat, path = "data.csv", delim = ",")
 r <- ckanr::resource_update(csv_rid, "data.csv")
 
 ####2.2 OPTIONAL: Pull benthic coral mastersheet off CKAN (DBCA data catalogue)####
-#source("~/projects/data-pipelines/setup/ckan.R")
-#csv_rid <- "57b442ff-46fe-4a20-ab26-5d3f7179f1a8"
-#d <- load_ckan_csv(csv_rid)
-#dplyr::glimpse(d)
-
+source("~/projects/data-pipelines/setup/ckan.R")
+csv_rid <- "57b442ff-46fe-4a20-ab26-5d3f7179f1a8"
+d <- load_ckan_csv(csv_rid)
+dplyr::glimpse(d)
+dat<-d
 
 ####----3. Data checking----####
 #Drop columns we wont use
@@ -169,8 +167,6 @@ meansitedat<- dat%>% #per transect
   )
 
 ####----4. Make data into family level% cover-----####
-#This code calculates the % of each family WITHIN hard coral (i.e. will total 100%)
-#If you want the % of each family from the whole bentos you need to remove the "filter(Level2Class=="Hard coral")%>%" line
 
 
 #first make a loop of the coral family names
@@ -187,7 +183,7 @@ for (f in fams) {
 
   ##Make the data for each transect
   x<- dat%>% #per transect
-    filter(Level2Class=="Hard coral")%>% #pull out only rows that are observations of hard coral
+   # filter(Level2Class=="Hard coral")%>% #pull out only rows that are observations of hard coral
     group_by(Year,Site,Replicate)%>% #this is your data resolution i.e. to replicate level
     summarise(
       count=n(),                    #count the number of rows in each replicate (remebering that this is only rows containing coral)
@@ -227,6 +223,15 @@ for (f in fams) {
   mpfamdat<-rbind(mpfamdat,z) #bind the data for this family to the whole dataset
 
 }
+
+mpdat<-tranfamdat%>%
+  filter(Site!="Nelson Rocks")%>%    #Anything you don't want included in the site level mean needs to be removed here
+  filter(Year!="2016")%>%
+  group_by(Year,family)%>%
+  dplyr::summarise(
+    meancover=mean(percent),
+    se=st.err(percent)
+  )
 
 ####----4. Make data into genera level% cover-----####
 #This code calculates the % of each genera WITHIN hard coral (i.e. will total 100%)
@@ -742,4 +747,26 @@ plot(stackSailfish)
   textplot(capture.output(anoSailfish), cex=0.6)
 
 dev.off()
+
+###-----7. Report Plots ----####
+dodge<-position_dodge(0)
+
+#Total abundance and biomass
+cover <- ggplot(data =meansitedat,aes(x=Year, y=meancover))+
+  geom_errorbar(aes(ymin=meancover-se,ymax=meancover+se), width=0.1, colour="light grey")+
+  geom_point(size=4,shape="square",colour="black",show.legend=FALSE)+ #change this line if you use the alternate dataset in notes above (i.e. stat/not stat)
+  labs(y = expression ("Mean percent live coral cover (+/- SE)"),x="Year")+
+  expand_limits(y=0)
+cover
+
+#family plots
+family <- mpdat%>%
+  dplyr::filter(family %in% c("Poritidae","Acroporidae", "Faviidae"))%>%
+  ggplot(aes(x=Year, y=meancover))+
+  facet_wrap(vars(family), nrow=3, ncol=1)+
+  geom_errorbar(aes(ymin=meancover-se,ymax=meancover+se), width=0.1, colour="light grey", position=dodge)+
+  geom_point(size=2,shape="square",colour="black",show.legend=FALSE, position=dodge)+
+  labs(y = expression ("Mean percent live coral cover (+/- SE)"),x="Year")+
+  expand_limits(y=0)
+family
 
