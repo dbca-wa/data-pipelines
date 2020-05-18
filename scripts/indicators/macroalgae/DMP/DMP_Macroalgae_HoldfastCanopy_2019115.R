@@ -8,6 +8,7 @@ library("dplyr")
 library("purrr")
 library("ggplot2")
 library("RColorBrewer")
+library("gplots")
 
 #And make a function to calc standard error
 st.err <- function(x) {
@@ -15,7 +16,7 @@ st.err <- function(x) {
 }
 
 #set working drive
-work.dir=("T:/529-CALMscience/Shared Data/Marine Science Program/MONITORING/Pluto Offset 4 Monitoring/Assets/Macroalgae")
+work.dir=("C:/Users/mollymoustaka/OneDrive - Department of Biodiversity, Conservation and Attractions/Desktop/T Drive/Pluto Offset 4 Monitoring_20200325/Assets/Macroalgae")
 pdf.out=paste(work.dir,"Monitoring Summaries",sep="/") #spit out monitoring summary pdfs to here
 data=paste(work.dir,"Data",sep="/") #Spit out an updated concatenated mastersheet her
 
@@ -48,6 +49,8 @@ unique(dat$Site)
 table(dat$Site,dat$Year)
 
 ###-----3. Data summarising----####
+dat$X..Sargassum.holdfasts<-dat$X..Sargassum.holdfasts*4 #make it per m2
+
 ## Number holdfasts
 statmeanhold<-dat%>%
   group_by(Year,Site, Transect)%>%
@@ -63,44 +66,44 @@ plotmeanhold<-dat%>%
 mphold<-dat%>%
   group_by(Year,Site, Transect)%>%
   dplyr::summarise(meanhf=mean(X..Sargassum.holdfasts))%>%
-  group_by(Year,)%>%
+  group_by(Year)%>%
   dplyr::summarise(meanhold=mean(meanhf),
                    se=st.err(meanhf))
 
 ##Slack canopy height
 statmeanheight<-dat%>%
   group_by(Year,Site, Transect)%>%
-  dplyr::summarise(meanslack=sum(Slack.canopy.height..cm.))
+  dplyr::summarise(meanslack=mean(Slack.canopy.height..cm.))
 
 plotmeanheight<-dat%>%
   group_by(Year,Site, Transect)%>%
-  dplyr::summarise(meanslack=sum(Slack.canopy.height..cm.)) %>%
+  dplyr::summarise(meanslack=mean(Slack.canopy.height..cm.)) %>%
   group_by(Year,Site)%>%
-  dplyr::summarise(meantranslack=mean(meanslack),
+  dplyr::summarise(meantransmax=mean(meanslack),
                    se=st.err(meanslack))
 
 mpmeanheight<-dat%>%
   group_by(Year,Site, Transect)%>%
-  dplyr::summarise(meanslack=sum(Slack.canopy.height..cm.)) %>%
+  dplyr::summarise(meanslack=mean(Slack.canopy.height..cm.)) %>%
   group_by(Year)%>%
-  dplyr::summarise(meantranslack=mean(meanslack),
+  dplyr::summarise(meantransmax=mean(meanslack),
                    se=st.err(meanslack))
 
 ##Max canopy height
 statmaxheight<-dat%>%
   group_by(Year,Site, Transect)%>%
-  dplyr::summarise(meanmax=sum(Max.canopy.height..cm.))
+  dplyr::summarise(meanmax=mean(Max.canopy.height..cm.))
 
 plotmaxheight<-dat%>%
   group_by(Year,Site, Transect)%>%
-  dplyr::summarise(meanmax=sum(Max.canopy.height..cm.)) %>%
+  dplyr::summarise(meanmax=mean(Max.canopy.height..cm.)) %>%
   group_by(Year,Site)%>%
   dplyr::summarise(meantransmax=mean(meanmax),
                    se=st.err(meanmax))
 
 mpmaxheight<-dat%>%
   group_by(Year,Site, Transect)%>%
-  dplyr::summarise(meanmax=sum(Max.canopy.height..cm.)) %>%
+  dplyr::summarise(meanmax=mean(Max.canopy.height..cm.)) %>%
   group_by(Year)%>%
   dplyr::summarise(meantransmax=mean(meanmax),
                    se=st.err(meanmax))
@@ -179,3 +182,54 @@ max <- max+  #this line adds a archipelago-wide point to the plot as a cross
   geom_point(data = mpmaxheight, aes(x = Year, y = meantransmax), #change this line if you use the alternate dataset in notes above (i.e. stat/not stat)
              size=4,shape="cross",colour="black",show.legend=FALSE)
 max
+
+###-----5. Lets make this shit into a PDF ----####
+setwd(pdf.out) #put the outputs into the 'Monitoring Summaries' folder (Note: you need to make this folder within your WD first)
+
+st=format(Sys.time(), "%Y-%m-%d") #make an object with todays date
+pdf(paste("DMP_MacroalgaeCanopy_MonitoringSummary",st, ".pdf", sep = ""), height = 8, width = 10) #Change this name to suit you
+
+textplot("Macroalgae canopy monitoring summary for
+         the Dampier Archipelago", halign="center", fixed.width=FALSE)            #set your title page as you please
+#add a sequence of plots and text plots, each will print on a new page of the pdf
+
+plot(total)
+textplot(capture.output(sum1), cex=0.6)
+plot(slack)
+textplot(capture.output(sum2), cex=0.6)
+plot(max)
+textplot(sum3)
+textplot(capture.output(sum3), cex=0.6)
+
+dev.off()
+
+
+###-----6. Report Plots ----####
+dodge<-position_dodge(0)
+
+#Total abundance and biomass
+totalplot <- ggplot(data =mphold,aes(x=Year, y=meanhold))+
+  geom_errorbar(aes(ymin=meanhold-se,ymax=meanhold+se), width=0.1, colour="light grey")+
+  geom_point(size=3,shape="square",colour="black",show.legend=FALSE)+ #change this line if you use the alternate dataset in notes above (i.e. stat/not stat)
+  labs(y = bquote('Mean holdfast density'~(m^2)), x="Year")+
+  expand_limits(y=0)
+totalplot
+
+slackplot <- ggplot(data =mpmeanheight,aes(x=Year, y=meantranslack))+
+  geom_errorbar(aes(ymin=meantranslack-se,ymax=meantranslack+se), width=0.1, colour="light grey")+
+  geom_point(size=3,shape="square",colour="black",show.legend=FALSE)+ #change this line if you use the alternate dataset in notes above (i.e. stat/not stat)
+  labs(y = bquote('Mean slack canopy height (cm)'), x="Year")+
+  expand_limits(y=0)
+slackplot
+
+maxplot <- ggplot(data =mpmaxheight,aes(x=Year, y=meantransmax))+
+  geom_errorbar(aes(ymin=meantransmax-se,ymax=meantransmax+se), width=0.1, colour="light grey")+
+  geom_point(size=3,shape="square",colour="black",show.legend=FALSE)+ #change this line if you use the alternate dataset in notes above (i.e. stat/not stat)
+  labs(y = bquote('Canopy height (cm)'), x="Year")+
+  expand_limits(y=0)
+maxplot
+
+heightplot<-maxplot +
+  geom_errorbar(data = mpmeanheight,aes(ymin=meantransmax-se,ymax=meantransmax+se), width=0.1, colour="light grey")+
+  geom_point(data = mpmeanheight,size=3,shape="circle",colour="black",show.legend=FALSE)
+heightplot

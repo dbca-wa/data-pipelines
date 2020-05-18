@@ -74,6 +74,7 @@ unique(abun$feeding) #check unique guilds
 unique(abun$target) #check target classifications
 unique(abun$year)
 
+
 ###-----5. Make datasets----####
 
 ###-----5.1 Abundance data----####
@@ -83,20 +84,29 @@ unique(abun$year)
 mptotalabun<-abun%>%
   group_by(year,site,transect)%>%
 dplyr::summarise(sumcount=sum(sumcount))%>%
-  group_by(year)%>%
-dplyr::summarise(meancount=mean(sumcount),
-                 se = st.err(sumcount))
+group_by(year,site)%>%
+  dplyr::summarise(averagecount=mean(sumcount))%>%
+group_by(year)%>%
+dplyr::summarise(meancount=mean(averagecount),
+                 se = st.err(averagecount))
 
 ###Total abundance for sites sampled in all years###
 #Mean sum total abundance MP level
 mptotalabun2<-abun%>%
-  filter(site==c("Dockrell", "Hammersley Shoal", "Legendre Gen", "NE Regnard", "Sailfish"))%>%
+  filter(site==c("Hammersley Shoal", "Legendre Gen", "NE Regnard", "Sailfish"))%>%
   group_by(year,site,transect)%>%
   dplyr::summarise(sumcount=sum(sumcount))%>%
+  group_by(year,site)%>%
+  dplyr::summarise(averagecount=mean(sumcount),
+                   se=st.err(sumcount))%>%
   group_by(year)%>%
-  dplyr::summarise(meancount=mean(sumcount),
-                   se = st.err(sumcount))
+  dplyr::summarise(meancount=mean(averagecount),
+                   se = st.err(averagecount))
 
+plot<-mptotalabun2%>%
+  ggplot(aes(x=year, y=averagecount))+
+  geom_point(aes(colour=site))
+plot
 
 #Mean sum total abundance site level
 sitetotalabun<-abun%>%
@@ -156,11 +166,15 @@ examplespecies<-abun%>% #name your dataset and feed in the raw abundance data
 ###Total biomass###
 #Mean sum total biomdance MP level
 mptotalbiom<-biom%>%
+  filter(site==c( "Hammersley Shoal", "Legendre Gen", "NE Regnard", "Sailfish"))%>%
   group_by(year,site,transect)%>%
   dplyr::summarise(mass.g=sum(mass.g, na.rm=T))%>%  ##Note the use of na.rm =T. This removes any rows where biomass could not be calculated rather than treating them as a '0'
+  group_by(year,site)%>%
+  dplyr::summarise(mass.g2=mean(mass.g))%>%
   group_by(year)%>%
-  dplyr::summarise(meancount=mean(mass.g),
-                   se = st.err(mass.g))
+  dplyr::summarise(meancount=mean(mass.g2),
+                   se = st.err(mass.g2))
+
 
 #Mean sum total biomass site level
 sitetotalbiom<-biom%>%
@@ -576,9 +590,9 @@ for (f in targetspecies){
 ###-----7.6 Report plots----####
 
 #Total abundance and biomass
-totalabunrep <- ggplot(data =mptotalabun,aes(x=year, y=meancount))+
+totalabunrep <- ggplot(data =mptotalabun2,aes(x=year, y=meancount))+
   geom_errorbar(aes(ymin=meancount-se,ymax=meancount+se), width=0.1, colour="light grey")+
-  geom_point(size=4,shape="cross",colour="black",show.legend=FALSE)+ #change this line if you use the alternate dataset in notes above (i.e. stat/not stat)
+  geom_point(size=3, shape="square",colour="black",show.legend=FALSE)+ #change this line if you use the alternate dataset in notes above (i.e. stat/not stat)
   labs(y = expression ("Mean abundance (1500"~m^2~")"),x="Year")+
   expand_limits(y=0)
 totalabunrep
@@ -586,7 +600,7 @@ totalabunrep
 
 totalbiomrep <- ggplot(data =mptotalbiom ,aes(x=year, y=meancount))+
   geom_errorbar(aes(ymin=meancount-se,ymax=meancount+se), width=0.1, colour="light grey")+
-  geom_point(size=4,shape="cross",colour="black",show.legend=FALSE)+ #change this line if you use the alternate dataset in notes above (i.e. stat/not stat)
+  geom_point(size=3,shape="square",colour="black",show.legend=FALSE)+ #change this line if you use the alternate dataset in notes above (i.e. stat/not stat)
   labs(y = expression ("Mean biomass (g/1500"~m^2~")"),x="Year")+
   expand_limits(y=0)
 totalbiomrep

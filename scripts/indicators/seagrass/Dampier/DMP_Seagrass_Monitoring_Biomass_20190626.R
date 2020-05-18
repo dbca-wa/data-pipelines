@@ -102,12 +102,13 @@ st.err <- function(x) {
   sd(x)/sqrt(length(x))
 }
 
-#Now we reshape the data and add our summary variables & get rid of unused columns - more compact way than above
+#Now we reshape the data and add our summary variables & get rid of unused columns
+
 dat3<- dat%>%
   filter(Replicate!="")%>%  #Remove rows from the data where there is no replicate number - i.e. we couldn't take a core (NOT that the core was empty of seagrass)
-  pivot_wider(              #The next few lines make the data in to wide format.NOTE this uses the devTools version of TidyR not on CRAN yet. See install above
+  tidyr::pivot_wider(              #The next few lines make the data in to wide format.NOTE this uses the devTools version of TidyR not on CRAN yet. See install above
     names_from=Species,     #split column 'Species'
-    values_from= c(Total,Above,Below, ABR), #A seperate one of these columns for every species
+    values_from= c(Total, Above, Below, ABR), #A seperate one of these columns for every species
     values_fill=list(Total=0,Above=0, Below=0, ABR=0))%>%  #make NA = 0
   group_by(Year,SiteName,Replicate)%>% #these next lines merge the replicates into one row (if you look at the data with and without running them it makes sense)
   summarise_if(is.numeric ,sum) %>%
@@ -115,10 +116,12 @@ dat3<- dat%>%
   group_by(Year,SiteName)%>%
   summarise_if(is.numeric,funs(mean,st.err)) #gives us the mean and SD for each variable
 
+
 ###-----Get sum and mean biomass for the whole marine park and standard error----####
 dat4<- dat %>%
   filter(Replicate!="")%>% #remove rows where a sample wasn't taken
-  group_by(Year) %>%
+  filter(SiteName!="Keast")%>%
+  group_by(Year, SiteName) %>%
   summarise(
     meanTotal=mean(Total),
     meanAbove=mean(Above),
@@ -132,6 +135,38 @@ dat4<- dat %>%
     seAbove=st.err(Above),
     seBelow=st.err(Below),
     seABR=st.err(ABR))
+
+#Alt method
+meanNK<- dat %>%
+  filter(Replicate!="")%>% #remove rows where a sample wasn't taken
+  filter(SiteName!="Keast")%>%
+  group_by(Year, SiteName) %>%
+  summarise(
+    meanTotal=mean(Total),
+    meanABR=mean(ABR),
+    seTotal=st.err(Total), #this calcs standard error
+    seABR=st.err(ABR))%>%
+  group_by(Year)%>%
+  summarise(MmeanTotal=mean(meanTotal),
+            MmeanABR=mean(meanABR),
+            MseTotal=st.err(meanTotal), #this calcs standard error
+            MseABR=st.err(meanABR))
+
+#Alt method
+meanK<- dat %>%
+  filter(Replicate!="")%>% #remove rows where a sample wasn't taken
+  filter(SiteName=="Keast")%>%
+  group_by(Year, SiteName) %>%
+  summarise(
+    meanTotal=mean(Total),
+    meanABR=mean(ABR),
+    seTotal=st.err(Total), #this calcs standard error
+    seABR=st.err(ABR))%>%
+  group_by(Year)%>%
+  summarise(MmeanTotal=mean(meanTotal),
+            MmeanABR=mean(meanABR),
+            MseTotal=st.err(meanTotal), #this calcs standard error
+            MseABR=st.err(meanABR))
 
 ###-----Time for some data analysis----####
 #Cores and even transect are a very small sample to use as a replicate
@@ -454,4 +489,31 @@ plot(bmSWRegnard)
 plot(bmVictoriaRocks)
 plot(bmWhitnell)
 dev.off()
+
+jitter <- position_jitter(width = 0.00, height = 0.00) #this is so points don't overlap, increase values to spread out more
+
+###Report
+biomass <- ggplot(data =meanNK,aes(x=Year, y=MmeanTotal))+
+  geom_errorbar(aes(ymin=MmeanTotal-MseTotal,ymax=MmeanTotal+MseTotal), width=0.1, colour="light grey")+
+  geom_point(size=3,shape="square",colour="black",show.legend=FALSE)+ #change this line if you use the alternate dataset in notes above (i.e. stat/not stat)
+  labs(y = expression ("Mean biomass (g/core)"),x="Year")+
+  expand_limits(y=0)
+biomass<-biomass+
+  geom_errorbar(data=meanK,aes(ymin=MmeanTotal-MseTotal,ymax=MmeanTotal+MseTotal), width=0.1, colour="light grey", position=jitter)+
+  geom_point(data=meanK,size=3, shape = "circle", aes (Year, MmeanTotal), position = jitter)
+biomass
+
+abr <- ggplot(data =meanNK,aes(x=Year, y=MmeanABR))+
+  labs(y = expression ("Above:below ground biomass"),x="Year")+
+  geom_errorbar(aes(ymin=MmeanABR-MseABR,ymax=MmeanABR+MseABR), width=0.1, colour="light grey", position=jitter)+
+  geom_point(size=2, shape = "square", aes (Year, MmeanABR), position = jitter)+
+  expand_limits(y=0)
+abr<-abr+
+  geom_errorbar(data=meanK,aes(ymin=MmeanABR-MseABR,ymax=MmeanABR+MseABR), width=0.1, colour="light grey", position=jitter)+
+  geom_point(data=meanK,size=3, shape = "circle", aes (Year, MmeanABR), position = jitter)
+abr
+
+
+ggsave(biomass, device="png", units="cm", height = 15, filename = "biomass.png")
+
 

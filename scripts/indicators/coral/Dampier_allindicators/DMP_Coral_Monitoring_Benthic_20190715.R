@@ -126,7 +126,7 @@ sitedat<- dat%>% #per site (points pooled to site level)
   summarise(
     count=n(),
     coralcount=sum(Level2Class=="Hard coral"),
-    percent=(coralcount/count)*100
+    percent=(coralcount/count)*100,
   )
 
 #Lets do an alternative site level method where we take the mean of the transect so we have a standard error
@@ -155,7 +155,7 @@ mpdat<- dat%>% #for the whole dataset (i.e. marine park)
 meansitedat<- dat%>% #per transect
   filter(Site!="Nelson Rocks")%>%    #Anything you don't want included in the site level mean needs to be removed here
   filter(Year!="2016")%>%
-  group_by(Year,Site,Replicate)%>%
+  group_by(Year,Site)%>%
   summarise(
     count=n(),
     coralcount=sum(Level2Class=="Hard coral"),
@@ -197,7 +197,7 @@ for (f in fams) {
 
   ##Make the data for each Site
   y<- dat%>%
-    filter(Level2Class=="Hard coral")%>%
+  dplyr::filter(Year != "2019"|Site!="Malus"|Replicate!="Transect 3")%>%
     group_by(Year,Site)%>%
     summarise(
       count=n(),
@@ -224,7 +224,7 @@ for (f in fams) {
 
 }
 
-mpdat<-tranfamdat%>%
+mpdat<-sitefamdat%>%
   filter(Site!="Nelson Rocks")%>%    #Anything you don't want included in the site level mean needs to be removed here
   filter(Year!="2016")%>%
   group_by(Year,family)%>%
@@ -629,7 +629,7 @@ custtheme<-theme_grey()+
 theme_set(custtheme) # apply the theme
 
 #make a poisition jitter
-jitter <- position_jitter(width = 0.1, height = 0) #this is so points don't overlap, increase values to spread out more
+jitter <- position_jitter(width = 0.2, height = 0) #this is so points don't overlap, increase values to spread out more
 
 #create a colour palette
 nb.cols <- 16
@@ -754,8 +754,8 @@ dodge<-position_dodge(0)
 #Total abundance and biomass
 cover <- ggplot(data =meansitedat,aes(x=Year, y=meancover))+
   geom_errorbar(aes(ymin=meancover-se,ymax=meancover+se), width=0.1, colour="light grey")+
-  geom_point(size=4,shape="square",colour="black",show.legend=FALSE)+ #change this line if you use the alternate dataset in notes above (i.e. stat/not stat)
-  labs(y = expression ("Mean percent live coral cover (+/- SE)"),x="Year")+
+  geom_point(size=3,shape="square",colour="black",show.legend=FALSE)+ #change this line if you use the alternate dataset in notes above (i.e. stat/not stat)
+  labs(y = expression ("Mean live coral cover (%)"),x="Year")+
   expand_limits(y=0)
 cover
 
@@ -766,7 +766,42 @@ family <- mpdat%>%
   facet_wrap(vars(family), nrow=3, ncol=1)+
   geom_errorbar(aes(ymin=meancover-se,ymax=meancover+se), width=0.1, colour="light grey", position=dodge)+
   geom_point(size=2,shape="square",colour="black",show.legend=FALSE, position=dodge)+
-  labs(y = expression ("Mean percent live coral cover (+/- SE)"),x="Year")+
+  labs(y = expression ("Mean live coral cover (%)"),x="Year")+
   expand_limits(y=0)
 family
 
+
+head(test)
+test<-tranfamdat%>%
+  dplyr::filter(Year != "2019"|Site!="Malus"|Replicate!="Transect 3")%>%
+  group_by(Year,Site,family)%>%
+  dplyr::summarise(
+    mean=mean(percent),
+    se=st.err(percent)
+  )
+
+
+meansitedat<- dat%>% #per transect
+  filter(Site!="Nelson Rocks")%>%
+  filter(Year!="2016")%>%
+  dplyr::filter(Year != "2019"|Site!="Malus"|Replicate!="Transect 3")%>%
+  group_by(Year,Site)%>%
+  summarise(
+    count=n(),
+    coralcount=sum(Level2Class=="Hard coral"),
+    percent=(coralcount/count)*100) %>%
+  group_by(Year)%>%
+  summarise(
+    meancover=mean(percent),
+    se=st.err(percent)
+  )
+
+
+mpdat<-sitefamdat%>%
+  filter(Site!="Nelson Rocks")%>%
+  filter(Year!="2016")%>%
+  group_by(Year,family)%>%
+  dplyr::summarise(
+    meancover=mean(percent),
+    se=st.err(percent)
+  )

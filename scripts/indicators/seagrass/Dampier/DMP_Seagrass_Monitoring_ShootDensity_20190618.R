@@ -109,6 +109,7 @@ dat2<- dat %>%
 
 ###-----Get average values and standard error for site----####
 dat3<- dat %>%
+  dplyr::filter(SiteName!="Keast")%>%
   group_by(Year,SiteName) %>%
   summarise(
     #this section calculates the mean for each seagrass species + total
@@ -142,9 +143,46 @@ dat3<- dat %>%
 #    SECymodocea.angustata =(SDCymodocea.angustata)/(sqrt(Obs)) #hashed out because its not in this dataset
   )
 
+mean<-dat3%>%
+  group_by(Year)%>%
+  summarise(MMeanTotal=mean(MeanTotal),
+            se=st.err(MeanTotal))
+
+meankeast<-dat5%>%
+  group_by(Year)%>%
+  summarise(MMeanTotal=mean(MeanTotal),
+            se=st.err(MeanTotal))
+
+meanfam<-dat3%>%
+  group_by(Year)%>%
+  summarise( MMeanHalophila.ovalis = mean(MeanHalophila.ovalis),
+             MMeanHalophila.minor = mean(MeanHalophila.minor),
+             MMeanHalophila.decipiens = mean(MeanHalophila.decipiens),
+             MMeanHalodule.uninervis = mean(MeanHalodule.uninervis),
+             MMeanSyringodium.isoetifolium = mean(MeanSyringodium.isoetifolium),
+             SEHalophila.ovalis =st.err(MeanHalophila.ovalis),
+             SEHalophila.minor = st.err(MeanHalophila.minor),
+             SEHalophila.decipiens =st.err(MeanHalophila.decipiens),
+             SEHalodule.uninervis =st.err(MeanHalodule.uninervis),
+             SESyringodium.isoetifolium =st.err(MeanSyringodium.isoetifolium))
+
+meanfamkeast<-dat5%>%
+  group_by(Year)%>%
+  summarise( MMeanHalophila.ovalis = mean(MeanHalophila.ovalis),
+             MMeanHalophila.minor = mean(MeanHalophila.minor),
+             MMeanHalophila.decipiens = mean(MeanHalophila.decipiens),
+             MMeanHalodule.uninervis = mean(MeanHalodule.uninervis),
+             MMeanSyringodium.isoetifolium = mean(MeanSyringodium.isoetifolium),
+             SEHalophila.ovalis =st.err(MeanHalophila.ovalis),
+             SEHalophila.minor = st.err(MeanHalophila.minor),
+             SEHalophila.decipiens =st.err(MeanHalophila.decipiens),
+             SEHalodule.uninervis =st.err(MeanHalodule.uninervis),
+             SESyringodium.isoetifolium =st.err(MeanSyringodium.isoetifolium))
+
 
 ###-----Get average values and standard error for whole marine park----####
 dat4<- dat %>%
+  dplyr::filter(SiteName!="Keast")%>%
   group_by(Year) %>%
   summarise(
     #this section calculates the mean for each seagrass species + total
@@ -453,4 +491,38 @@ plot(SPVictoriaRocks)
 plot(SPWhitnell)
   textplot(capture.output(sumWhitnell), cex=0.6)
 dev.off()
+
+
+##Report plots
+cover <- ggplot(data =mean,aes(x=Year, y=MMeanTotal))+
+  geom_errorbar(aes(ymin=MMeanTotal-se,ymax=MMeanTotal+se), width=0.1, colour="light grey")+
+  geom_point(size=3,shape="square",colour="black",show.legend=FALSE)+ #change this line if you use the alternate dataset in notes above (i.e. stat/not stat)
+  labs(y = bquote('Mean shoot density'~(m^2)), x="Year")+
+  expand_limits(y=0)
+cover<- cover+
+  geom_errorbar(data=meankeast,aes(ymin=MMeanTotal-se,ymax=MMeanTotal+se),width=0.1, colour="light grey")+
+  geom_point(data = meankeast, aes(x = Year, y = MMeanTotal),
+             size=3,shape="circle",colour="black",show.legend=FALSE)
+cover
+
+#By species
+datfams<-read.csv("shootfams.csv")
+datfams$Species<-as.factor(datfams$Species)
+head(datfams)
+
+fams <- datfams%>%
+  ggplot(aes(x=Year, y=MeanTotal))+
+  facet_wrap(vars(Species), nrow=5, ncol=1, scales="free_y")+
+  geom_errorbar(aes(ymin=MeanTotal-SE,ymax=MeanTotal+SE), width=0.1, colour="light grey")+
+  geom_point(size=3,shape="square",colour="black",show.legend=FALSE)+
+  labs(y = bquote('Mean shoot density'~(m^2)), x="Year")+
+  scale_y_continuous(limits = c(-10, NA))+
+  geom_point(aes(x = Year, y = KeastMeanTotal),
+             size=3,shape="circle",colour="black",show.legend=FALSE)+
+geom_blank(aes(y = 0))
+fams
+
+ggsave("test.jpeg", device="jpeg", plot=fams, height =25, units="cm")
+
+
 

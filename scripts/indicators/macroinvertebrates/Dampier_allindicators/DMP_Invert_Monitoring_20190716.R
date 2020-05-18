@@ -80,7 +80,7 @@ unique(dat$Species)
 
 #COTS
 COTcount<-dat%>%
-  filter(Species=="A.planci..CoTS.")%>%
+  filter(Group=="A.planci..CoTS.")%>%
   group_by(Year,Site)%>%
   summarise(
     cotcount=sum(Count)
@@ -206,10 +206,6 @@ plot(drup)
 plot(lob)
 
 dev.off()
-
-
-
-
 
 
 

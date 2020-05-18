@@ -19,7 +19,7 @@ st.err <- function(x) {
 }
 
 #set working drive
-work.dir=("T:/529-CALMscience/Shared Data/Marine Science Program/MONITORING/Pluto Offset 4 Monitoring/Assets/Macroalgae")
+work.dir=("C:/Users/mollymoustaka/OneDrive - Department of Biodiversity, Conservation and Attractions/Desktop/T Drive/Pluto Offset 4 Monitoring_20200325/Assets/Macroalgae")
 pdf.out=paste(work.dir,"Monitoring Summaries",sep="/") #spit out monitoring summary pdfs to here
 data=paste(work.dir,"Data",sep="/") #Spit out an updated concatenated mastersheet her
 
@@ -80,7 +80,7 @@ taxacover<-datlongclass%>%
 
 #Cover by broad class e.g. substrate, algae, coral etc.
 cat1cover<-datlongclass%>%
-  dplyr::group_by(Year,Site,Transect,Sub.Transect,Level.1)%>% 
+  dplyr::group_by(Year,Site,Transect,Sub.Transect,Level.1)%>%
   dplyr::summarise(sum=sum(Area))%>%
   dplyr::group_by(Year,Site, Level.1)%>%
   dplyr::summarise(meanarea=mean(sum),
@@ -93,18 +93,21 @@ algaecover<-datlongclass%>%
   dplyr::summarise(meanarea=mean(Area),
                    se=st.err(Area))
 
-#Algae cover by colour
-algaecolcover<-datlongclass%>%
+#Algae only cover by taxa
+mpalgaecover<-datlongclass%>%
   dplyr::filter(Level.1=="Macroalgae")%>%
-  dplyr::group_by(Year,Site,Level.2)%>%
+  dplyr::group_by(Year,Taxa)%>%
   dplyr::summarise(meanarea=mean(Area),
                    se=st.err(Area))
 
-mpcolcover<-datlongclass%>%
+#Algae cover by colour
+algaecolcover<-datlongclass%>%
   dplyr::filter(Level.1=="Macroalgae")%>%
+  dplyr::group_by(Year,Site, Transect,Sub.Transect, Level.2)%>%
+  dplyr::summarise(sumcolour=sum(Area))%>%
   dplyr::group_by(Year,Level.2)%>%
-  dplyr::summarise(meanarea=mean(Area),
-                   se=st.err(Area))
+  dplyr::summarise(meanarea=mean(sumcolour),
+                   se=st.err(sumcolour))
 
 #Canopy algae cover
 canopycover<-datlongclass%>%
@@ -132,7 +135,7 @@ custtheme<-theme_grey()+
 theme_set(custtheme) # apply the theme
 
 #make a poisition jitter
-jitter <- position_jitter(width = 0.1, height = 0) #this is so points don't overlap, increase values to spread out more
+jitter <- position_dodge(width = 0.4) #this is so points don't overlap, increase values to spread out more
 
 #create a colour palette - tell it how many colours you want
 nb.cols <- 8
@@ -175,4 +178,51 @@ cat1<-cat1covercor%>%
   labs(y = "Cover (cm)", x="Year")+
   scale_color_manual(values=mycolors)
 cat1
+
+
+###-----6. Report plots----####
+colourplot <- ggplot(data =algaecolcover,aes(x=Year, y=meanarea, shape=Level.2, group=Level.2))+
+  geom_errorbar(aes(ymin=meanarea-se,ymax=meanarea+se), width=0.2, size=0.5, colour="light grey",position=jitter)+
+  geom_point(position=jitter,size=3,colour="black",show.legend=FALSE)+
+  labs(y = bquote('Area per transect (cm)'), x="Year")+
+  expand_limits(y=0)
+colourplot
+
+unique(mpalgaecover$Taxa)
+keytaxa<-c("MA_Dictyopteris","MA_Padina", "MA_Lobophora", "MA_Laurencia")
+sarg<-"MA_Sargassum"
+
+test<-mpalgaecover %>%
+  filter(Taxa %in% keytaxa)
+test$Taxa<-substring(test$Taxa,4)
+
+
+taxaplot <- ggplot(data =test,aes(x=Year, y=meanarea))+
+  geom_errorbar(position=jitter,aes(ymin=meanarea-se,ymax=meanarea+se), width=0.1, colour="light grey")+
+  geom_point(position=jitter,size=2,shape="square",colour="black",show.legend=FALSE)+
+  labs(y = bquote('Area per transect (cm)'), x="Year")+
+  facet_wrap(vars(Taxa), nrow=3, ncol=2)+
+  expand_limits(y=0)
+taxaplot
+
+sargdat<-mpalgaecover %>%
+  filter(Taxa %in% sarg)
+sargdat$Taxa<-substring(sargdat$Taxa,4)
+
+sargplot<-ggplot(data =sargdat,aes(x=Year, y=meanarea))+
+  geom_errorbar(position=jitter,aes(ymin=meanarea-se,ymax=meanarea+se), width=0.1, colour="light grey")+
+  geom_point(position=jitter,size=2,shape="square",colour="black",show.legend=FALSE)+
+  labs(y = bquote('Area per transect (cm)'), x="Year")+
+  facet_wrap(vars(Taxa), nrow=3, ncol=2)+
+  expand_limits(y=0)
+sargplot
+
+
+#Calculate taxa % of data recorded
+test<-datlongclass%>%
+  dplyr::filter(Level.1=="Macroalgae")%>%
+  dplyr::group_by(Taxa)%>%
+  dplyr::summarise(sum1=sum(Area),
+                   percent=(sum1/31058)*100)
+sum(test$sum1)
 
